@@ -654,4 +654,50 @@ if(getGh().t)pullCloud(true);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&getGh().t)pullCloud(true)});
 </script>
 </body>
+<meta name="theme-color" content="#141824">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="پلنر من">
+<script>
+// ساخت خودکار آیکون 512x512 شیشه‌ای و مانیفست اپلیکیشن (بدون نیاز به آپلود عکس)
+(function(){
+  const c=document.createElement('canvas');c.width=c.height=512;
+  const x=c.getContext('2d');
+  // پس‌زمینه سرمه‌ای تیره شیشه‌ای
+  const g=x.createLinearGradient(0,0,512,512);
+  g.addColorStop(0,'#1e293b');g.addColorStop(1,'#0f172a');
+  x.fillStyle=g;x.beginPath();x.roundRect(0,0,512,512,115);x.fill();
+  // کادر شیشه‌ای داخلی
+  x.fillStyle='rgba(255,255,255,0.08)';x.strokeStyle='rgba(255,255,255,0.22)';x.lineWidth=6;
+  x.beginPath();x.roundRect(76,76,360,360,70);x.fill();x.stroke();
+  // نوارهای پلنر و تیک سبز
+  x.fillStyle='#f8fafc';x.beginPath();x.roundRect(130,150,160,28,14);x.fill();
+  x.fillStyle='#94a3b8';x.beginPath();x.roundRect(130,210,250,20,10);x.fill();
+  x.beginPath();x.roundRect(130,255,200,20,10);x.fill();
+  x.strokeStyle='#10b981';x.lineWidth=28;x.lineCap='round';x.lineJoin='round';
+  x.beginPath();x.moveTo(190,345);x.lineTo(235,385);x.lineTo(335,295);x.stroke();
+
+  const iconUrl=c.toDataURL('image/png');
+  const l1=document.createElement('link');l1.rel='icon';l1.href=iconUrl;document.head.appendChild(l1);
+  const l2=document.createElement('link');l2.rel='apple-touch-icon';l2.href=iconUrl;document.head.appendChild(l2);
+
+  const manifest={
+    name:'پلنر هفتگی و شخصی',
+    short_name:'پلنر من',
+    start_url:'./',
+    display:'standalone',
+    background_color:'#0b0f17',
+    theme_color:'#141824',
+    dir:'rtl',
+    lang:'fa',
+    icons:[{src:iconUrl,sizes:'512x512',type:'image/png',purpose:'any maskable'}]
+  };
+  const mBlob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+  const l3=document.createElement('link');l3.rel='manifest';l3.href=URL.createObjectURL(mBlob);document.head.appendChild(l3);
+
+  if('serviceWorker' in navigator){
+    window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+  }
+})();
+</script>
 </html>
