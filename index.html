@@ -1554,116 +1554,116 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
   if(tab==='ai')render();
 })();
 </script>
-<!-- ==================== تم گرم و زنده + اشکال گرافیکی مدرن + تنظیمات ساعتی ۸ تا ۱۸ ==================== -->
+<!-- ==================== تم شیشه‌ای آبی یاقوتی (Sapphire Glass) + اصلاح تقویم اقساط ==================== -->
 <style>
 :root{
-  --bg:#f8f1eb!important;
-  --sf:rgba(255,252,249,0.68)!important;
-  --sf2:rgba(255,245,238,0.55)!important;
-  --tx:#27171c!important;
-  --mu:#7c5862!important;
-  --bd:rgba(255,255,255,0.85)!important;
-  --bd2:rgba(225,29,72,0.1)!important;
-  --ac:#e11d48!important;
+  --bg:#e6eef8!important;
+  --sf:rgba(255,255,255,0.68)!important;
+  --sf2:rgba(240,247,255,0.58)!important;
+  --tx:#0f172a!important;
+  --mu:#475569!important;
+  --bd:rgba(255,255,255,0.88)!important;
+  --bd2:rgba(37,99,235,0.11)!important;
+  --ac:#2563eb!important;
   --act:#ffffff!important;
-  --ac2:rgba(249,115,22,0.11)!important;
-  --ok:#059669!important;
-  --wn:#ea580c!important;
-  --er:#dc2626!important;
-  /* رنگ‌های گرم و زنده برای تایم‌بلاکینگ */
-  --cw:rgba(249,115,22,0.18)!important; /* کار: نارنجی کهربایی گرم */
-  --cr:rgba(244,63,94,0.11)!important;  /* استراحت: رز و هلویی ملایم */
-  --cs:rgba(139,92,246,0.16)!important; /* مطالعه: بنفش زنده */
-  --cp:rgba(16,185,129,0.16)!important; /* ورزش: سبز زمردی */
-  --cl:rgba(234,179,8,0.18)!important;  /* شخصی: طلایی گرم */
-  --sh:0 20px 45px -15px rgba(225,29,72,0.12),0 4px 12px rgba(249,115,22,0.06),inset 0 1px 1px rgba(255,255,255,0.95)!important;
+  --ac2:rgba(37,99,235,0.09)!important;
+  --ok:#0d9488!important;
+  --wn:#d97706!important;
+  --er:#6366f1!important;
+  /* رنگ‌های هماهنگ و چشم‌نواز تایم‌بلاکینگ با ته‌رنگ آبی */
+  --cw:rgba(37,99,235,0.13)!important;  /* کار (۸ تا ۱۸): آبی یاقوتی ملایم */
+  --cr:rgba(14,165,233,0.08)!important; /* استراحت: آبی یخی بسیار لطیف */
+  --cs:rgba(99,102,241,0.16)!important; /* مطالعه: نیلی-بنفش */
+  --cp:rgba(13,148,136,0.15)!important; /* ورزش: سبزآبی فیروزه‌ای */
+  --cl:rgba(56,189,248,0.16)!important; /* شخصی: آبی آسمانی */
+  --sh:0 20px 45px -15px rgba(15,23,42,0.1),0 4px 14px rgba(37,99,235,0.06),inset 0 1px 1px rgba(255,255,255,0.95)!important;
 }
 :root[data-theme="dark"]{
-  --bg:#160d12!important;
-  --sf:rgba(38,22,30,0.66)!important;
-  --sf2:rgba(28,15,22,0.6)!important;
-  --tx:#fdf2f8!important;
-  --mu:#cba3b0!important;
-  --bd:rgba(251,113,133,0.16)!important;
-  --bd2:rgba(249,115,22,0.12)!important;
-  --ac:#fb7185!important;
-  --act:#190a0f!important;
-  --ac2:rgba(251,113,133,0.12)!important;
-  --ok:#10b981!important;
-  --wn:#fb923c!important;
-  --er:#f43f5e!important;
-  --cw:rgba(249,115,22,0.24)!important;
-  --cr:rgba(244,63,94,0.14)!important;
-  --cs:rgba(168,85,247,0.24)!important;
-  --cp:rgba(16,185,129,0.22)!important;
-  --cl:rgba(234,179,8,0.22)!important;
-  --sh:0 24px 48px -12px rgba(0,0,0,0.65),inset 0 1px 0.5px rgba(255,228,230,0.16)!important;
+  --bg:#060c18!important;
+  --sf:rgba(15,25,45,0.68)!important;
+  --sf2:rgba(10,18,34,0.6)!important;
+  --tx:#f0f6ff!important;
+  --mu:#8ba3c7!important;
+  --bd:rgba(56,189,248,0.16)!important;
+  --bd2:rgba(59,130,246,0.14)!important;
+  --ac:#38bdf8!important;
+  --act:#060c18!important;
+  --ac2:rgba(56,189,248,0.11)!important;
+  --ok:#14b8a6!important;
+  --wn:#f59e0b!important;
+  --er:#818cf8!important;
+  --cw:rgba(37,99,235,0.24)!important;
+  --cr:rgba(14,165,233,0.11)!important;
+  --cs:rgba(99,102,241,0.26)!important;
+  --cp:rgba(20,184,166,0.22)!important;
+  --cl:rgba(56,189,248,0.22)!important;
+  --sh:0 24px 48px -12px rgba(0,0,0,0.65),inset 0 1px 0.5px rgba(186,230,253,0.18)!important;
 }
 body{
   background-image:
-    radial-gradient(at 8% 12%,rgba(249,115,22,0.28) 0,transparent 48%),
-    radial-gradient(at 90% 10%,rgba(225,29,72,0.24) 0,transparent 48%),
-    radial-gradient(at 82% 85%,rgba(245,158,11,0.28) 0,transparent 50%),
-    radial-gradient(at 18% 82%,rgba(236,72,153,0.2) 0,transparent 50%)!important;
+    radial-gradient(at 10% 10%,rgba(37,99,235,0.24) 0,transparent 50%),
+    radial-gradient(at 90% 12%,rgba(14,165,233,0.24) 0,transparent 50%),
+    radial-gradient(at 80% 88%,rgba(13,148,136,0.2) 0,transparent 52%),
+    radial-gradient(at 15% 85%,rgba(99,102,241,0.18) 0,transparent 50%)!important;
 }
 button.p,nav button.on,.days button.on{
-  background:linear-gradient(135deg,#f97316 0%,#e11d48 100%)!important;
+  background:linear-gradient(135deg,#1d4ed8 0%,#0284c7 55%,#0d9488 100%)!important;
   color:#fff!important;
   border:0!important;
-  box-shadow:0 8px 20px -4px rgba(225,29,72,0.42)!important;
+  box-shadow:0 8px 22px -4px rgba(2,132,199,0.42)!important;
 }
 .brand-mark{
-  background:linear-gradient(135deg,#f97316,#e11d48)!important;
-  box-shadow:0 4px 14px rgba(225,29,72,0.4)!important;
+  background:linear-gradient(135deg,#2563eb,#06b6d4)!important;
+  box-shadow:0 4px 14px rgba(37,99,235,0.4)!important;
 }
 .bar i{
-  background:linear-gradient(90deg,#f59e0b,#f97316,#e11d48)!important;
+  background:linear-gradient(90deg,#2563eb,#0284c7,#0d9488)!important;
 }
 .cd h2::before{
-  background:linear-gradient(180deg,#f97316,#e11d48)!important;
+  background:linear-gradient(180deg,#2563eb,#06b6d4)!important;
   width:5px!important;height:16px!important;
 }
 .hero-top{
   position:relative;overflow:hidden;
-  background:linear-gradient(135deg,color-mix(in srgb,var(--sf) 80%,#f97316 14%),color-mix(in srgb,var(--sf) 80%,#e11d48 14%))!important;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--sf) 82%,#2563eb 14%),color-mix(in srgb,var(--sf) 82%,#06b6d4 14%))!important;
 }
-/* اشکال گرافیکی مدرن در پس‌زمینه صفحه */
+.cal-d.hol{background:color-mix(in srgb,#0284c7 8%,var(--sf2))!important}
 .bg-shapes{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
-.bg-shapes svg{position:absolute;opacity:.38;filter:blur(1px)}
+.bg-shapes svg{position:absolute;opacity:.34;filter:blur(1px)}
 :root[data-theme="dark"] .bg-shapes svg{opacity:.18}
 </style>
 
-<!-- اشکال گرافیکی و هندسی مدرن و گرم در پس‌زمینه -->
+<!-- اشکال گرافیکی و هندسی مدرن با طیف آبی و فیروزه‌ای -->
 <div class="bg-shapes" aria-hidden="true">
-  <svg width="420" height="420" viewBox="0 0 420 420" style="top:-80px;right:-90px">
-    <defs><linearGradient id="wg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f97316"/><stop offset="100%" stop-color="#e11d48"/></linearGradient></defs>
-    <circle cx="210" cy="210" r="160" fill="none" stroke="url(#wg1)" stroke-width="28" stroke-dasharray="180 60"/>
-    <circle cx="210" cy="210" r="105" fill="url(#wg1)" opacity=".18"/>
+  <svg width="440" height="440" viewBox="0 0 440 440" style="top:-90px;right:-90px">
+    <defs><linearGradient id="bgBl1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#2563eb"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient></defs>
+    <circle cx="220" cy="220" r="165" fill="none" stroke="url(#bgBl1)" stroke-width="26" stroke-dasharray="190 65"/>
+    <circle cx="220" cy="220" r="105" fill="url(#bgBl1)" opacity=".16"/>
   </svg>
-  <svg width="360" height="360" viewBox="0 0 360 360" style="bottom:-70px;left:-70px">
-    <defs><linearGradient id="wg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#ec4899"/></linearGradient></defs>
-    <rect x="60" y="60" width="240" height="240" rx="64" transform="rotate(22 180 180)" fill="none" stroke="url(#wg2)" stroke-width="22"/>
-    <circle cx="180" cy="180" r="65" fill="url(#wg2)" opacity=".2"/>
+  <svg width="380" height="380" viewBox="0 0 380 380" style="bottom:-80px;left:-80px">
+    <defs><linearGradient id="bgBl2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0284c7"/><stop offset="100%" stop-color="#0d9488"/></linearGradient></defs>
+    <rect x="65" y="65" width="250" height="250" rx="68" transform="rotate(25 190 190)" fill="none" stroke="url(#bgBl2)" stroke-width="20"/>
+    <circle cx="190" cy="190" r="70" fill="url(#bgBl2)" opacity=".18"/>
   </svg>
 </div>
 
 <script>
 (function(){
-  // ۱. حذف نرخ انس از ویجت بازار + افزودن آیکون‌های گرافیکی مدرن و گرم
+  // ۱. ویجت نرخ بازار بدون انس و با استایل آبی-فیروزه‌ای
   window.mktWidget=function(){
     const mkt=MKT();
     return `<div class="cd mkt-bar" style="position:relative;overflow:hidden">
       <div class="mkt-items">
         <span style="font-weight:800;font-size:13.5px;display:flex;align-items:center;gap:6px">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2.3"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
           نرخ لحظه‌ای:
         </span>
-        <div class="mkt-pill" data-a="editMkt" data-k="g18" title="ویرایش دستی نرخ طلا" style="border-color:rgba(249,115,22,.3)">
-          <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:linear-gradient(135deg,#fbbf24,#f97316)"></span>
-          <span>طلای ۱۸ عیار:</span><b style="color:#ea580c">${fa(mkt.g18)}</b><small class="mu">تومان</small>
+        <div class="mkt-pill" data-a="editMkt" data-k="g18" title="ویرایش دستی نرخ طلا" style="border-color:rgba(2,132,199,.3)">
+          <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#2563eb)"></span>
+          <span>طلای ۱۸ عیار:</span><b style="color:var(--ac)">${fa(mkt.g18)}</b><small class="mu">تومان</small>
         </div>
-        <div class="mkt-pill" data-a="editMkt" data-k="usdt" title="ویرایش دستی نرخ تتر" style="border-color:rgba(16,185,129,.3)">
-          <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669)"></span>
+        <div class="mkt-pill" data-a="editMkt" data-k="usdt" title="ویرایش دستی نرخ تتر" style="border-color:rgba(13,148,136,.3)">
+          <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:linear-gradient(135deg,#14b8a6,#0d9488)"></span>
           <span>تتر / دلار:</span><b style="color:var(--ok)">${fa(mkt.usdt)}</b><small class="mu">تومان</small>
         </div>
       </div>
@@ -1675,40 +1675,76 @@ button.p,nav button.on,.days button.on{
     </div>`;
   };
 
-  // ۲. تنظیم دیفالت برنامه ساعتی هر روز: ۸ الی ۱۸ = «کار» (work) | بقیه ساعت‌ها = «استراحت» (rest)
+  // ۲. دیفالت برنامه ساعتی: ۸ تا ۱۸ کار (work) و بقیه ساعت‌ها استراحت (rest)
   function applyDefaultSchedule(w){
     if(!w||!w.days)return;
     w.days.forEach(d=>{
       if(!d.b)d.b={};
       for(let i=5;i<=23;i++){
         const defCat=(i>=8&&i<=18)?'work':'rest';
-        if(!d.b[i]){
-          d.b[i]={t:'',c:defCat};
-        }else if((!d.b[i].t||!d.b[i].t.trim())&&d.b[i].c==='study'){
-          // تبدیل بلوک‌های خالی که از قبل روی دیفالت قدیمی (مطالعه) مانده بودند
-          d.b[i].c=defCat;
-        }
+        if(!d.b[i])d.b[i]={t:'',c:defCat};
+        else if((!d.b[i].t||!d.b[i].t.trim())&&d.b[i].c==='study')d.b[i].c=defCat;
       }
     });
   }
-
   const origW=window.W;
-  window.W=function(){
-    const w=origW();
-    applyDefaultSchedule(w);
-    return w;
-  };
+  window.W=function(){const w=origW();applyDefaultSchedule(w);return w};
 
-  // بازنویسی vDay برای اعمال قطعی دیفالت ۸ تا ۱۸ کار و بقیه استراحت
+  // ۳. بازنویسی تقویم ماهانه (نمایش قطعی اقساط و اجاره در ماه جاری و تمام ماه‌ها)
+  function renderMonthlyCal(){
+    const n=ML(hs.y,hs.m),off=(hs.s.getDay()+1)%7,nowP=pp(new Date()),cds=CDs();
+    const mk=hs.y+'-'+hs.m,B=BD(),inst=B.inst||[],mTxs=(B.tx&&B.tx[mk])||[];
+    let cells=DN.map(d=>`<div class="cal-h">${d}</div>`).join('');
+    for(let i=0;i<off;i++)cells+=`<div></div>`;
+    for(let d=1;d<=n;d++){
+      const dt=j2d(hs.y,hs.m,d),wSat=sat(dt),wKey=wSat.toISOString().slice(0,10),dIdx=(dt.getDay()+1)%7;
+      const dayData=(S[wKey]&&S[wKey].days&&S[wKey].days[dIdx])||{t:[],hol:0};
+      const isToday=(nowP.y===hs.y&&nowP.m===hs.m&&nowP.d===d);
+      const isHol=dayData.hol||dIdx===6;
+      const tTot=(dayData.t||[]).length,tDone=(dayData.t||[]).filter(x=>x.d).length;
+      const iso=dt.toISOString().slice(0,10);
+      const evs=cds.filter(c=>c.dt===iso);
+      // پیدا کردن تمام اقساط این روز در ماه جاری (چه پرداخت‌شده چه پرداخت‌نشده)
+      const dayInst=inst.filter(ins=>Number(ins.d)===d);
+      // پیدا کردن اجاره یا قسط‌هایی که مستقیم در تراکنش‌های این ماه ثبت شده‌اند
+      const rentTxs=mTxs.filter(tx=>Number(tx.d)===d&&(tx.c==='rent'||tx.c==='lon')&&!tx.insId);
+
+      let tags='';
+      if(tTot)tags+=`<div class="cal-tag" style="color:${tDone===tTot?'var(--ok)':'var(--tx)'}">✓ ${fa(tDone)}/${fa(tTot)} کار</div>`;
+      evs.forEach(ev=>{tags+=`<div class="cal-tag" style="background:color-mix(in srgb,var(--wn) 20%,transparent);color:var(--wn)">📌 ${esc(ev.t)}</div>`});
+      dayInst.forEach(ins=>{
+        const isPaid=!!(ins.paid&&ins.paid[mk]),amt=insAm(ins,mk);
+        tags+=`<div class="cal-tag" style="background:color-mix(in srgb,${isPaid?'var(--ok)':'var(--ac)'} 18%,transparent);color:${isPaid?'var(--ok)':'var(--ac)'};font-weight:700" title="${esc(ins.t)}: ${mo(amt)} تومان">${isPaid?'✓':'💳'} ${esc(ins.t)} (${mo(amt)})</div>`;
+      });
+      rentTxs.forEach(rt=>{
+        tags+=`<div class="cal-tag" style="background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)">🏠 ${esc(rt.n||catL(rt.c))} (${mo(rt.a)})</div>`;
+      });
+
+      cells+=`<div class="cal-d ${isToday?'tdy':''} ${isHol?'hol':''}" data-a="calGo" data-d="${d}">
+        <div class="cal-num"><span>${fa(d)}</span>${isToday?'<small class="bdg ok" style="font-size:9px;padding:1px 4px">امروز</small>':''}</div>
+        <div class="cal-tags">${tags}</div>
+      </div>`;
+    }
+    return `<div class="cd"><div class="row sb" style="margin:0">
+      <button data-a="hm" data-v="-1">› ماه قبل</button>
+      <div class="row" style="margin:0"><h2 style="margin:0;font-size:18px">تقویم ماهانه — ${PM[hs.m-1]} ${fy(hs.y)}</h2>${(hs.y!==nowP.y||hs.m!==nowP.m)?`<button data-a="calNow" style="font-size:11.5px;padding:3px 8px">برگشت به ماه جاری</button>`:''}</div>
+      <button data-a="hm" data-v="1">ماه بعد ‹</button>
+    </div></div>
+    <div class="cd"><div class="mu" style="margin-bottom:10px">اقساط ماه جاری (💳 در انتظار پرداخت / ✓ پرداخت‌شده)، اجاره‌ها و کارهای هر روز روی تقویم مشخص شده‌اند.</div><div class="cal-g">${cells}</div></div>`;
+  }
+
+  // ۴. نمایش یادآور اقساطِ روز در بالای «برنامه روزانه»
   window.vDay=function(){
     const d=W().days[di],p=dayPct(d),un=d.t.filter(x=>!x.d).length,pr=d.pr||[0,0,0],pt=getPrayTimes(dd(di),S.city||0);
+    const dayP=pp(dd(di)),mk=dayP.y+'-'+dayP.m,dayInst=(BD().inst||[]).filter(ins=>Number(ins.d)===dayP.d);
+    const instBanner=dayInst.length?`<div class="cd next" style="padding:12px 16px"><div class="row sb fw" style="margin:0"><b>💳 سررسید قسط/تعهد امروز (${fa(dayP.d)} ${PM[dayP.m-1]}):</b><span>${dayInst.map(ins=>`${esc(ins.t)}: <b>${mo(insAm(ins,mk))} تومان</b> (${ins.paid&&ins.paid[mk]?'پرداخت‌شده ✓':'پرداخت‌نشده'})`).join(' ، ')}</span></div></div>`:'';
     let h='';
     for(let i=5;i<=23;i++){
       const defCat=(i>=8&&i<=18)?'work':'rest';
       const b=d.b[i]||{t:'',c:defCat};
       h+=`<div class="blk" data-c="${b.c}"><span>${fa(i)}:۰۰</span><input type="text" data-f="bt" data-i="${i}" value="${esc(b.t)}" placeholder="${i>=8&&i<=18?'ساعت کاری...':'استراحت...'}"><select data-f="bc" data-i="${i}">${Object.entries(CT).map(([k,v])=>`<option value="${k}" ${b.c==k?'selected':''}>${v}</option>`).join('')}</select></div>`;
     }
-    return dayBar()+`<div class="g2"><div class="cd"><div class="row sb fw" style="margin-bottom:10px"><h2 style="margin:0">برنامه ساعتی ${DN[di]}</h2><div class="row" style="margin:0"><button data-a="rstDefBlk" title="بازنشانی دسته‌بندی ساعت‌ها به ۸ تا ۱۸ کار و بقیه استراحت">↺ چیدمان ۸-۱۸ کار</button><button data-a="cpPrevWk">کپی از هفته قبل</button><button data-a="offDay" class="${d.hol?'p':''}">${d.hol?'تعطیل ✓':'ثبت تعطیل'}</button></div></div>${h}</div>
+    return dayBar()+instBanner+`<div class="g2"><div class="cd"><div class="row sb fw" style="margin-bottom:10px"><h2 style="margin:0">برنامه ساعتی ${DN[di]}</h2><div class="row" style="margin:0"><button data-a="rstDefBlk">↺ چیدمان ۸-۱۸ کار</button><button data-a="cpPrevWk">کپی از هفته قبل</button><button data-a="offDay" class="${d.hol?'p':''}">${d.hol?'تعطیل ✓':'ثبت تعطیل'}</button></div></div>${h}</div>
     <div><div class="cd"><div class="row sb" style="margin-bottom:8px"><h2 style="margin:0">کارهای روز (${fa(p)}٪)</h2>${un?`<button data-a="roll">انتقال ${fa(un)} کار به فردا ↪</button>`:''}</div>${bar(p)}<div style="margin-top:10px">${d.t.map((x,i)=>`<div class="row"><input type="checkbox" data-a="td" data-i="${i}" ${x.d?'checked':''}><span class="f1 ${x.d?'done':''}">${x.p?'<span class="bdg wn" style="margin-inline-end:5px">مهم</span>':''}${esc(x.t)}</span><button class="x" data-a="tp" data-i="${i}">★</button><button class="x" data-a="tx" data-i="${i}">✕</button></div>`).join('')}</div>
     <div class="row"><input type="text" id="tn" placeholder="کار جدید..."><button class="p" data-a="ta">افزودن</button></div></div>
     <div class="cd"><h2>نمازهای روز ${DN[di]} <small class="mu" style="font-weight:400;margin-right:auto">صبح ${pt.sobh} · ظهر ${pt.zohr} · مغرب ${pt.maghreb}</small></h2><div class="ctr">${PR_NAMES.map((nm,pI)=>`<button class="pr-btn f1 ${pr[pI]?'on':''}" data-a="prTog" data-d="${di}" data-p="${pI}">${nm} ${pr[pI]?'✓':''}</button>`).join('')}</div></div>
@@ -1716,19 +1752,28 @@ button.p,nav button.on,.days button.on{
     <div class="cd"><h2>یادداشت روزانه</h2><textarea data-f="dn" placeholder="خلاصه روز...">${esc(d.n)}</textarea></div></div></div>`;
   };
 
+  const prevRender=window.render;
+  window.render=function(){
+    prevRender();
+    if(tab==='cal')$('main').innerHTML=renderMonthlyCal();
+  };
+
   document.addEventListener('click',e=>{
-    const b=e.target.closest('[data-a="rstDefBlk"]');
-    if(b){
+    const b=e.target.closest('[data-a]');if(!b)return;
+    if(b.dataset.a==='rstDefBlk'){
       const d=W().days[di];
-      for(let i=5;i<=23;i++){
-        d.b[i]=d.b[i]||{t:'',c:'rest'};
-        d.b[i].c=(i>=8&&i<=18)?'work':'rest';
-      }
+      for(let i=5;i<=23;i++){d.b[i]=d.b[i]||{t:'',c:'rest'};d.b[i].c=(i>=8&&i<=18)?'work':'rest'}
       save();render();
+    }else if(b.dataset.a==='calNow'){
+      const t=new Date();t.setHours(12,0,0,0);const p=pp(t);
+      hs={y:p.y,m:p.m,s:new Date(t.getTime()-(p.d-1)*864e5)};render();
+    }else if(b.dataset.a==='tab'&&b.dataset.v==='cal'){
+      // وقتی وارد تب تقویم ماه می‌شویم، به صورت پیش‌فرض ماه جاری را نشان دهد
+      const t=new Date();t.setHours(12,0,0,0);const p=pp(t);
+      hs={y:p.y,m:p.m,s:new Date(t.getTime()-(p.d-1)*864e5)};render();
     }
   });
 
-  // اعمال روی تمام هفته‌های موجود و رندر مجدد
   Object.keys(S).forEach(k=>{if(/^\d{4}-\d{2}-\d{2}$/.test(k))applyDefaultSchedule(S[k])});
   save();render();
 })();
