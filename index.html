@@ -1150,6 +1150,410 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
   render();
 })();
 </script>
+<!-- ==================== موتور تحلیل پیشرفته ۵سطحی و کشف الگوهای پنهان ==================== -->
+<style>
+.ai-nav{display:flex;gap:6px;overflow-x:auto;margin-bottom:14px;padding-bottom:2px}
+.ai-nav button{white-space:nowrap;font-size:12.5px;padding:6px 13px;border-radius:12px}
+.cmp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px}
+.cmp-card{padding:14px;border-radius:18px;background:var(--sf2);border:1px solid var(--bd2)}
+.cmp-card small{color:var(--mu);font-size:11.5px;display:block}
+.cmp-card b{font-size:20px;display:inline-block;margin:2px 0}
+.delta{font-size:11.5px;font-weight:700;padding:1px 6px;border-radius:6px;margin-right:6px}
+.delta.up{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}
+.delta.dn{background:color-mix(in srgb,var(--er) 16%,transparent);color:var(--er)}
+.rx-box{border-radius:18px;padding:15px;margin-bottom:10px;background:var(--sf2);border-inline-start:4px solid var(--ac)}
+.rx-box h3{margin:0 0 5px;font-size:14.5px;display:flex;justify-content:space-between;align-items:center}
+.rx-box p{margin:0 0 8px;font-size:13px;color:var(--mu);line-height:1.65}
+.rx-act{font-size:12.5px;font-weight:600;color:var(--ok);display:block;padding-top:6px;border-top:1px dashed var(--bd2)}
+</style>
+
+<script>
+(function(){
+  let aiMode='hidden'; // 'day' | 'week' | 'month' | 'year' | 'hidden'
+
+  // استخراج آمار یک هفته مشخص بر اساس کلید تاریخ شنبه
+  function getWkStats(wKey){
+    const w=S[wKey];
+    if(!w||!w.days)return {has:false,tTot:0,tDone:0,tPct:0,sMin:0,pMin:0,sPct:0,prCnt:0,prPct:0,slp:0,wtr:0,mood:0,blk:0};
+    const ds=w.days;
+    const allT=ds.flatMap(d=>d.t||[]),tTot=allT.length,tDone=allT.filter(x=>x.d).length,tPct=tTot?Math.round(100*tDone/tTot):0;
+    const sMin=ds.reduce((a,d)=>a+dayMin(d),0),pMin=ds.reduce((a,d)=>a+(d.hol?0:(d.plan||0)*60),0),sPct=pMin?Math.min(100,Math.round(100*sMin/pMin)):(sMin>0?100:0);
+    const prCnt=ds.reduce((a,d)=>a+(d.pr?d.pr.filter(Boolean).length:0),0),prPct=Math.round(100*prCnt/21);
+    const slpArr=ds.filter(d=>d.sleep>0).map(d=>d.sleep),slp=slpArr.length?slpArr.reduce((a,b)=>a+b,0)/slpArr.length:0;
+    const wtrArr=ds.filter(d=>d.water>0).map(d=>d.water),wtr=wtrArr.length?wtrArr.reduce((a,b)=>a+b,0)/wtrArr.length:0;
+    const mdArr=ds.filter(d=>d.mood>0).map(d=>d.mood),mood=mdArr.length?mdArr.reduce((a,b)=>a+b,0)/mdArr.length:0;
+    let blk=0;ds.forEach(d=>Object.values(d.b||{}).forEach(b=>{if(b&&b.t&&b.t.trim())blk++}));
+    return {has:true,tTot,tDone,tPct,sMin,pMin,sPct,prCnt,prPct,slp,wtr,mood,blk,ds};
+  }
+
+  // استخراج آمار یک ماه شمسی (ترکیب عادت‌ها، مالی و هفته‌های واقع در آن ماه)
+  function getMonthFullStats(y,m){
+    const mk=y+'-'+m,n=ML(y,m),M=mdat(y,m),H=HD(),lg=H.log[mk]||{},L=H.list||[];
+    let hDone=0;L.forEach(h=>{hDone+=(lg[h.id]||[]).length});
+    const hPct=L.length?Math.round(100*hDone/(L.length*n)):0;
+    const sr=M.I>0?Math.max(0,Math.round(100*(M.I-M.E)/M.I)):0;
+    let tTot=0,tDone=0,sMin=0,prCnt=0,daysCount=0;
+    for(let d=1;d<=n;d++){
+      const dt=j2d(y,m,d),wk=sat(dt).toISOString().slice(0,10),di_=(dt.getDay()+1)%7;
+      const dayObj=S[wk]&&S[wk].days&&S[wk].days[di_];
+      if(dayObj){
+        const ts=dayObj.t||[];
+        if(ts.length||dayMin(dayObj)>0||(dayObj.pr&&dayObj.pr.some(Boolean)))daysCount++;
+        tTot+=ts.length;tDone+=ts.filter(x=>x.d).length;
+        sMin+=dayMin(dayObj);
+        prCnt+=(dayObj.pr?dayObj.pr.filter(Boolean).length:0);
+      }
+    }
+    const tPct=tTot?Math.round(100*tDone/tTot):0;
+    const prPct=daysCount?Math.round(100*prCnt/(daysCount*3)):0;
+    return {y,m,mk,n,I:M.I,E:M.E,bal:M.I-M.E,sr,hPct,hDone,tTot,tDone,tPct,sHr:+(sMin/60).toFixed(1),prPct};
+  }
+
+  function deltaBadge(cur,prev,suffix='٪',inv=false){
+    if(prev===null||prev===undefined||prev===0)return `<span class="delta">جدید</span>`;
+    const df=Math.round((cur-prev)*10)/10;
+    if(df===0)return `<span class="delta">بدون تغییر</span>`;
+    const isGood=inv?(df<0):(df>0);
+    return `<span class="delta ${isGood?'up':'dn'}">${df>0?'▲ +':'▼ '}${fa(df)}${suffix}</span>`;
+  }
+
+  // رسم نمودار رادار ۶بُعدی توازن زندگی (SVG Spider Chart)
+  function radarSvg(cur6,prev6,labels){
+    const cx=150,cy=135,r=90,pts=(arr)=>arr.map((v,i)=>{
+      const ang=(-Math.PI/2)+(i*2*Math.PI/6),val=clamp(v||0,5,100)/100;
+      return `${(cx+r*val*Math.cos(ang)).toFixed(1)},${(cy+r*val*Math.sin(ang)).toFixed(1)}`;
+    }).join(' ');
+    let webs='';
+    [.25,.5,.75,1].forEach(lv=>{
+      webs+=`<polygon points="${pts([lv*100,lv*100,lv*100,lv*100,lv*100,lv*100])}" fill="none" stroke="var(--bd2)" stroke-width="1"/>`;
+    });
+    let axes='';
+    labels.forEach((lb,i)=>{
+      const ang=(-Math.PI/2)+(i*2*Math.PI/6),x2=cx+r*Math.cos(ang),y2=cy+r*Math.sin(ang);
+      const lx=cx+(r+26)*Math.cos(ang),ly=cy+(r+20)*Math.sin(ang);
+      axes+=`<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="var(--bd2)" stroke-width="1"/>
+      <text x="${lx}" y="${ly+4}" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--tx)">${lb} (${fa(Math.round(cur6[i]))}٪)</text>`;
+    });
+    return `<svg viewBox="0 0 300 270" width="100%" style="max-width:320px;margin:0 auto;display:block">
+      ${webs}${axes}
+      <polygon points="${pts(prev6)}" fill="rgba(148,163,184,0.15)" stroke="var(--mu)" stroke-width="1.5" stroke-dasharray="4"/>
+      <polygon points="${pts(cur6)}" fill="color-mix(in srgb,var(--ok) 25%,transparent)" stroke="var(--ok)" stroke-width="2.5"/>
+    </svg>`;
+  }
+
+  // ==================== تب ۱: الگوهای پنهان (کشف روابطی که انسان کمتر فکر می‌کند) ====================
+  function viewHiddenPatterns(){
+    const allDays=[];
+    const np=pp(new Date()),curM=mdat(np.y,np.m);
+    const txByDate={};
+
+    // جمع‌آوری تمام روزهای ثبت‌شده در کل تاریخچه پلنر
+    Object.entries(S).forEach(([k,w])=>{
+      if(/^\d{4}-\d{2}-\d{2}$/.test(k)&&w&&w.days){
+        const baseD=new Date(k);
+        w.days.forEach((d,idx)=>{
+          const dt=new Date(baseD.getTime()+idx*864e5),p=pp(dt),mk=p.y+'-'+p.m;
+          const dayTxs=((S.b&&S.b.tx&&S.b.tx[mk])||[]).filter(t=>t.d===p.d&&!isIn(t.c));
+          const spent=sm_(dayTxs.map(t=>t.a));
+          const active=(d.t&&d.t.length)||dayMin(d)>0||d.sleep>0||d.mood>0||(d.pr&&d.pr.some(Boolean));
+          if(active||spent>0){
+            allDays.push({
+              dow:idx,tPct:dayPct(d),tTot:(d.t||[]).length,tDone:(d.t||[]).filter(x=>x.d).length,
+              impTot:(d.t||[]).filter(x=>x.p).length,impDone:(d.t||[]).filter(x=>x.p&&x.d).length,
+              sMin:dayMin(d),pMin:(d.plan||0)*60,
+              fajr:!!(d.pr&&d.pr[0]),prSum:(d.pr||[]).filter(Boolean).length,
+              sleep:d.sleep||0,water:d.water||0,mood:d.mood||0,spent,hol:!!d.hol
+            });
+          }
+        });
+      }
+    });
+
+    // ۱. کشف اثر دومینوی نماز صبح و سحرخیزی بر بهره‌وری همان روز
+    const fajrDays=allDays.filter(d=>d.fajr),noFajrDays=allDays.filter(d=>!d.fajr&&d.tTot>0);
+    const fajrTaskAvg=fajrDays.length?Math.round(sm_(fajrDays.map(x=>x.tPct))/fajrDays.length):null;
+    const noFajrTaskAvg=noFajrDays.length?Math.round(sm_(noFajrDays.map(x=>x.tPct))/noFajrDays.length):null;
+    const fajrStudyAvg=fajrDays.length?Math.round(sm_(fajrDays.map(x=>x.sMin))/fajrDays.length):0;
+    const noFajrStudyAvg=noFajrDays.length?Math.round(sm_(noFajrDays.map(x=>x.sMin))/noFajrDays.length):0;
+
+    // ۲. کشف شاخص «خرج کردن هیجانی» (رابطه حال روحی پایین یا کم‌خوابی با ولخرجی روزانه)
+    const lowMoodDays=allDays.filter(d=>d.mood>0&&d.mood<=2),goodMoodDays=allDays.filter(d=>d.mood>=4);
+    const lowMoodSpend=lowMoodDays.length?Math.round(sm_(lowMoodDays.map(x=>x.spent))/lowMoodDays.length):0;
+    const goodMoodSpend=goodMoodDays.length?Math.round(sm_(goodMoodDays.map(x=>x.spent))/goodMoodDays.length):0;
+
+    // ۳. محاسبه «قیمت ساعتِ عمر» و «ضریب استقلال مالی (Runway)»
+    const totAssets=sm_((BD().assets||[]).map(a=>(a.q||0)*(a.p||0)));
+    const totStudyWorkHrs=Math.max(1,sm_(allDays.map(x=>x.sMin))/60);
+    const mIncome=curM.I||30000000,mExpense=curM.E||20000000;
+    const hourVal=Math.round(mIncome/160); // ارزش هر ساعت کار مفید
+    const runwayMonths=mExpense>0?((totAssets+Math.max(0,mIncome-mExpense))/mExpense).toFixed(1):'—';
+
+    // ۴. کشف «نقطه سقوط بیولوژیک» و «نقطه اوج» در روزهای هفته
+    const dowStats=DN.map((name,idx)=>{
+      const ds=allDays.filter(x=>x.dow===idx&&!x.hol);
+      const avgPct=ds.length?Math.round(sm_(ds.map(x=>x.tPct))/ds.length):0;
+      const avgMin=ds.length?Math.round(sm_(ds.map(x=>x.sMin))/ds.length):0;
+      return {name,idx,avgPct,avgMin,cnt:ds.length,score:avgPct+(avgMin/2)};
+    });
+    const activeDows=dowStats.filter(x=>x.cnt>0);
+    const bestDow=activeDows.length?activeDows.slice().sort((a,b)=>b.score-a.score)[0]:{name:'شنبه',avgPct:0,avgMin:0};
+    const worstDow=activeDows.length?activeDows.slice().sort((a,b)=>a.score-b.score)[0]:{name:'پنجشنبه',avgPct:0,avgMin:0};
+
+    // ۵. ضریب «توهم برنامه‌ریزی» (Planning Fallacy) و آستانه اشباع کار روزانه
+    const overloadedDays=allDays.filter(x=>x.tTot>=6),lightDays=allDays.filter(x=>x.tTot>=1&&x.tTot<=4);
+    const overPct=overloadedDays.length?Math.round(sm_(overloadedDays.map(x=>x.tPct))/overloadedDays.length):0;
+    const lightPct=lightDays.length?Math.round(sm_(lightDays.map(x=>x.tPct))/lightDays.length):0;
+
+    return `<div class="cd next">
+      <h2>🧠 کشف الگوهای پنهان رفتار شما (بر اساس دادهکاوی کل پلنر)</h2>
+      <div class="mu">این بخش روابط غیرمستقیم بین خواب، معنویت، انرژی، زمان‌بندی و رفتار مالی شما را که در نگاه عادی دیده نمی‌شوند استخراج می‌کند.</div>
+    </div>
+
+    <div class="rx-box" style="border-color:var(--ok)">
+      <h3><span>۱. اثر دومینوی صبحگاهی (رابطه نماز صبح با راندمان کل روز)</span><span class="bdg ok">کشف همبستگی</span></h3>
+      <p>${fajrDays.length?`در روزهایی که <b>نماز صبح</b> ثبت کرده‌اید، میانگین تکمیل کارهایتان <b>${fa(fajrTaskAvg)}٪</b> و میانگین مطالعه <b>${fa(fajrStudyAvg)} دقیقه</b> بوده است؛ در حالی که در سایر روزها این عدد <b>${fa(noFajrTaskAvg||0)}٪</b> (${fa(noFajrStudyAvg)} دقیقه) است.`:'با ثبت چند روز نماز صبح و کارهای روزانه، ضریب تاثیر دقیق سحرخیزی بر راندمان شما اینجا محاسبه می‌شود.'}</p>
+      <span class="rx-act">💡 نسخه عملیاتی: بیداری بین اذان صبح تا ساعت ۷، قوی‌ترین اهرم پنهان برای بالا بردن بهره‌وری روزانه شماست؛ مهم‌ترین کار روز (🔥) را به اولین ساعت بعد از نماز صبح گره بزنید.</span>
+    </div>
+
+    <div class="rx-box" style="border-color:var(--er)">
+      <h3><span>۲. شاخص خرج کردن هیجانی (Emotional Spending Index)</span><span class="bdg wn">رفتارشناسی مالی</span></h3>
+      <p>${lowMoodSpend>0||goodMoodSpend>0?`در روزهایی که سطح انرژی و حال روحی‌تان پایین بوده، میانگین خرج روزانه شما <b>${mo(lowMoodSpend)} تومان</b> و در روزهای پرانرژی <b>${mo(goodMoodSpend)} تومان</b> بوده است (${lowMoodSpend>goodMoodSpend?'شما در زمان خستگی یا بی‌حوصلگی بیشتر خرج می‌کنید!':'کنترل مالی شما در روزهای کم‌انرژی خوب است'}).`:'با ثبت همزمان «حال روز» در برنامه روزانه و «هزینه‌ها» در بخش مالی، الگوی خرج کردن هیجانی شما کشف می‌شود.'}</p>
+      <span class="rx-act">💡 قانون ۲۴ ساعت: در روزهایی که خسته یا کم‌انرژی هستید، هر خرید غیرضروری بالای ۵۰۰ هزار تومان را ۲۴ ساعت به تعویق بیندازید.</span>
+    </div>
+
+    <div class="rx-box" style="border-color:#6366f1">
+      <h3><span>۳. قیمت ساعتِ عمر و ضریب استقلال مالی (Runway)</span><span class="bdg">مهندسی ارزش زمان</span></h3>
+      <p>بر اساس تراز مالی شما، ارزش هر ۱ ساعت وقت مفید شما حدود <b>${mo(hourVal)} تومان</b> است؛ یعنی هر <b>۱ میلیون تومان</b> هزینه غیرضروری معادل <b>${fa(Math.round(10000000/Math.max(1,hourVal))/10)} ساعت</b> کار و تمرکز شماست! همچنین با سبد دارایی فعلی (${mo(totAssets)} ت)، ضریب استقلال مالی شما <b>${toFaDigitsProxy(runwayMonths)} ماه</b> است.</p>
+      <span class="rx-act">💡 استراتژی: قبل از هر خرید در دسته «خواسته‌ها»، قیمت آن را به «ساعتِ تمرکز خودتان» تبدیل کنید. هدف میان‌مدت: رساندن سبد دارایی به حداقل ۶ ماه هزینه زندگی.</span>
+    </div>
+
+    <div class="rx-box" style="border-color:var(--wn)">
+      <h3><span>۴. بیوریتم هفتگی: نقطه اوج (${bestDow.name}) و نقطه سقوط (${worstDow.name})</span><span class="bdg">مهندسی انرژی</span></h3>
+      <p>تحلیل روزهای هفته نشان می‌دهد قوی‌ترین روز کاری شما <b>${bestDow.name}</b> (میانگین ${fa(bestDow.avgPct)}٪ انجام کار و ${fa(bestDow.avgMin)} دقیقه تمرکز) و روز افت انرژی شما <b>${worstDow.name}</b> (${fa(worstDow.avgPct)}٪) است.</p>
+      <span class="rx-act">💡 بازطراحی هفته: سنگین‌ترین مبحث آموزشی یا کاری را در روز <b>${bestDow.name}</b> بگذارید و برای عصر <b>${worstDow.name}</b> حجم کارها را ۳۰٪ سبک‌تر بچینید تا دچار فرسودگی نشوید.</span>
+    </div>
+
+    <div class="rx-box">
+      <h3><span>۵. ضریب توهم برنامه‌ریزی (Planning Fallacy) و آستانه اشباع</span><span class="bdg">بهینه‌سازی بار کاری</span></h3>
+      <p>در روزهایی که ۱ تا ۴ کار تعریف کرده‌اید نرخ موفقیت شما <b>${fa(lightPct)}٪</b> بوده، اما وقتی ۶ کار یا بیشتر نوشته‌اید نرخ انجام به <b>${fa(overPct)}٪</b> تغییر کرده است.</p>
+      <span class="rx-act">💡 عدد طلایی شما: در هر روز حداکثر <b>۴ کار اصلی</b> (۱ کار حیاتی 🔥 + ۳ کار مکمل) بنویسید؛ بقیه موارد را در «یادداشت هفته» نگه دارید و پس از اتمام این ۴ مورد وارد روز کنید.</span>
+    </div>`;
+  }
+  function toFaDigitsProxy(s){return String(s).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d])}
+
+  // ==================== تب ۲: تحلیل پایان روز (امروز در آینه اعداد) ====================
+  function viewDailyEnd(){
+    const w=W(),tdIdx=(new Date().getDay()+1)%7,td=w.days[tdIdx];
+    const ydIdx=tdIdx>0?tdIdx-1:6,yd=tdIdx>0?w.days[ydIdx]:((S[new Date(ws.getTime()-7*864e5).toISOString().slice(0,10)]?.days?.[6])||{t:[],ses:[],pr:[0,0,0]});
+    const tPct=dayPct(td),yPct=dayPct(yd),sMin=dayMin(td),yMin=dayMin(yd);
+    const prCnt=(td.pr||[]).filter(Boolean).length,yPr=(yd.pr||[]).filter(Boolean).length;
+    const np=pp(new Date()),mk=np.y+'-'+np.m,H=HD(),lg=H.log[mk]||{};
+    let hToday=0;(H.list||[]).forEach(h=>{if((lg[h.id]||[]).includes(np.d))hToday++});
+    const hPct=(H.list||[]).length?Math.round(100*hToday/H.list.length):0;
+    const dayScore=Math.round((tPct + Math.min(100,td.plan?100*sMin/(td.plan*60):100) + (prCnt*33.3) + hPct)/4);
+
+    // پیشنهادهای اختصاصی پایان امشب
+    const rx=[];
+    const un=td.t.filter(x=>!x.d);
+    if(un.length)rx.push(`<b>پاکسازی ذهن قبل از خواب:</b> ${fa(un.length)} کار از امروز باقی مانده است؛ همین الان از دکمه «جمع‌بندی شب» آن‌ها را به فردا منتقل کنید تا ذهنتان موقع خواب درگیر نماند.`);
+    if(prCnt<3)rx.push(`<b>تکمیل معنوی روز:</b> هنوز ${fa(3-prCnt)} نوبت از نمازهای امروز ثبت نشده است؛ پیش از پایان شب آن را کامل کنید.`);
+    if((td.sleep||0)>0&&td.sleep<6.5)rx.push(`<b>جبران کسری خواب:</b> دیشب فقط ${fa(td.sleep)} ساعت خوابیده‌اید؛ امشب ۳۰ دقیقه زودتر به رختخواب بروید تا فردا افت تمرکز نداشته باشید.`);
+    if(sMin<30&&!td.hol)rx.push(`<b>قانون حداقل پیوستگی:</b> امروز جلسه تمرکز طولانی نداشتید؛ حتی شده ۱۵ دقیقه مطالعه قبل از خواب ثبت کنید تا زنجیره استمرار قطع نشود.`);
+    if(!rx.length)rx.push(`<b>تثبیت پیروزی امروز:</b> امروز یکی از روزهای بسیار منظم شما بود! مهم‌ترین کار فردا صبح را همین امشب مشخص کنید.`);
+
+    return `<div class="cmp-grid">
+      <div class="cmp-card"><small>امتیاز کل امروز (${DN[tdIdx]})</small><b>${fa(dayScore)} از ۱۰۰</b></div>
+      <div class="cmp-card"><small>انجام کارهای امروز</small><b>${fa(tPct)}٪</b> ${deltaBadge(tPct,yPct)}</div>
+      <div class="cmp-card"><small>زمان تمرکز و مطالعه</small><b>${fa(sMin)} دقیقه</b> ${deltaBadge(sMin,yMin,' د')}</div>
+      <div class="cmp-card"><small>نمازها و عادت‌های امروز</small><b>${fa(prCnt)}/۳ نماز · ${fa(hPct)}٪ عادت</b></div>
+    </div>
+    <div class="cd next">
+      <h2>🌙 نسخه پیشنهادی پایان امروز (مخصوص امشب و فردا صبح)</h2>
+      ${rx.map(r=>`<div style="margin-bottom:8px;font-size:13.5px">• ${r}</div>`).join('')}
+      <div class="row" style="margin-top:12px;margin-bottom:0">
+        <button class="p" onclick="openNightlyReview()">باز کردن پنجره جمع‌بندی ۶۰ ثانیه‌ای امشب</button>
+      </div>
+    </div>`;
+  }
+
+  // ==================== تب ۳: مقایسه هفتگی + رادار ۶بُعدی ====================
+  function viewWeeklyComp(){
+    const w0Key=key(),w1Key=new Date(ws.getTime()-7*864e5).toISOString().slice(0,10);
+    const w2Key=new Date(ws.getTime()-14*864e5).toISOString().slice(0,10),w3Key=new Date(ws.getTime()-21*864e5).toISOString().slice(0,10);
+    const s0=getWkStats(w0Key),s1=getWkStats(w1Key),s2=getWkStats(w2Key),s3=getWkStats(w3Key);
+    const np=pp(ws),mCur=getMonthFullStats(np.y,np.m);
+
+    const cur6=[s0.tPct, s0.sPct, s0.prPct, Math.min(100,Math.round((s0.slp||7)/8*100)), mCur.hPct, Math.min(100,mCur.sr*3)];
+    const prev6=[s1.tPct||50, s1.sPct||50, s1.prPct||50, Math.min(100,Math.round((s1.slp||7)/8*100)), mCur.hPct, Math.min(100,mCur.sr*3)];
+    const labels=['اجرای کارها','تحقق مطالعه','نماز و معنویت','خواب و انرژی','ثبات عادت‌ها','تراز مالی'];
+
+    // نمودار روند ۴ هفته اخیر
+    const wks=[{l:'۳ هفته قبل',s:s3},{l:'۲ هفته قبل',s:s2},{l:'هفته قبل',s:s1},{l:'این هفته',s:s0}];
+    const maxHr=Math.max(1,...wks.map(x=>x.s.sMin/60));
+    const bars4=wks.map((w,i)=>{
+      const x=35+i*130,hT=w.s.tPct*1.1,hS=(w.s.sMin/60)/maxHr*110;
+      return `<rect x="${x}" y="${130-hT}" width="28" height="${Math.max(3,hT)}" rx="5" fill="var(--ac)"/>
+      <rect x="${x+32}" y="${130-hS}" width="28" height="${Math.max(3,hS)}" rx="5" fill="var(--ok)"/>
+      <text x="${x+30}" y="148" text-anchor="middle" font-size="11" fill="var(--mu)">${w.l}</text>
+      <text x="${x+14}" y="${125-hT}" text-anchor="middle" font-size="10" fill="var(--tx)">${fa(w.s.tPct)}٪</text>
+      <text x="${x+46}" y="${125-hS}" text-anchor="middle" font-size="10" fill="var(--ok)">${fa(+(w.s.sMin/60).toFixed(1))}h</text>`;
+    }).join('');
+
+    return `<div class="cmp-grid">
+      <div class="cmp-card"><small>نرخ انجام کارهای هفته</small><b>${fa(s0.tPct)}٪</b> ${deltaBadge(s0.tPct,s1.tPct)}</div>
+      <div class="cmp-card"><small>مجموع مطالعه هفته</small><b>${fa(+(s0.sMin/60).toFixed(1))} ساعت</b> ${deltaBadge(+(s0.sMin/60).toFixed(1),+(s1.sMin/60).toFixed(1),'h')}</div>
+      <div class="cmp-card"><small>نمازهای ثبت‌شده هفته</small><b>${fa(s0.prPct)}٪</b> ${deltaBadge(s0.prPct,s1.prPct)}</div>
+      <div class="cmp-card"><small>تایم‌بلاک‌های پرشده</small><b>${fa(s0.blk)} بلوک</b> ${deltaBadge(s0.blk,s1.blk,'')}</div>
+    </div>
+    <div class="g2">
+      <div class="cd">
+        <h2>رادار ۶بُعدی توازن زندگی (این هفته در برابر هفته قبل)</h2>
+        ${radarSvg(cur6,prev6,labels)}
+        <div class="lg" style="justify-content:center"><span><b style="background:var(--ok)"></b>این هفته</span><span><b style="background:var(--mu)"></b>هفته قبل</span></div>
+      </div>
+      <div class="cd">
+        <h2>مقایسه روند ۴ هفته اخیر (کارها و ساعت مطالعه)</h2>
+        <svg viewBox="0 0 540 160" width="100%" style="direction:ltr;margin-top:15px">${bars4}</svg>
+        <div class="lg" style="justify-content:center"><span><b style="background:var(--ac)"></b>درصد انجام کارها</span><span><b style="background:var(--ok)"></b>ساعت مطالعه</span></div>
+        <div class="rx-box" style="margin-top:14px;margin-bottom:0">
+          <h3>🎯 جمع‌بندی و استراتژی پایان هفته</h3>
+          <p>${s0.tPct>=s1.tPct?'روند اجرایی شما نسبت به هفته قبل صعودی بوده است.':'نرخ تکمیل کارها نسبت به هفته قبل افت داشته؛ برای هفته آینده حجم کارهای روزانه را ۲۰٪ واقع‌بینانه‌تر بچینید.'}</p>
+          <span class="rx-act">پیشنهاد جمعه شب: ۳ اولویت اصلی هفته آینده را همین امشب در تب «نمای هفته» بنویسید و برنامه ساعتی ثابت را از این هفته کپی کنید.</span>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ==================== تب ۴: مقایسه ماهانه و فصلی (۳ ماهه) ====================
+  function viewMonthlySeasonal(){
+    const m0=getMonthFullStats(hs.y,hs.m);
+    const pm1=pvM(hs.y,hs.m,1),m1=getMonthFullStats(pm1.y,pm1.m);
+    const pm2=pvM(hs.y,hs.m,2),m2=getMonthFullStats(pm2.y,pm2.m);
+
+    // میانگین فصلی (۳ ماه اخیر)
+    const qTask=Math.round((m0.tPct+m1.tPct+m2.tPct)/3);
+    const qHabit=Math.round((m0.hPct+m1.hPct+m2.hPct)/3);
+    const qStudy=+(m0.sHr+m1.sHr+m2.sHr).toFixed(1);
+    const qSave=Math.round((m0.sr+m1.sr+m2.sr)/3);
+
+    return `<div class="cd"><div class="row sb" style="margin:0"><button data-a="hm" data-v="-1">› ماه قبل</button><h2 style="margin:0;font-size:17px">تحلیل ماهانه و فصلی — ${PM[hs.m-1]} ${fy(hs.y)}</h2><button data-a="hm" data-v="1">ماه بعد ‹</button></div></div>
+    <div class="cmp-grid">
+      <div class="cmp-card"><small>عادت‌های ${PM[hs.m-1]}</small><b>${fa(m0.hPct)}٪</b> ${deltaBadge(m0.hPct,m1.hPct)}</div>
+      <div class="cmp-card"><small>نرخ انجام کارهای ماه</small><b>${fa(m0.tPct)}٪</b> ${deltaBadge(m0.tPct,m1.tPct)}</div>
+      <div class="cmp-card"><small>مجموع مطالعه ماه</small><b>${fa(m0.sHr)} ساعت</b> ${deltaBadge(m0.sHr,m1.sHr,'h')}</div>
+      <div class="cmp-card"><small>نرخ پس‌انداز ماه</small><b style="color:${m0.sr>=20?'var(--ok)':'var(--wn)'}">${fa(m0.sr)}٪</b> ${deltaBadge(m0.sr,m1.sr)}</div>
+    </div>
+
+    <div class="cd">
+      <h2>مقایسه ۳ ماه اخیر (عملکرد فصلی)</h2>
+      <div class="wide"><table>
+        <tr><th>شاخص کلیدی</th><th>${PM[pm2.m-1]}</th><th>${PM[pm1.m-1]}</th><th>${PM[hs.m-1]} (جاری)</th><th>میانگین فصل</th></tr>
+        <tr><td style="text-align:right;font-weight:600">انجام کارها</td><td>${fa(m2.tPct)}٪</td><td>${fa(m1.tPct)}٪</td><td><b>${fa(m0.tPct)}٪</b></td><td><span class="bdg">${fa(qTask)}٪</span></td></tr>
+        <tr><td style="text-align:right;font-weight:600">پیوستگی عادت‌ها</td><td>${fa(m2.hPct)}٪</td><td>${fa(m1.hPct)}٪</td><td><b>${fa(m0.hPct)}٪</b></td><td><span class="bdg">${fa(qHabit)}٪</span></td></tr>
+        <tr><td style="text-align:right;font-weight:600">ساعت مطالعه و تمرکز</td><td>${fa(m2.sHr)} ساعت</td><td>${fa(m1.sHr)} ساعت</td><td><b>${fa(m0.sHr)} ساعت</b></td><td><span class="bdg ok">${fa(qStudy)} ساعت (جمع فصل)</span></td></tr>
+        <tr><td style="text-align:right;font-weight:600">تراز خالص مالی (تومان)</td><td style="color:${m2.bal>=0?'var(--ok)':'var(--er)'}">${mo(m2.bal)}</td><td style="color:${m1.bal>=0?'var(--ok)':'var(--er)'}">${mo(m1.bal)}</td><td style="color:${m0.bal>=0?'var(--ok)':'var(--er)'}"><b>${mo(m0.bal)}</b></td><td><b>${fa(qSave)}٪ پس‌انداز</b></td></tr>
+      </table></div>
+    </div>
+
+    <div class="g2">
+      <div class="rx-box" style="margin:0;border-color:var(--ok)">
+        <h3>📅 پیشنهاد پایان ماه (${PM[hs.m-1]})</h3>
+        <p>${m0.hPct<50?'نرخ انجام عادت‌ها در این ماه زیر ۵۰٪ بوده است؛ احتمالاً تعداد عادت‌ها زیاد یا سخت است.':`در این ماه ${fa(m0.hDone)} تیک عادت و ${fa(m0.sHr)} ساعت مطالعه ثبت کرده‌اید.`}</p>
+        <span class="rx-act">اقدام اولِ ماه بعد: ضعیف‌ترین عادت این ماه را به نصف کاهش دهید (مثلاً از ۳۰ دقیقه به ۱۰ دقیقه) تا زنجیره استمرار شکل بگیرد.</span>
+      </div>
+      <div class="rx-box" style="margin:0;border-color:#6366f1">
+        <h3>🍂 استراتژی فصلی (۹۰ روزه)</h3>
+        <p>در ۳ ماه گذشته مجموعاً <b>${fa(qStudy)} ساعت</b> مطالعه/تمرکز ثبت کرده‌اید و میانگین نرخ پس‌انداز فصلی شما <b>${fa(qSave)}٪</b> بوده است.</p>
+        <span class="rx-act">اقدام فصلی: ۱ هدف از «اهداف سالانه» در نمای هفته را انتخاب کرده و به ۳ هدف ماهانه برای فصل بعد بشکنید.</span>
+      </div>
+    </div>`;
+  }
+
+  // ==================== تب ۵: تحلیل ۶ ماهه و سالانه + پیش‌بینی آینده ====================
+  function viewSixMonthYearly(){
+    const months12=Array.from({length:12},(_,i)=>getMonthFullStats(hs.y,i+1));
+    const m6=Array.from({length:6},(_,i)=>{const p=pvM(hs.y,hs.m,5-i);return getMonthFullStats(p.y,p.m)});
+
+    const yrStudy=+(sm_(months12.map(x=>x.sHr))).toFixed(1);
+    const yrTasks=sm_(months12.map(x=>x.tDone));
+    const yrInc=sm_(months12.map(x=>x.I)),yrExp=sm_(months12.map(x=>x.E)),yrNet=yrInc-yrExp;
+    const h1Study=+(sm_(months12.slice(0,6).map(x=>x.sHr))).toFixed(1),h2Study=+(sm_(months12.slice(6,12).map(x=>x.sHr))).toFixed(1);
+
+    // محاسبه سرعت فعلی برای شبیه‌سازی ۶ ماه و ۱ سال آینده (Compound Trajectory)
+    const activeM=months12.filter(x=>x.sHr>0||x.tDone>0||x.I>0).length||1;
+    const avgMonthlyStudy=yrStudy/activeM;
+    const avgMonthlySave=Math.max(0,yrNet)/activeM;
+    const proj6mStudy=Math.round(avgMonthlyStudy*6),proj1yStudy=Math.round(avgMonthlyStudy*12);
+    const proj6mSave=Math.round(avgMonthlySave*6),proj1ySave=Math.round(avgMonthlySave*12);
+
+    const maxS=Math.max(1,...months12.map(x=>x.sHr));
+    const chart12=months12.map((m,i)=>{
+      const x=15+i*48,h=m.sHr/maxS*95;
+      return `<rect x="${x}" y="${115-h}" width="32" height="${Math.max(3,h)}" rx="5" fill="${i<6?'var(--ac)':'var(--ok)'}"/>
+      <text x="${x+16}" y="132" text-anchor="middle" font-size="9.5" fill="var(--mu)">${PM[i]}</text>
+      ${m.sHr>0?`<text x="${x+16}" y="${110-h}" text-anchor="middle" font-size="9" fill="var(--tx)">${fa(m.sHr)}</text>`:''}`;
+    }).join('');
+
+    return `<div class="cmp-grid">
+      <div class="cmp-card"><small>کل مطالعه سال ${fy(hs.y)}</small><b>${fa(yrStudy)} ساعت</b></div>
+      <div class="cmp-card"><small>کل کارهای انجام‌شده سال</small><b>${fa(yrTasks)} کار</b></div>
+      <div class="cmp-card"><small>مقایسه نیمسال اول و دوم</small><b>${fa(h1Study)}h / ${fa(h2Study)}h</b></div>
+      <div class="cmp-card"><small>پس‌انداز خالص سال ${fy(hs.y)}</small><b style="color:${yrNet>=0?'var(--ok)':'var(--er)'}">${mo(yrNet)} ت</b></div>
+    </div>
+
+    <div class="cd">
+      <h2>نمودار ۱۲ ماهه سال ${fy(hs.y)} — ساعت مطالعه و تمرکز (نیمسال اول و دوم)</h2>
+      <div class="wide"><svg viewBox="0 0 590 142" width="100%" style="min-width:480px;direction:ltr">${chart12}</svg></div>
+      <div class="lg"><span><b style="background:var(--ac)"></b>۶ ماهه اول سال (فروردین تا شهریور)</span><span><b style="background:var(--ok)"></b>۶ ماهه دوم سال (مهر تا اسفند)</span></div>
+    </div>
+
+    <div class="cd next">
+      <h2>🔭 شبیه‌ساز آینده: اگر با همین فرمانِ فعلی ادامه بدهید...</h2>
+      <div class="g2" style="margin-top:10px">
+        <div class="rx-box" style="margin:0;border-color:var(--ok)">
+          <h3>⏳ در پایان ۶ ماه آینده</h3>
+          <p>• مجموع انباشت مطالعه و مهارت‌آموزی: <b>+${fa(proj6mStudy)} ساعت</b> (معادل تسلط کامل بر ۱ مهارت تخصصی یا خواندن حدود ${fa(Math.max(1,Math.round(proj6mStudy/8)))} کتاب کامل).<br>
+          • انباشت نقدینگی و پس‌انداز جدید: <b>+${mo(proj6mSave)} تومان</b>.</p>
+          <span class="rx-act">پیشنهاد ۶ ماهه: تنها با افزودن ۲۰ دقیقه مطالعه روزانه، خروجی ۶ ماه آینده شما به ${fa(proj6mStudy+60)} ساعت می‌رسد!</span>
+        </div>
+        <div class="rx-box" style="margin:0;border-color:#6366f1">
+          <h3>🏆 در پایان ۱ سال آینده</h3>
+          <p>• مجموع انباشت مطالعه و کار عمیق: <b>+${fa(proj1yStudy)} ساعت</b>.<br>
+          • انباشت سرمایه جدید (بدون احتساب سود مرکب دارایی‌ها): <b>+${mo(proj1ySave)} تومان</b> (معادل حدود ${fa(Math.round(proj1ySave/Math.max(1,MKT().g18)*10)/10)} گرم طلای ۱۸ عیار به نرخ امروز).</p>
+          <span class="rx-act">استراتژی سالانه: هر ۳ ماه یک‌بار، سقف بودجه و اهداف سالانه در تب «نمای هفته» را با نرخ تورم و رشد درآمدتان کالیبره کنید.</span>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // جایگزینی تابع vAi اصلی با موتور ۵سطحی جدید
+  window.vAi=function(){
+    const modes=[
+      ['hidden','🧠 الگوهای پنهان (کشف روابط)'],
+      ['day','🌙 پایان روز (امروز)'],
+      ['week','📊 هفتگی و رادار توازن'],
+      ['month','📅 ماهانه و فصلی (۳ ماهه)'],
+      ['year','🔭 ۶ ماهه و سالانه (کلان‌نگر)']
+    ];
+    const nav=`<div class="ai-nav">${modes.map(m=>`<button class="${aiMode===m[0]?'p':''}" data-a="aiMode" data-v="${m[0]}">${m[1]}</button>`).join('')}</div>`;
+    const body={
+      hidden:viewHiddenPatterns,
+      day:viewDailyEnd,
+      week:viewWeeklyComp,
+      month:viewMonthlySeasonal,
+      year:viewSixMonthYearly
+    }[aiMode]();
+    return nav+body;
+  };
+
+  document.addEventListener('click',e=>{
+    const b=e.target.closest('[data-a="aiMode"]');
+    if(b){aiMode=b.dataset.v;render()}
+  });
+
+  if(tab==='ai')render();
+})();
+</script>
 </body>
 <meta name="theme-color" content="#141824">
 <meta name="apple-mobile-web-app-capable" content="yes">
