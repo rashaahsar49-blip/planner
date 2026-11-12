@@ -829,7 +829,327 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
   if(getTgCfg().tok)setTimeout(()=>pullTgMessages(true),2000);
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&getTgCfg().tok)pullTgMessages(true)});
 })();
-</script>  
+</script> 
+<!-- ==================== ماژول توسعه ۶گانه پلنر شخصی ==================== -->
+<style>
+.cal-g{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center}
+.cal-h{font-size:12px;font-weight:700;color:var(--mu);padding:6px 0}
+.cal-d{min-height:74px;background:var(--sf2);border:1px solid var(--bd2);border-radius:14px;padding:6px;cursor:pointer;display:flex;flex-direction:column;justify-content:space-between;transition:all .15s}
+.cal-d:hover{border-color:var(--ac);transform:translateY(-2px)}
+.cal-d.tdy{border:2px solid var(--ok);background:color-mix(in srgb,var(--ok) 10%,var(--sf2))}
+.cal-d.hol{background:color-mix(in srgb,var(--er) 9%,var(--sf2))}
+.cal-num{font-weight:800;font-size:14px;display:flex;justify-content:space-between;align-items:center}
+.cal-tags{display:flex;flex-direction:column;gap:2px;font-size:10.5px;text-align:right}
+.cal-tag{padding:1px 5px;border-radius:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:var(--ac2)}
+.mic-btn{padding:5px 8px;border-radius:9px;font-size:12px;background:var(--sf2);border:1px solid var(--bd2);flex:none}
+.mic-btn.rec{background:var(--er);color:#fff;animation:pls 1s infinite}
+#zenScr{position:fixed;inset:0;background:radial-gradient(circle at center,#131b2e 0%,#070a12 100%);color:#f8fafc;z-index:95;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+#zenScr.on{display:flex}
+.zen-clk{font-size:clamp(64px,16vw,128px);font-weight:200;letter-spacing:4px;direction:ltr;font-variant-numeric:tabular-nums;margin:16px 0;text-shadow:0 0 40px rgba(16,185,129,.25)}
+</style>
+
+<!-- مودال جمع‌بندی شبانه ۶۰ ثانیه‌ای -->
+<div class="mdl-bg" id="nrMdl">
+  <div class="cd mdl" style="max-width:500px;background:var(--sf)">
+    <div class="row sb"><h2 style="margin:0">🌙 جمع‌بندی شبانه روز شما</h2><button class="x" onclick="$('nrMdl').classList.remove('on')">✕</button></div>
+    <div id="nrBody" style="max-height:75vh;overflow-y:auto;padding-left:4px"></div>
+  </div>
+</div>
+
+<!-- صفحه تمام‌صفحه اتاق تمرکز (Zen Mode) -->
+<div id="zenScr">
+  <div style="opacity:.7;font-size:14px;letter-spacing:1px">اتاق تمرکز عمیق (ZEN MODE)</div>
+  <h2 id="zenSubj" style="font-size:22px;margin:8px 0 0;color:#10b981">تمرکز و مطالعه</h2>
+  <div class="zen-clk" id="zenClk">25:00</div>
+  <div class="ctr" style="gap:10px;margin-bottom:20px">
+    <button class="p" id="zenTgBtn" style="padding:10px 26px;font-size:15px">شروع / توقف</button>
+    <button id="zenRainBtn" style="background:rgba(255,255,255,.1);color:#fff;padding:10px 16px">🌧 صدای باران</button>
+    <button id="zenBinBtn" style="background:rgba(255,255,255,.1);color:#fff;padding:10px 16px">🧠 موج تمرکز ۱۴Hz</button>
+    <button onclick="toggleNoise();upZenUI()" id="zenBrnBtn" style="background:rgba(255,255,255,.1);color:#fff;padding:10px 16px">🌊 نویز قهوه‌ای</button>
+  </div>
+  <button onclick="closeZen()" style="background:transparent;border:1px solid rgba(255,255,255,.2);color:#94a3b8;padding:6px 18px">خروج از اتاق تمرکز ✕</button>
+</div>
+
+<script>
+(function(){
+  // ۱. افزودن تب‌های «تقویم ماه» و «یادگیری و کتاب» به منوی اصلی
+  if(!TABS.some(x=>x[0]==='cal'))TABS.splice(1,0,['cal','تقویم ماه']);
+  if(!TABS.some(x=>x[0]==='lrn'))TABS.splice(5,0,['lrn','یادگیری و کتاب']);
+
+  // افزودن دکمه «جمع‌بندی شب» به هدر بالا
+  const wkBar=q('header .wk');
+  if(wkBar&&!$('nrOpenBtn')){
+    const nb=document.createElement('button');
+    nb.id='nrOpenBtn';nb.textContent='🌙 جمع‌بندی شب';nb.title='مرور و بستن پرونده امروز در ۶۰ ثانیه';
+    wkBar.insertBefore(nb,$('srchBtn')||wkBar.firstChild);
+    nb.onclick=openNightlyReview;
+  }
+  $('nrMdl').onclick=e=>{if(e.target===$('nrMdl'))$('nrMdl').classList.remove('on')};
+
+  function LRN(){if(!S.lrn)S.lrn=[{id:'l1',t:'کتاب عادت‌های اتمی',tp:'کتاب',cur:45,tot:300},{id:'l2',t:'دوره تخصصی',tp:'دوره',cur:4,tot:24}];return S.lrn}
+  function DBTS(){const B=BD();if(!B.debts)B.debts=[];return B.debts}
+
+  // ==================== ۱. نمای تقویم ماهانه شمسی (vCal) ====================
+  function vCal(){
+    const n=ML(hs.y,hs.m),off=(hs.s.getDay()+1)%7,nowP=pp(new Date()),cds=CDs(),inst=BD().inst||[];
+    let cells=DN.map(d=>`<div class="cal-h">${d}</div>`).join('');
+    for(let i=0;i<off;i++)cells+=`<div></div>`;
+    for(let d=1;d<=n;d++){
+      const dt=j2d(hs.y,hs.m,d),wSat=sat(dt),wKey=wSat.toISOString().slice(0,10),dIdx=(dt.getDay()+1)%7;
+      const dayData=(S[wKey]&&S[wKey].days&&S[wKey].days[dIdx])||{t:[],hol:0};
+      const isToday=(nowP.y===hs.y&&nowP.m===hs.m&&nowP.d===d);
+      const isHol=dayData.hol||dIdx===6;
+      const tTot=(dayData.t||[]).length,tDone=(dayData.t||[]).filter(x=>x.d).length;
+      const iso=dt.toISOString().slice(0,10);
+      const evs=cds.filter(c=>c.dt===iso);
+      const dueInst=inst.filter(ins=>ins.d===d&&!(ins.paid&&ins.paid[hs.y+'-'+hs.m]));
+
+      let tags='';
+      if(tTot)tags+=`<div class="cal-tag" style="color:${tDone===tTot?'var(--ok)':'var(--tx)'}">✓ ${fa(tDone)}/${fa(tTot)} کار</div>`;
+      evs.forEach(ev=>{tags+=`<div class="cal-tag" style="background:color-mix(in srgb,var(--wn) 22%,transparent);color:var(--wn)">📌 ${esc(ev.t)}</div>`});
+      dueInst.forEach(ins=>{tags+=`<div class="cal-tag" style="background:color-mix(in srgb,var(--er) 18%,transparent);color:var(--er)">💳 قسط ${esc(ins.t)}</div>`});
+
+      cells+=`<div class="cal-d ${isToday?'tdy':''} ${isHol?'hol':''}" data-a="calGo" data-d="${d}">
+        <div class="cal-num"><span>${fa(d)}</span>${isToday?'<small class="bdg ok" style="font-size:9px;padding:1px 4px">امروز</small>':''}</div>
+        <div class="cal-tags">${tags}</div>
+      </div>`;
+    }
+    return `<div class="cd"><div class="row sb" style="margin:0"><button data-a="hm" data-v="-1">› ماه قبل</button><h2 style="margin:0;font-size:18px">تقویم ماهانه — ${PM[hs.m-1]} ${fy(hs.y)}</h2><button data-a="hm" data-v="1">ماه بعد ‹</button></div></div>
+    <div class="cd"><div class="mu" style="margin-bottom:10px">با کلیک روی هر روز، مستقیماً وارد «برنامه روزانه» همان تاریخ می‌شوید.</div><div class="cal-g">${cells}</div></div>`;
+  }
+
+  // ==================== ۲. تب یادگیری، کتاب و دوره‌ها (vLrn) ====================
+  function vLrn(){
+    const list=LRN();
+    const cards=list.map((x,i)=>{
+      const pct=x.tot>0?Math.min(100,Math.round(100*x.cur/x.tot)):0;
+      const unit=x.tp==='کتاب'?'صفحه':x.tp==='دوره'?'جلسه':'درصد';
+      return `<div class="cd" style="margin-bottom:10px">
+        <div class="row sb"><span class="bdg">${esc(x.tp)}</span><b>${fa(pct)}٪ تکمیل</b><button class="x" data-a="lrnDel" data-i="${i}">✕</button></div>
+        <h2 style="margin:6px 0">${esc(x.t)}</h2>
+        ${bar(pct)}
+        <div class="row sb" style="margin-top:10px;margin-bottom:0">
+          <span class="mu">${fa(x.cur)} از ${fa(x.tot)} ${unit}</span>
+          <div class="row" style="margin:0">
+            <button data-a="lrnStep" data-i="${i}" data-s="-1">-۱</button>
+            <button class="p" data-a="lrnStep" data-i="${i}" data-s="1">+۱</button>
+            <button data-a="lrnStep" data-i="${i}" data-s="5">+۵</button>
+            <button data-a="lrnTimer" data-i="${i}" title="شروع تایمر مطالعه برای این مبحث">⏱ تایمر</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="cd"><h2>افزودن کتاب، دوره آموزشی یا مهارت جدید</h2>
+      <div class="row fw">
+        <input type="text" id="lrnTitle" placeholder="عنوان کتاب، دوره یا مهارت..." style="flex:2;min-width:160px">
+        <select id="lrnType" style="width:110px"><option value="کتاب">📚 کتاب</option><option value="دوره">🎓 دوره آموزشی</option><option value="پروژه">🚀 پروژه/مهارت</option></select>
+        <input type="number" id="lrnCur" placeholder="فعلی (مثلاً 0)" style="width:95px">
+        <input type="number" id="lrnTot" placeholder="کل (مثلاً 300)" style="width:105px">
+        <button class="p" data-a="lrnAdd">+ ثبت</button>
+      </div>
+    </div>
+    <div class="g2">${cards||'<div class="mu">هنوز کتاب یا دوره‌ای ثبت نشده است.</div>'}</div>`;
+  }
+
+  // ==================== ۳. زیرتب «طلب و بدهی (قرض و دنگ)» در بخش مالی ====================
+  function bDt(){
+    const list=DBTS();
+    const talab=sm_(list.filter(x=>!x.done&&x.tp==='talab').map(x=>x.a));
+    const bedehi=sm_(list.filter(x=>!x.done&&x.tp==='bedehi').map(x=>x.a));
+    const net=talab-bedehi;
+    return `<div class="tiles">
+      <div class="cd tl"><b style="color:var(--ok)">${mo(talab)}</b><span>کل طلب من از دیگران</span></div>
+      <div class="cd tl"><b style="color:var(--er)">${mo(bedehi)}</b><span>کل بدهی من به دیگران</span></div>
+      <div class="cd tl" style="grid-column:span 2"><b style="color:${net>=0?'var(--ok)':'var(--er)'}">${net<0?'−':''}${mo(Math.abs(net))}</b><span>تراز خالص حساب‌های شخصی (تومان)</span></div>
+    </div>
+    <div class="cd"><h2>ثبت طلب، بدهی یا دنگ جدید</h2>
+      <div class="row fw">
+        <input type="text" id="dtPerson" placeholder="نام شخص / طرف حساب..." style="flex:1;min-width:130px">
+        <select id="dtType" style="width:155px">
+          <option value="talab">🟢 طلب دارم (قرض دادم)</option>
+          <option value="bedehi">🔴 بدهکارم (قرض گرفتم)</option>
+        </select>
+        <input type="number" id="dtAm" placeholder="مبلغ (تومان)" style="flex:1;min-width:120px" oninput="$('dtWords').textContent=numWords(this.value)">
+        <input type="text" id="dtNote" placeholder="بابت (مثلاً: دنگ سفر، قرض...)" style="flex:1;min-width:130px">
+        <button class="p" data-a="dtAdd">+ ثبت حساب</button>
+      </div>
+      <div id="dtWords" class="mu"></div>
+    </div>
+    <div class="cd"><h2>فهرست حساب‌های دفتری (طلب و بدهی‌ها)</h2>
+      ${list.length?list.map((x,i)=>`<div class="row fw" style="padding:8px 4px;border-bottom:1px solid var(--bd2)">
+        <span class="bdg ${x.tp==='talab'?'ok':'wn'}">${x.tp==='talab'?'طلب از':'بدهکار به'}</span>
+        <span class="f1" style="min-width:150px"><b class="${x.done?'done':''}">${esc(x.person)}</b> <small class="mu">${x.note?'— '+esc(x.note):''} (${esc(x.dt)})</small></span>
+        <b style="color:${x.tp==='talab'?'var(--ok)':'var(--er)'}">${mo(x.a)} ت</b>
+        <button class="${x.done?'p':''}" data-a="dtSettle" data-i="${i}">${x.done?'تسویه شد ✓':'تسویه حساب'}</button>
+        <button data-a="dtShare" data-i="${i}" title="کپی/ارسال رسید در تلگرام">✈️ رسید</button>
+        <button class="x" data-a="dtDel" data-i="${i}">✕</button>
+      </div>`).join(''):'<div class="mu">حساب باز یا طلب/بدهی ثبت نشده است.</div>'}
+    </div>`;
+  }
+
+  // ==================== ۴. ویزارد جمع‌بندی شبانه ۶۰ ثانیه‌ای ====================
+  function openNightlyReview(){
+    const w=W(),tdIdx=(new Date().getDay()+1)%7,td=w.days[tdIdx],pr=td.pr||[0,0,0];
+    const nowP=pp(new Date()),hk=nowP.y+'-'+nowP.m,H=HD(),hLog=H.log[hk]||{};
+    const unDone=td.t.filter(x=>!x.d).length;
+    $('nrBody').innerHTML=`
+      <div class="mu" style="margin-bottom:8px">۱. <b>وضعیت کارهای امروز (${DN[tdIdx]}):</b></div>
+      ${td.t.length?td.t.map((x,i)=>`<div class="row"><input type="checkbox" onchange="W().days[${tdIdx}].t[${i}].d=this.checked?1:0;save();openNightlyReview();render()" ${x.d?'checked':''}><span class="f1 ${x.d?'done':''}">${esc(x.t)}</span></div>`).join(''):'<div class="mu">کاری برای امروز ثبت نشده بود.</div>'}
+      ${unDone?`<button class="p" style="width:100%;margin:6px 0" onclick="di=${tdIdx};q('[data-a=roll]')?.click();openNightlyReview()">↪ انتقال ${fa(unDone)} کار انجام‌نشده به فردا</button>`:''}
+      <hr style="border:0;border-top:1px solid var(--bd2);margin:10px 0">
+      <div class="mu" style="margin-bottom:6px">۲. <b>نمازهای امروز:</b></div>
+      <div class="ctr">${PR_NAMES.map((nm,pI)=>`<button class="pr-btn f1 ${pr[pI]?'on':''}" onclick="W().days[${tdIdx}].pr[${pI}]=W().days[${tdIdx}].pr[${pI}]?0:1;save();openNightlyReview();render()">${nm} ${pr[pI]?'✓':''}</button>`).join('')}</div>
+      <hr style="border:0;border-top:1px solid var(--bd2);margin:10px 0">
+      <div class="mu" style="margin-bottom:6px">۳. <b>عادت‌های امروز (${fa(nowP.d)} ${PM[nowP.m-1]}):</b></div>
+      <div class="ctr">${H.list.map(h=>{const isOn=(hLog[h.id]||[]).includes(nowP.d);return `<button class="pr-btn ${isOn?'on':''}" onclick="toggleTodayHabit('${h.id}',${nowP.d},'${hk}')">${esc(h.n)} ${isOn?'✓':''}</button>`}).join('')}</div>
+      <hr style="border:0;border-top:1px solid var(--bd2);margin:10px 0">
+      <div class="mu" style="margin-bottom:6px">۴. <b>ثبت مهم‌ترین اولویت فردا:</b></div>
+      <div class="row"><input type="text" id="nrTmrTask" placeholder="مهم‌ترین کاری که فردا صبح باید انجام دهم..."><button class="p" onclick="addTmrTask()">+ ثبت برای فردا</button></div>
+    `;
+    $('nrMdl').classList.add('on');
+  }
+  window.openNightlyReview=openNightlyReview;
+  window.toggleTodayHabit=function(hid,dayNum,hk){
+    const H=HD(),lg=H.log[hk]=H.log[hk]||{},arr=lg[hid]=lg[hid]||[],ix=arr.indexOf(dayNum);
+    ix<0?arr.push(dayNum):arr.splice(ix,1);save();openNightlyReview();render();
+  };
+  window.addTmrTask=function(){
+    const inp=$('nrTmrTask'),v=inp.value.trim();if(!v)return;
+    const tdIdx=(new Date().getDay()+1)%7,w=W();
+    if(tdIdx<6)w.days[tdIdx+1].t.push({t:v,d:0,p:1});
+    else{const nk=new Date(ws.getTime()+7*864e5).toISOString().slice(0,10);if(!S[nk])S[nk]={goals:[],pri:['','',''],notes:'',days:DN.map(()=>({b:{},t:[],n:'',plan:0,ses:[],hol:0,pr:[0,0,0]}))};S[nk].days[0].t.push({t:v,d:0,p:1})}
+    inp.value='';save();render();alert('با اولویت بالا برای فردا ثبت شد ✓');
+  };
+
+  // ==================== ۵. اتاق تمرکز (Zen Mode) + صدای باران و موج ۱۴Hz ====================
+  let rainCtx=null,rainNode=null,binCtx=null,binOsc1=null,binOsc2=null;
+  function toggleRain(){
+    if(rainNode){try{rainNode.stop();rainCtx.close()}catch(e){}rainNode=null;rainCtx=null;upZenUI();return}
+    try{
+      const C=window.AudioContext||window.webkitAudioContext;rainCtx=new C();
+      const buf=rainCtx.createBuffer(1,rainCtx.sampleRate*2,rainCtx.sampleRate),out=buf.getChannelData(0);
+      let b0=0,b1=0,b2=0;
+      for(let i=0;i<buf.length;i++){const w=Math.random()*2-1;b0=.997*b0+.029*w;b1=.985*b1+.032*w;b2=.950*b2+.048*w;out[i]=(b0+b1+b2)*.07}
+      rainNode=rainCtx.createBufferSource();rainNode.buffer=buf;rainNode.loop=true;
+      const flt=rainCtx.createBiquadFilter();flt.type='bandpass';flt.frequency.value=800;flt.Q.value=.7;
+      rainNode.connect(flt);flt.connect(rainCtx.destination);rainNode.start();upZenUI();
+    }catch(e){}
+  }
+  function toggleBinaural(){
+    if(binOsc1){try{binOsc1.stop();binOsc2.stop();binCtx.close()}catch(e){}binOsc1=null;binOsc2=null;binCtx=null;upZenUI();return}
+    try{
+      const C=window.AudioContext||window.webkitAudioContext;binCtx=new C();
+      const merger=binCtx.createChannelMerger(2),g=binCtx.createGain();g.gain.value=.08;
+      binOsc1=binCtx.createOscillator();binOsc2=binCtx.createOscillator();
+      binOsc1.frequency.value=200;binOsc2.frequency.value=214; // 14Hz Beta/Alpha focus wave
+      binOsc1.connect(merger,0,0);binOsc2.connect(merger,0,1);
+      merger.connect(g);g.connect(binCtx.destination);
+      binOsc1.start();binOsc2.start();upZenUI();
+    }catch(e){}
+  }
+  window.upZenUI=function(){
+    $('zenSubj').textContent=T.subj||'تمرکز عمیق';
+    $('zenClk').textContent=fmt(T.mode==='pomo'?T.left:T.el);
+    $('zenRainBtn').style.background=rainNode?'#0d9488':'rgba(255,255,255,.1)';
+    $('zenBinBtn').style.background=binOsc1?'#0d9488':'rgba(255,255,255,.1)';
+    $('zenBrnBtn').style.background=noiseNode?'#0d9488':'rgba(255,255,255,.1)';
+  };
+  window.closeZen=function(){$('zenScr').classList.remove('on')};
+  $('zenRainBtn').onclick=toggleRain;
+  $('zenBinBtn').onclick=toggleBinaural;
+  $('zenTgBtn').onclick=()=>{q('[data-a="tg"]')?.click();upZenUI()};
+  setInterval(()=>{if($('zenScr').classList.contains('on'))upZenUI()},500);
+
+  // ==================== ۶. تایپ صوتی فارسی (Speech-to-Text) ====================
+  function attachVoiceButtons(){
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR)return;
+    document.querySelectorAll('#gn,#tn,#hn,#bnt,#cdTitle,#wlTitle,#lrnTitle,#dtNote,textarea').forEach(inp=>{
+      if(inp.dataset.hasMic)return;
+      inp.dataset.hasMic='1';
+      const btn=document.createElement('button');
+      btn.type='button';btn.className='mic-btn';btn.textContent='🎙';btn.title='تایپ صوتی فارسی';
+      btn.onclick=()=>{
+        const rec=new SR();rec.lang='fa-IR';rec.interimResults=false;
+        btn.classList.add('rec');
+        rec.onresult=ev=>{
+          const txt=ev.results[0][0].transcript;
+          inp.value=(inp.value?inp.value+' ':'')+txt;
+          inp.dispatchEvent(new Event('input',{bubbles:true}));
+        };
+        rec.onend=()=>btn.classList.remove('rec');
+        rec.onerror=()=>btn.classList.remove('rec');
+        rec.start();
+      };
+      if(inp.parentElement&&inp.parentElement.classList.contains('row'))inp.parentElement.insertBefore(btn,inp.nextSibling);
+    });
+  }
+
+  // اتصال یکپارچه به تابع render اصلی برنامه
+  const origRender=window.render;
+  window.render=function(){
+    head();
+    if(tab==='cal')$('main').innerHTML=vCal();
+    else if(tab==='lrn')$('main').innerHTML=vLrn();
+    else if(tab==='bg'&&bsub==='dt'){
+      $('main').innerHTML=vBg2();
+      const ctr=q('#main .ctr');
+      if(ctr&&!q('[data-v="dt"]'))ctr.insertAdjacentHTML('beforeend',`<button class="p" data-a="bs" data-v="dt">طلب و بدهی</button>`);
+      const firstCd=q('#main .cd');
+      $('main').innerHTML=firstCd.outerHTML+bDt();
+    }else{
+      origRender();
+      if(tab==='bg'){
+        const ctr=q('#main .ctr');
+        if(ctr&&!q('[data-v="dt"]'))ctr.insertAdjacentHTML('beforeend',`<button class="${bsub==='dt'?'p':''}" data-a="bs" data-v="dt">طلب و بدهی</button>`);
+      }
+      if(tab==='tm'){
+        const ctr=q('#main .ctr');
+        if(ctr&&!$('zenOpenBtn'))ctr.insertAdjacentHTML('beforeend',`<button id="zenOpenBtn" onclick="$('zenScr').classList.add('on');upZenUI()">🧘 اتاق تمرکز (Zen)</button>`);
+      }
+    }
+    attachVoiceButtons();
+  };
+
+  // مدیریت کلیک‌های ماژول توسعه
+  document.addEventListener('click',e=>{
+    const b=e.target.closest('[data-a]');if(!b)return;
+    const a=b.dataset.a,i=+b.dataset.i;
+    if(a==='calGo'){
+      const dt=j2d(hs.y,hs.m,+b.dataset.d);
+      ws=sat(dt);di=(dt.getDay()+1)%7;tab='day';render();
+    }else if(a==='lrnAdd'){
+      const t=$('lrnTitle').value.trim(),tp=$('lrnType').value,cur=+$('lrnCur').value||0,tot=+$('lrnTot').value||100;
+      if(t){LRN().push({id:'l'+Date.now(),t,tp,cur,tot});save();render()}
+    }else if(a==='lrnStep'){
+      const item=LRN()[i];if(item){item.cur=clamp(item.cur+(+b.dataset.s),0,item.tot);save();render()}
+    }else if(a==='lrnDel'){LRN().splice(i,1);save();render()}
+    else if(a==='lrnTimer'){
+      const item=LRN()[i];if(item){T.subj=item.t;tab='tm';save();render()}
+    }else if(a==='dtAdd'){
+      const person=$('dtPerson').value.trim(),tp=$('dtType').value,am=+$('dtAm').value||0,note=$('dtNote').value.trim();
+      if(person&&am>0){DBTS().unshift({id:'d'+Date.now(),person,tp,a:am,note,dt:pdy(new Date()),done:0});save();render()}
+    }else if(a==='dtSettle'){
+      const item=DBTS()[i];
+      if(item){
+        item.done=item.done?0:1;
+        if(item.done&&confirm('آیا مبلغ این تسویه در تراکنش‌های مالی این ماه هم ثبت شود؟')){
+          const np=pp(new Date()),mk=np.y+'-'+np.m;
+          (BD().tx[mk]=BD().tx[mk]||[]).push({id:'t'+Date.now(),d:np.d,c:item.tp==='talab'?'rfd':'dbt',a:item.a,n:`تسویه با ${item.person} (${item.note||''})`});
+        }
+        save();render();
+      }
+    }else if(a==='dtShare'){
+      const x=DBTS()[i];if(!x)return;
+      const txt=`🧾 رسید حساب شخصی\n👤 طرف حساب: ${x.person}\n📌 نوع: ${x.tp==='talab'?'طلب من':'بدهی من'}\n💰 مبلغ: ${mo(x.a)} تومان\n📝 توضیح: ${x.note||'—'}\nوضعیت: ${x.done?'تسویه شده ✅':'در انتظار تسویه ⏳'}`;
+      if(window.sendTgText)window.sendTgText(txt);
+      navigator.clipboard?.writeText(txt);alert('متن رسید کپی شد (و در صورت اتصال، به تلگرام ارسال شد).');
+    }else if(a==='dtDel'){DBTS().splice(i,1);save();render()}
+  });
+
+  render();
+})();
+</script>
 </body>
 <meta name="theme-color" content="#141824">
 <meta name="apple-mobile-web-app-capable" content="yes">
