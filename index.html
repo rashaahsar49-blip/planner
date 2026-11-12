@@ -1554,7 +1554,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
   if(tab==='ai')render();
 })();
 </script>
-<!-- ==================== تم شیشه‌ای آبی یاقوتی (Sapphire Glass) + اصلاح تقویم اقساط ==================== -->
+<!-- ==================== تم شیشه‌ای آبی یاقوتی + تقویم ماهانه ۱۰۰٪ ریسپانسیو موبایل ==================== -->
 <style>
 :root{
   --bg:#e6eef8!important;
@@ -1570,12 +1570,11 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
   --ok:#0d9488!important;
   --wn:#d97706!important;
   --er:#6366f1!important;
-  /* رنگ‌های هماهنگ و چشم‌نواز تایم‌بلاکینگ با ته‌رنگ آبی */
-  --cw:rgba(37,99,235,0.13)!important;  /* کار (۸ تا ۱۸): آبی یاقوتی ملایم */
-  --cr:rgba(14,165,233,0.08)!important; /* استراحت: آبی یخی بسیار لطیف */
-  --cs:rgba(99,102,241,0.16)!important; /* مطالعه: نیلی-بنفش */
-  --cp:rgba(13,148,136,0.15)!important; /* ورزش: سبزآبی فیروزه‌ای */
-  --cl:rgba(56,189,248,0.16)!important; /* شخصی: آبی آسمانی */
+  --cw:rgba(37,99,235,0.13)!important;
+  --cr:rgba(14,165,233,0.08)!important;
+  --cs:rgba(99,102,241,0.16)!important;
+  --cp:rgba(13,148,136,0.15)!important;
+  --cl:rgba(56,189,248,0.16)!important;
   --sh:0 20px 45px -15px rgba(15,23,42,0.1),0 4px 14px rgba(37,99,235,0.06),inset 0 1px 1px rgba(255,255,255,0.95)!important;
 }
 :root[data-theme="dark"]{
@@ -1608,32 +1607,36 @@ body{
 }
 button.p,nav button.on,.days button.on{
   background:linear-gradient(135deg,#1d4ed8 0%,#0284c7 55%,#0d9488 100%)!important;
-  color:#fff!important;
-  border:0!important;
+  color:#fff!important;border:0!important;
   box-shadow:0 8px 22px -4px rgba(2,132,199,0.42)!important;
 }
-.brand-mark{
-  background:linear-gradient(135deg,#2563eb,#06b6d4)!important;
-  box-shadow:0 4px 14px rgba(37,99,235,0.4)!important;
-}
-.bar i{
-  background:linear-gradient(90deg,#2563eb,#0284c7,#0d9488)!important;
-}
-.cd h2::before{
-  background:linear-gradient(180deg,#2563eb,#06b6d4)!important;
-  width:5px!important;height:16px!important;
-}
-.hero-top{
-  position:relative;overflow:hidden;
-  background:linear-gradient(135deg,color-mix(in srgb,var(--sf) 82%,#2563eb 14%),color-mix(in srgb,var(--sf) 82%,#06b6d4 14%))!important;
-}
+.brand-mark{background:linear-gradient(135deg,#2563eb,#06b6d4)!important;box-shadow:0 4px 14px rgba(37,99,235,0.4)!important}
+.bar i{background:linear-gradient(90deg,#2563eb,#0284c7,#0d9488)!important}
+.cd h2::before{background:linear-gradient(180deg,#2563eb,#06b6d4)!important;width:5px!important;height:16px!important}
+.hero-top{position:relative;overflow:hidden;background:linear-gradient(135deg,color-mix(in srgb,var(--sf) 82%,#2563eb 14%),color-mix(in srgb,var(--sf) 82%,#06b6d4 14%))!important}
+
+/* اصلاح قطعی ریسپانسیو تقویم ماهانه در موبایل و دسکتاپ (بدون اسکرول افقی) */
+.cal-g{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:6px;text-align:center;width:100%}
+.cal-d{min-width:0!important;max-width:100%!important;overflow:hidden!important;min-height:76px;background:var(--sf2);border:1px solid var(--bd2);border-radius:14px;padding:6px 5px;cursor:pointer;display:flex;flex-direction:column;justify-content:space-between;transition:all .15s}
 .cal-d.hol{background:color-mix(in srgb,#0284c7 8%,var(--sf2))!important}
+.cal-tag{display:block;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:1px 5px;border-radius:5px;font-size:10.5px}
+.cal-dot-row{display:none}
+@media(max-width:640px){
+  .cal-g{gap:4px!important}
+  .cal-h{font-size:10.5px!important;padding:4px 0!important;overflow:hidden;text-overflow:ellipsis}
+  .cal-d{min-height:54px!important;padding:5px 2px!important;border-radius:11px!important;align-items:center}
+  .cal-num{font-size:13px!important;justify-content:center!important;width:100%}
+  .cal-num small{display:none!important}
+  .cal-tags{display:none!important}
+  .cal-dot-row{display:flex!important;gap:3px;justify-content:center;align-items:center;flex-wrap:wrap;margin-top:auto}
+  .c-dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+  .c-mini{font-size:9px;color:var(--mu);line-height:1}
+}
 .bg-shapes{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
 .bg-shapes svg{position:absolute;opacity:.34;filter:blur(1px)}
 :root[data-theme="dark"] .bg-shapes svg{opacity:.18}
 </style>
 
-<!-- اشکال گرافیکی و هندسی مدرن با طیف آبی و فیروزه‌ای -->
 <div class="bg-shapes" aria-hidden="true">
   <svg width="440" height="440" viewBox="0 0 440 440" style="top:-90px;right:-90px">
     <defs><linearGradient id="bgBl1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#2563eb"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient></defs>
@@ -1649,7 +1652,6 @@ button.p,nav button.on,.days button.on{
 
 <script>
 (function(){
-  // ۱. ویجت نرخ بازار بدون انس و با استایل آبی-فیروزه‌ای
   window.mktWidget=function(){
     const mkt=MKT();
     return `<div class="cd mkt-bar" style="position:relative;overflow:hidden">
@@ -1675,7 +1677,6 @@ button.p,nav button.on,.days button.on{
     </div>`;
   };
 
-  // ۲. دیفالت برنامه ساعتی: ۸ تا ۱۸ کار (work) و بقیه ساعت‌ها استراحت (rest)
   function applyDefaultSchedule(w){
     if(!w||!w.days)return;
     w.days.forEach(d=>{
@@ -1690,12 +1691,13 @@ button.p,nav button.on,.days button.on{
   const origW=window.W;
   window.W=function(){const w=origW();applyDefaultSchedule(w);return w};
 
-  // ۳. بازنویسی تقویم ماهانه (نمایش قطعی اقساط و اجاره در ماه جاری و تمام ماه‌ها)
   function renderMonthlyCal(){
     const n=ML(hs.y,hs.m),off=(hs.s.getDay()+1)%7,nowP=pp(new Date()),cds=CDs();
     const mk=hs.y+'-'+hs.m,B=BD(),inst=B.inst||[],mTxs=(B.tx&&B.tx[mk])||[];
     let cells=DN.map(d=>`<div class="cal-h">${d}</div>`).join('');
     for(let i=0;i<off;i++)cells+=`<div></div>`;
+    const monthAgenda=[];
+
     for(let d=1;d<=n;d++){
       const dt=j2d(hs.y,hs.m,d),wSat=sat(dt),wKey=wSat.toISOString().slice(0,10),dIdx=(dt.getDay()+1)%7;
       const dayData=(S[wKey]&&S[wKey].days&&S[wKey].days[dIdx])||{t:[],hol:0};
@@ -1704,40 +1706,64 @@ button.p,nav button.on,.days button.on{
       const tTot=(dayData.t||[]).length,tDone=(dayData.t||[]).filter(x=>x.d).length;
       const iso=dt.toISOString().slice(0,10);
       const evs=cds.filter(c=>c.dt===iso);
-      // پیدا کردن تمام اقساط این روز در ماه جاری (چه پرداخت‌شده چه پرداخت‌نشده)
       const dayInst=inst.filter(ins=>Number(ins.d)===d);
-      // پیدا کردن اجاره یا قسط‌هایی که مستقیم در تراکنش‌های این ماه ثبت شده‌اند
       const rentTxs=mTxs.filter(tx=>Number(tx.d)===d&&(tx.c==='rent'||tx.c==='lon')&&!tx.insId);
 
-      let tags='';
-      if(tTot)tags+=`<div class="cal-tag" style="color:${tDone===tTot?'var(--ok)':'var(--tx)'}">✓ ${fa(tDone)}/${fa(tTot)} کار</div>`;
-      evs.forEach(ev=>{tags+=`<div class="cal-tag" style="background:color-mix(in srgb,var(--wn) 20%,transparent);color:var(--wn)">📌 ${esc(ev.t)}</div>`});
+      let tags='',dots='';
+      if(tTot){
+        tags+=`<div class="cal-tag" style="color:${tDone===tTot?'var(--ok)':'var(--tx)'}">✓ ${fa(tDone)}/${fa(tTot)} کار</div>`;
+        dots+=`<span class="c-mini">${fa(tDone)}/${fa(tTot)}</span>`;
+      }
+      evs.forEach(ev=>{
+        tags+=`<div class="cal-tag" style="background:color-mix(in srgb,var(--wn) 20%,transparent);color:var(--wn)">📌 ${esc(ev.t)}</div>`;
+        dots+=`<span class="c-dot" style="background:var(--wn)"></span>`;
+        monthAgenda.push({d,tp:'رویداد',t:ev.t,am:0,done:false,col:'var(--wn)'});
+      });
       dayInst.forEach(ins=>{
         const isPaid=!!(ins.paid&&ins.paid[mk]),amt=insAm(ins,mk);
-        tags+=`<div class="cal-tag" style="background:color-mix(in srgb,${isPaid?'var(--ok)':'var(--ac)'} 18%,transparent);color:${isPaid?'var(--ok)':'var(--ac)'};font-weight:700" title="${esc(ins.t)}: ${mo(amt)} تومان">${isPaid?'✓':'💳'} ${esc(ins.t)} (${mo(amt)})</div>`;
+        tags+=`<div class="cal-tag" style="background:color-mix(in srgb,${isPaid?'var(--ok)':'var(--ac)'} 18%,transparent);color:${isPaid?'var(--ok)':'var(--ac)'};font-weight:700">${isPaid?'✓':'💳'} ${esc(ins.t)}</div>`;
+        dots+=`<span class="c-dot" style="background:${isPaid?'var(--ok)':'var(--ac)'}"></span>`;
+        monthAgenda.push({d,tp:isPaid?'قسط (پرداخت‌شده ✓)':'سررسید قسط',t:ins.t,am:amt,done:isPaid,col:isPaid?'var(--ok)':'var(--ac)'});
       });
       rentTxs.forEach(rt=>{
-        tags+=`<div class="cal-tag" style="background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)">🏠 ${esc(rt.n||catL(rt.c))} (${mo(rt.a)})</div>`;
+        tags+=`<div class="cal-tag" style="background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)">🏠 ${esc(rt.n||catL(rt.c))}</div>`;
+        dots+=`<span class="c-dot" style="background:var(--ok)"></span>`;
+        monthAgenda.push({d,tp:'مسکن/وام',t:rt.n||catL(rt.c),am:rt.a,done:true,col:'var(--ok)'});
       });
 
       cells+=`<div class="cal-d ${isToday?'tdy':''} ${isHol?'hol':''}" data-a="calGo" data-d="${d}">
         <div class="cal-num"><span>${fa(d)}</span>${isToday?'<small class="bdg ok" style="font-size:9px;padding:1px 4px">امروز</small>':''}</div>
         <div class="cal-tags">${tags}</div>
+        <div class="cal-dot-row">${dots}</div>
       </div>`;
     }
-    return `<div class="cd"><div class="row sb" style="margin:0">
+
+    const agendaHtml=monthAgenda.length?`<div class="cd"><h2>💳 فهرست سررسید اقساط، اجاره و رویدادهای ${PM[hs.m-1]}</h2>
+      ${monthAgenda.map(x=>`<div class="row sb fw d-row" data-a="calGo" data-d="${x.d}" style="padding:7px 6px;border-bottom:1px solid var(--bd2)">
+        <div class="row" style="margin:0"><span class="bdg" style="color:${x.col}">${fa(x.d)} ${PM[hs.m-1]}</span><b>${esc(x.t)}</b> <small class="mu">(${x.tp})</small></div>
+        ${x.am?`<b style="color:${x.col}">${mo(x.am)} تومان</b>`:''}
+      </div>`).join('')}
+    </div>`:'';
+
+    return `<div class="cd"><div class="row sb fw" style="margin:0">
       <button data-a="hm" data-v="-1">› ماه قبل</button>
-      <div class="row" style="margin:0"><h2 style="margin:0;font-size:18px">تقویم ماهانه — ${PM[hs.m-1]} ${fy(hs.y)}</h2>${(hs.y!==nowP.y||hs.m!==nowP.m)?`<button data-a="calNow" style="font-size:11.5px;padding:3px 8px">برگشت به ماه جاری</button>`:''}</div>
+      <div class="row" style="margin:0"><h2 style="margin:0;font-size:17px">تقویم ماهانه — ${PM[hs.m-1]} ${fy(hs.y)}</h2>${(hs.y!==nowP.y||hs.m!==nowP.m)?`<button data-a="calNow" style="font-size:11.5px;padding:3px 8px">ماه جاری</button>`:''}</div>
       <button data-a="hm" data-v="1">ماه بعد ‹</button>
     </div></div>
-    <div class="cd"><div class="mu" style="margin-bottom:10px">اقساط ماه جاری (💳 در انتظار پرداخت / ✓ پرداخت‌شده)، اجاره‌ها و کارهای هر روز روی تقویم مشخص شده‌اند.</div><div class="cal-g">${cells}</div></div>`;
+    <div class="cd">
+      <div class="lg" style="margin:0 0 10px;justify-content:center">
+        <span><b style="background:var(--ac);border-radius:50%"></b>سررسید قسط</span>
+        <span><b style="background:var(--ok);border-radius:50%"></b>پرداخت‌شده / اجاره</span>
+        <span><b style="background:var(--wn);border-radius:50%"></b>رویداد مهم</span>
+      </div>
+      <div class="cal-g">${cells}</div>
+    </div>`+agendaHtml;
   }
 
-  // ۴. نمایش یادآور اقساطِ روز در بالای «برنامه روزانه»
   window.vDay=function(){
     const d=W().days[di],p=dayPct(d),un=d.t.filter(x=>!x.d).length,pr=d.pr||[0,0,0],pt=getPrayTimes(dd(di),S.city||0);
     const dayP=pp(dd(di)),mk=dayP.y+'-'+dayP.m,dayInst=(BD().inst||[]).filter(ins=>Number(ins.d)===dayP.d);
-    const instBanner=dayInst.length?`<div class="cd next" style="padding:12px 16px"><div class="row sb fw" style="margin:0"><b>💳 سررسید قسط/تعهد امروز (${fa(dayP.d)} ${PM[dayP.m-1]}):</b><span>${dayInst.map(ins=>`${esc(ins.t)}: <b>${mo(insAm(ins,mk))} تومان</b> (${ins.paid&&ins.paid[mk]?'پرداخت‌شده ✓':'پرداخت‌نشده'})`).join(' ، ')}</span></div></div>`:'';
+    const instBanner=dayInst.length?`<div class="cd next" style="padding:12px 16px"><div class="row sb fw" style="margin:0"><b>💳 سررسید قسط امروز (${fa(dayP.d)} ${PM[dayP.m-1]}):</b><span>${dayInst.map(ins=>`${esc(ins.t)}: <b>${mo(insAm(ins,mk))} تومان</b> (${ins.paid&&ins.paid[mk]?'پرداخت‌شده ✓':'پرداخت‌نشده'})`).join(' ، ')}</span></div></div>`:'';
     let h='';
     for(let i=5;i<=23;i++){
       const defCat=(i>=8&&i<=18)?'work':'rest';
@@ -1768,7 +1794,6 @@ button.p,nav button.on,.days button.on{
       const t=new Date();t.setHours(12,0,0,0);const p=pp(t);
       hs={y:p.y,m:p.m,s:new Date(t.getTime()-(p.d-1)*864e5)};render();
     }else if(b.dataset.a==='tab'&&b.dataset.v==='cal'){
-      // وقتی وارد تب تقویم ماه می‌شویم، به صورت پیش‌فرض ماه جاری را نشان دهد
       const t=new Date();t.setHours(12,0,0,0);const p=pp(t);
       hs={y:p.y,m:p.m,s:new Date(t.getTime()-(p.d-1)*864e5)};render();
     }
