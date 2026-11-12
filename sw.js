@@ -1,4 +1,4 @@
-const CACHE = 'planner-v1';
+const CACHE = 'planner-v2';
 const ASSETS = ['./', './index.html'];
 
 self.addEventListener('install', e => {
@@ -14,9 +14,9 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  if (e.request.method !== 'GET' || e.request.url.includes('api.github.com') || e.request.url.includes('BrsApi') || e.request.url.includes('navasan')) return;
+  if (e.request.method !== 'GET' || e.request.url.includes('api.') || e.request.url.includes('BrsApi') || e.request.url.includes('navasan')) return;
   e.respondWith(
-    fetch(e.request).then(res => {
+    fetch(e.request, { cache: 'no-store' }).then(res => {
       const copy = res.clone();
       caches.open(CACHE).then(c => c.put(e.request, copy));
       return res;
