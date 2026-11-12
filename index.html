@@ -653,6 +653,183 @@ $('imInp').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new File
 if(getGh().t)pullCloud(true);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&getGh().t)pullCloud(true)});
 </script>
+<!-- ماژول اتصال دوطرفه به ربات تلگرام شخصی -->
+<div class="mdl-bg" id="tgMdl">
+  <div class="cd mdl" style="background:var(--sf)">
+    <div class="row sb"><h2 style="margin:0">اتصال به ربات تلگرام شخصی</h2><button class="x" onclick="$('tgMdl').classList.remove('on')">✕</button></div>
+    <div class="mu" style="margin-bottom:6px">توکن ربات (@BotFather) را وارد کنید و پس از زدن Start در ربات، دکمه «تشخیص خودکار Chat ID» را بزنید:</div>
+    <div class="row"><input type="password" id="tgTok" placeholder="Bot Token (مثال: 712345:AAH...)" dir="ltr"></div>
+    <div class="row">
+      <input type="text" id="tgCid" placeholder="Chat ID عددی شما" dir="ltr" class="f1">
+      <button id="tgDetectBtn">تشخیص خودکار ID</button>
+    </div>
+    <div class="row"><input type="text" id="tgPrx" placeholder="پروکسی ضدتحریم (اختیاری - خالی بماند مستقیم وصل می‌شود)" dir="ltr"></div>
+    <div class="row"><button class="p f1" id="tgSaveBtn">ذخیره تنظیمات تلگرام</button></div>
+    <div id="tgMsg" class="mu" style="text-align:center;min-height:18px;margin:4px 0"></div>
+    <hr style="border:0;border-top:1px solid var(--bd2);margin:10px 0">
+    <div class="mu" style="margin-bottom:6px">عملیات فوری تلگرام:</div>
+    <div class="row fw">
+      <button id="tgSendRep" class="f1">📊 ارسال گزارش امروز</button>
+      <button id="tgSendBkp" class="f1">📦 ارسال فایل بکاپ</button>
+      <button id="tgPullUpdates" class="f1">📥 دریافت پیام‌های ربات</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // افزودن دکمه تلگرام به نوار ابزار بالای صفحه
+  const wkBar=document.querySelector('header .wk');
+  if(wkBar){
+    const btn=document.createElement('button');
+    btn.id='tgOpenBtn';btn.textContent='تلگرام';btn.title='اتصال به ربات تلگرام';
+    wkBar.insertBefore(btn,$('syBtn'));
+    btn.onclick=()=>{
+      const c=getTgCfg();
+      $('tgTok').value=c.tok;$('tgCid').value=c.cid;$('tgPrx').value=c.prx;
+      $('tgMsg').textContent='';$('tgMdl').classList.add('on');
+    };
+  }
+  $('tgMdl').onclick=e=>{if(e.target===$('tgMdl'))$('tgMdl').classList.remove('on')};
+
+  function getTgCfg(){
+    return {
+      tok:localStorage.getItem('wp26_tg_tok')||'',
+      cid:localStorage.getItem('wp26_tg_cid')||'',
+      prx:localStorage.getItem('wp26_tg_prx')||''
+    };
+  }
+  function tgUrl(method){
+    const {tok,prx}=getTgCfg();
+    const base=(prx?prx.replace(/\/$/,''):'https://api.telegram.org');
+    return `${base}/bot${tok}/${method}`;
+  }
+  function setTgMsg(m){const el=$('tgMsg');if(el)el.textContent=m}
+
+  $('tgSaveBtn').onclick=()=>{
+    localStorage.setItem('wp26_tg_tok',$('tgTok').value.trim());
+    localStorage.setItem('wp26_tg_cid',$('tgCid').value.trim());
+    localStorage.setItem('wp26_tg_prx',$('tgPrx').value.trim());
+    setTgMsg('تنظیمات تلگرام ذخیره شد ✓');
+    pullTgMessages(true);
+  };
+
+  // تشخیص خودکار Chat ID از آخرین پیام ارسالی کاربر به ربات
+  $('tgDetectBtn').onclick=async()=>{
+    localStorage.setItem('wp26_tg_tok',$('tgTok').value.trim());
+    localStorage.setItem('wp26_tg_prx',$('tgPrx').value.trim());
+    setTgMsg('در حال جستجوی پیام شما در ربات...');
+    try{
+      const r=await fetch(tgUrl('getUpdates'));
+      const d=await r.json();
+      if(d.ok&&d.result&&d.result.length){
+        const last=d.result[d.result.length-1];
+        const cid=(last.message||last.edited_message)?.chat?.id;
+        if(cid){$('tgCid').value=cid;localStorage.setItem('wp26_tg_cid',String(cid));setTgMsg(`آیدی شما پیدا و ذخیره شد: ${cid} ✓`);return}
+      }
+      setTgMsg('پیامی پیدا نشد؛ ابتدا در تلگرام به ربات خود یک پیام بفرستید.');
+    }catch(e){setTgMsg('خطا در اتصال به تلگرام (فیلترشکن را بررسی کنید).')}
+  };
+
+  // تابع ارسال پیام متنی به تلگرام
+  window.sendTgText=async function(text,silent=false){
+    const {tok,cid}=getTgCfg();if(!tok||!cid)return false;
+    try{
+      const r=await fetch(tgUrl('sendMessage'),{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({chat_id:cid,text,parse_mode:'HTML'})
+      });
+      if(r.ok&&!silent)setTgMsg('پیام با موفقیت به تلگرام ارسال شد ✓');
+      return r.ok;
+    }catch(e){if(!silent)setTgMsg('خطا در ارسال به تلگرام');return false}
+  };
+
+  // متصل کردن اعلان‌های خودکار برنامه (اذان، تایمر، برنامه ساعتی) به تلگرام
+  const origNotif=window.sendNotif;
+  window.sendNotif=function(title,body){
+    if(origNotif)origNotif(title,body);
+    window.sendTgText(`🔔 <b>${title}</b>\n${body}`,true);
+  };
+
+  // ۱. ارسال گزارش کامل امروز به تلگرام
+  $('tgSendRep').onclick=()=>{
+    const w=W(),tdIdx=(new Date().getDay()+1)%7,td=w.days[tdIdx],pr=td.pr||[0,0,0],mkt=MKT();
+    const doneT=td.t.filter(x=>x.d).length,totT=td.t.length;
+    const leftTasks=td.t.filter(x=>!x.d).map(x=>`▫️ ${x.p?'🔥 ':''}${x.t}`).join('\n')||'همه کارها انجام شده ✓';
+    const msg=`📅 <b>گزارش پلنر — ${pfull(new Date())}</b>\n\n`+
+      `✅ <b>کارهای امروز:</b> ${fa(doneT)} از ${fa(totT)} (${fa(dayPct(td))}٪)\n${leftTasks}\n\n`+
+      `🕌 <b>نمازهای امروز:</b> صبح ${pr[0]?'✓':'❌'} | ظهر ${pr[1]?'✓':'❌'} | مغرب ${pr[2]?'✓':'❌'}\n`+
+      `⏱ <b>مطالعه امروز:</b> ${fa(Math.round(dayMin(td)))} دقیقه\n`+
+      `💎 <b>نرخ بازار:</b> طلا ${fa(mkt.g18)} ت | تتر ${fa(mkt.usdt)} ت`;
+    setTgMsg('در حال ارسال گزارش...');
+    window.sendTgText(msg);
+  };
+
+  // ۲. ارسال فایل واقعی بکاپ (.json) به چت تلگرام
+  $('tgSendBkp').onclick=async()=>{
+    const {tok,cid}=getTgCfg();if(!tok||!cid)return setTgMsg('ابتدا توکن و Chat ID را وارد کنید.');
+    setTgMsg('در حال آپلود فایل بکاپ به تلگرام...');
+    try{
+      const fd=new FormData();
+      const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+      fd.append('chat_id',cid);
+      fd.append('document',blob,`planner-backup-${new Date().toISOString().slice(0,10)}.json`);
+      fd.append('caption',`📦 فایل پشتیبان پلنر هفتگی\n📅 ${pfull(new Date())}`);
+      const r=await fetch(tgUrl('sendDocument'),{method:'POST',body:fd});
+      setTgMsg(r.ok?'فایل بکاپ به تلگرام شما ارسال شد ✓':'خطا در ارسال فایل');
+    }catch(e){setTgMsg('خطا در اتصال به تلگرام')}
+  };
+
+  // ۳. خواندن پیام‌های ارسالی شما به ربات (ثبت خودکار پیامک بانکی یا کار جدید!)
+  async function pullTgMessages(silent=false){
+    const {tok,cid}=getTgCfg();if(!tok||!cid)return;
+    if(!silent)setTgMsg('در حال بررسی پیام‌های جدید ربات...');
+    try{
+      const lastUpd=+(localStorage.getItem('wp26_tg_upd')||0);
+      const r=await fetch(tgUrl(`getUpdates?offset=${lastUpd+1}`));
+      const d=await r.json();
+      if(!d.ok||!d.result)return;
+      let addedTasks=0,addedTx=0;
+      for(const u of d.result){
+        localStorage.setItem('wp26_tg_upd',String(u.update_id));
+        const m=u.message;
+        if(!m||String(m.chat.id)!==String(cid)||!m.text||m.text.startsWith('/'))continue;
+        const raw=m.text.trim(),en=toEnDigits(raw);
+        // تشخیص اینکه پیامک بانکی است یا کار روزانه
+        const isSms=/(مبلغ|برداشت|واریز|ریال|حساب|کارت|مانده)/.test(en)&&/\d{4,}/.test(en);
+        if(isSms){
+          const isInc=/(واریز|افزایش|بستانکار)/.test(en)&&!/(برداشت|خرید|کاهش)/.test(en);
+          const mt=en.match(/(?:مبلغ|برداشت|واریز|خرید)\s*[:\-]?\s*([\d,]+)\s*(ریال|تومان|تومن)?/)||en.match(/([\d,]{5,})/);
+          if(mt){
+            let am=parseInt(mt[1].replace(/,/g,''),10)||0;
+            if(!(mt[2]&&mt[2].includes('توم'))&&am>=1000)am=Math.round(am/10);
+            if(am>0){
+              const np=pp(new Date()),mk=np.y+'-'+np.m,B=BD();
+              (B.tx[mk]=B.tx[mk]||[]).push({id:'t'+Date.now()+Math.random(),d:np.d,c:isInc?'sal':'sup',a:am,n:(raw.split('\n')[0]||'از تلگرام').slice(0,40)});
+              addedTx++;
+            }
+          }
+        }else{
+          const tdIdx=(new Date().getDay()+1)%7;
+          W().days[tdIdx].t.push({t:raw,d:0,p:raw.includes('مهم')||raw.includes('!')?1:0});
+          addedTasks++;
+        }
+      }
+      if(addedTasks||addedTx){
+        save();render();
+        const summary=`✅ در پلنر ثبت شد: ${addedTasks?fa(addedTasks)+' کار جدید ':''}${addedTx?fa(addedTx)+' تراکنش مالی':''}`;
+        setTgMsg(summary);
+        window.sendTgText(summary,true);
+      }else if(!silent){
+        setTgMsg('پیام جدیدی در ربات نبود.');
+      }
+    }catch(e){if(!silent)setTgMsg('عدم دسترسی به تلگرام')}
+  }
+  $('tgPullUpdates').onclick=()=>pullTgMessages(false);
+  if(getTgCfg().tok)setTimeout(()=>pullTgMessages(true),2000);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&getTgCfg().tok)pullTgMessages(true)});
+})();
+</script>  
 </body>
 <meta name="theme-color" content="#141824">
 <meta name="apple-mobile-web-app-capable" content="yes">
