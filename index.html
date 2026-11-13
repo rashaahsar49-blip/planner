@@ -3207,7 +3207,7 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
   render();
 })();
 </script>
-<!-- ==================== سوپر ماژول مدیریت ثروت و بانکداری شخصی (حساب‌ها، انتقال، چک صیادی، ارزش خالص، سود/زیان و پیش‌بینی) ==================== -->
+<!-- ==================== سوپر ماژول بانکداری شخصی و مدیریت ثروت (متصل مستقیم به رندر اصلی) ==================== -->
 <style>
 .acc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:10px;margin-bottom:14px}
 .acc-card{background:linear-gradient(135deg,color-mix(in srgb,var(--ac) 14%,var(--sf)),var(--sf2));border:1px solid var(--bd);border-radius:18px;padding:14px;box-shadow:var(--sh);position:relative}
@@ -3215,21 +3215,16 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
 .acc-card b{font-size:19px;font-weight:800;display:block;margin-top:4px;font-variant-numeric:tabular-nums}
 .nw-banner{background:linear-gradient(135deg,#1e3a8a 0%,#0284c7 55%,#0d9488 100%);color:#fff;border-radius:22px;padding:20px;margin-bottom:14px;box-shadow:0 16px 36px rgba(2,132,199,.3);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px}
 .nw-banner .nw-val{font-size:32px;font-weight:900;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
-.tag-pill{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;background:color-mix(in srgb,var(--ac) 14%,transparent);color:var(--ac);font-weight:600;margin-right:4px}
+.tag-pill{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;background:color-mix(in srgb,var(--ac) 14%,transparent);color:var(--ac);font-weight:600;margin-right:4px;cursor:pointer}
 </style>
 
 <script>
 (function(){
   let hideMoney=localStorage.getItem('wp26_hide_mo')==='1';
-  let bAccFilter='',bTagFilter='';
+  let wSub='db',bAccFilter='';
+  const getInsAm=(i,k)=>(i.amts&&i.amts[k]!=null)?i.amts[k]:(i.a||0);
+  const pmo=n=>hideMoney?'••••••':mo(n);
 
-  // تابع نمایش مبلغ با پشتیبانی از حالت مخفی (چشم بانکی ●●●●●)
-  function pmo(n){
-    if(hideMoney)return '••••••';
-    return mo(n);
-  }
-
-  // ارتقای ساختار دیتابیس مالی بدون دست زدن به داده‌های قبلی
   function ensureWealthDB(){
     const B=BD();
     if(!B.accs||!B.accs.length){
@@ -3245,15 +3240,13 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
       {id:'rc2',t:'بسته اینترنت و موبایل',c:'inet',a:250000,d:5,acc:'acc_main'}
     ];
     if(!B.chks)B.chks=[];
-    if(!B.sGoals)B.sGoals=[
-      {id:'sg1',t:'صندوق ذخیره اضطراری',target:50000000,saved:0,mTarget:5000000}
-    ];
+    if(!B.debts)B.debts=[];
+    if(!B.sGoals)B.sGoals=[{id:'sg1',t:'صندوق ذخیره اضطراری',target:50000000,saved:0,mTarget:5000000}];
     if(!B.catRules)B.catRules={};
     (B.assets||[]).forEach(a=>{if(a.buyP===undefined)a.buyP=a.p||0});
     return B;
   }
 
-  // محاسبه موجودی لحظه‌ای هر حساب/کارت (موجودی اولیه + کل واریزی‌ها − کل برداشت‌ها ± انتقال‌های بین‌حسابی)
   function getAccountBalances(){
     const B=ensureWealthDB(),bals={};
     B.accs.forEach(a=>bals[a.id]=Number(a.init)||0);
@@ -3273,7 +3266,6 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
     return bals;
   }
 
-  // محاسبه ارزش خالص کل ثروت (Net Worth)
   function calcNetWorth(){
     const B=ensureWealthDB(),bals=getAccountBalances();
     const cashSum=sm_(Object.values(bals));
@@ -3288,11 +3280,10 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
     }));
     const totalAssets=cashSum+assetSum+talabSum+chkInSum;
     const totalLiabilities=bedehiSum+chkOutSum+remInstSum;
-    return {netWorth:totalAssets-totalLiabilities,totalAssets,totalLiabilities,cashSum,assetSum};
+    return {netWorth:totalAssets-totalLiabilities,totalAssets,totalLiabilities};
   }
 
-  // ==================== هدر اصلی بخش مالی (همراه با دکمه چشم مخفی‌ساز و خروجی اکسل CSV) ====================
-  window.vBg2=function(){
+  function renderWealthTab(){
     const B=ensureWealthDB(),k=hs.y+'-'+hs.m,M=mdat(hs.y,hs.m),pm=pvM(hs.y,hs.m),P=mdat(pm.y,pm.m);
     const np=pp(new Date()),c={B,k,M,P,n:M.n,cd:curD(),bu:B.bud[k]||{},gl:B.goal[k]||0,bal:M.I-M.E,sr:M.I?Math.round(100*(M.I-M.E)/M.I):0};
     const SB=[
@@ -3304,7 +3295,7 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
       ['dt','🤝 طلب و بدهی'],
       ['rp','📑 گزارش ۶ ماهه']
     ];
-    return `<div class="cd"><div class="row sb fw" style="margin-bottom:8px">
+    const headerHtml=`<div class="cd"><div class="row sb fw" style="margin-bottom:8px">
       <button data-a="hm" data-v="-1">› ماه قبل</button>
       <div class="row" style="margin:0">
         <h2 style="margin:0;font-size:17px">مدیریت ثروت و بودجه — ${PM[hs.m-1]} ${fy(hs.y)}</h2>
@@ -3316,51 +3307,45 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
         <button data-a="hm" data-v="1">ماه بعد ‹</button>
       </div>
     </div>
-    <div class="ctr" style="margin:4px 0 0">${SB.map(s=>`<button class="${bsub===s[0]?'p':''}" data-a="bs" data-v="${s[0]}">${s[1]}</button>`).join('')}</div></div>`+
-    ({db:wDb,tx:wTx,pl:wPl,as:wAs,ch:wChksAndInst,rp:window.bRp}[bsub]||wDb)(c);
-  };
+    <div class="ctr" style="margin:4px 0 0">${SB.map(s=>`<button class="${wSub===s[0]?'p':''}" data-a="wSubBtn" data-v="${s[0]}">${s[1]}</button>`).join('')}</div></div>`;
 
-  // ==================== ۱. زیرتب «داشبورد، ارزش خالص، حساب‌ها و پیش‌بینی پایان ماه» (wDb) ====================
-  const prevBDb=window.bDb;
+    const viewFn={db:wDb,tx:wTx,pl:wPl,as:wAs,ch:wChksAndInst,dt:wDebts,rp:window.bRp}[wSub]||wDb;
+    return headerHtml+viewFn(c);
+  }
+
   function wDb(c){
     const {B,k,M,n,cd}=c,nw=calcNetWorth(),bals=getAccountBalances();
-    // محاسبه پیش‌بینی هوشمند پایان ماه
-    const daysLeft=Math.max(0,n-(cd||1));
-    const avgDaily=cd>0?M.E/cd:0;
-    const unpaidInst=sm_((B.inst||[]).filter(i=>!(i.paid&&i.paid[k])).map(i=>insAm(i,k)));
+    const daysLeft=Math.max(0,n-(cd||1)),avgDaily=cd>0?M.E/cd:0;
+    const unpaidInst=sm_((B.inst||[]).filter(i=>!(i.paid&&i.paid[k])).map(i=>getInsAm(i,k)));
     const projEndExp=Math.round(M.E+(avgDaily*daysLeft)+unpaidInst);
     const projEndBal=M.I-projEndExp;
     const safeDailyAllowance=daysLeft>0&&M.I>M.E?Math.max(0,Math.round((M.I-M.E-unpaidInst)/daysLeft)):0;
 
-    // هشدارهای عبور از سقف بودجه (۸۰٪ زرد، ۱۰۰٪ قرمز)
     const alerts=[];
     GXs.forEach(g=>{
       const lim=c.bu[g[0]]||0;if(!lim)return;
       const sp=gs(M.ex,g[0]),pct=Math.round(100*sp/lim);
-      if(pct>=100)alerts.push(`<div class="bdg wn" style="display:block;margin-bottom:4px;padding:6px 10px">🚨 هشدار عبور از سقف بودجه «${g[1]}»: ${fa(pct)}٪ مصرف شده (${pmo(sp-lim)} تومان بیشتر از سقف)</div>`);
-      else if(pct>=80)alerts.push(`<div class="bdg" style="display:block;margin-bottom:4px;padding:6px 10px;color:var(--wn)">⚠️ نزدیک شدن به سقف «${g[1]}»: ${fa(pct)}٪ مصرف شده (${fa(daysLeft)} روز تا پایان ماه مانده و تنها ${pmo(lim-sp)} تومان باقیست)</div>`);
+      if(pct>=100)alerts.push(`<div class="bdg wn" style="display:block;margin-bottom:5px;padding:7px 11px">🚨 عبور از سقف بودجه «${g[1]}»: ${fa(pct)}٪ مصرف شده (${pmo(sp-lim)} تومان بیشتر از سقف)</div>`);
+      else if(pct>=80)alerts.push(`<div class="bdg" style="display:block;margin-bottom:5px;padding:7px 11px;color:var(--wn)">⚠️ هشدار سقف «${g[1]}»: ${fa(pct)}٪ مصرف شده (${fa(daysLeft)} روز تا آخر ماه مانده و ${pmo(lim-sp)} تومان باقیست)</div>`);
     });
 
     const accCards=B.accs.map(a=>`<div class="acc-card">
-      <div class="row sb" style="margin:0"><small>${esc(a.n)}</small><button class="x" data-a="bAccEdit" data-id="${a.id}" title="تنظیم موجودی اولیه">✎</button></div>
+      <div class="row sb" style="margin:0"><small>${esc(a.n)}</small><button class="x" data-a="bAccEdit" data-id="${a.id}" title="ویرایش موجودی اولیه">✎</button></div>
       <b style="color:${(bals[a.id]||0)>=0?'var(--tx)':'var(--er)'}">${pmo(bals[a.id]||0)} <span style="font-size:11px;font-weight:400;color:var(--mu)">تومان</span></b>
     </div>`).join('')+`<div class="acc-card" style="display:flex;align-items:center;justify-content:center;cursor:pointer;border-style:dashed" data-a="bAccAdd"><b>+ افزودن کارت/حساب</b></div>`;
 
     return `<div class="nw-banner">
       <div>
-        <div style="font-size:12.5px;opacity:.85;font-weight:600">💎 ارزش خالص کل ثروت شما (Net Worth: دارایی و نقد منهای کل بدهی و اقساط)</div>
+        <div style="font-size:12.5px;opacity:.9;font-weight:600">💎 ارزش خالص کل ثروت شما (Net Worth: موجودی و دارایی منهای کل بدهی و اقساط)</div>
         <div class="nw-val">${pmo(nw.netWorth)} <span style="font-size:14px;font-weight:500">تومان</span></div>
       </div>
-      <div style="font-size:12px;line-height:1.7;background:rgba(0,0,0,.2);padding:10px 14px;border-radius:14px">
+      <div style="font-size:12px;line-height:1.7;background:rgba(0,0,0,.22);padding:10px 14px;border-radius:14px">
         <div>🟢 جمع دارایی و موجودی: <b>${pmo(nw.totalAssets)} ت</b></div>
         <div>🔴 تعهدات، اقساط مانده و بدهی: <b>${pmo(nw.totalLiabilities)} ت</b></div>
       </div>
     </div>
-
     <div class="acc-grid">${accCards}</div>
     ${alerts.join('')}
-
-    <!-- کارت پیش‌بینی هوشمند پایان ماه -->
     <div class="cd next">
       <h2>🔮 پیش‌بینی هوشمند وضعیت شما در پایان ${PM[hs.m-1]}</h2>
       <div class="g2" style="gap:10px">
@@ -3370,15 +3355,14 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
           <div style="font-size:13.5px">• پیش‌بینی کل هزینه تا آخر ماه: <b style="color:var(--er)">${pmo(projEndExp)} تومان</b></div>
         </div>
         <div style="background:var(--sf);padding:10px 14px;border-radius:14px;border:1px solid var(--bd2)">
-          <div class="mu">پیش‌بینی مانده حساب در روز آخر ماه:</div>
+          <div class="mu">پیش‌بینی مانده در روز آخر ماه:</div>
           <b style="font-size:18px;color:${projEndBal>=0?'var(--ok)':'var(--er)'}">${M.I>0?(projEndBal>=0?'+'+pmo(projEndBal)+' تومان می‌ماند':'−'+pmo(Math.abs(projEndBal))+' تومان کسری'):'ابتدا درآمد ماه را ثبت کنید'}</b>
           ${M.I>0&&daysLeft>0?`<div class="mu" style="margin-top:4px">💡 سقف مجاز خرج روزانه از فردا: <b>${pmo(safeDailyAllowance)} تومان</b></div>`:''}
         </div>
       </div>
-    </div>` + prevBDb(c);
+    </div>`+(window.bDb?window.bDb(c):'');
   }
 
-  // ==================== ۲. زیرتب «تراکنش‌ها، انتقال بین حساب‌ها، تگ‌ها و تکرارشونده‌ها» (wTx) ====================
   function wTx(c){
     const {B,k,M,n,cd}=c;
     const accOpts=B.accs.map(a=>`<option value="${a.id}">${esc(a.n)}</option>`).join('');
@@ -3388,25 +3372,21 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
       return `<div class="row"><span class="bdg">روز ${fa(tr.d)}</span><span class="f1">⇄ انتقال از <b>${esc(fName)}</b> به <b>${esc(tName)}</b> ${tr.n?'('+esc(tr.n)+')':''}</span><b>${pmo(tr.a)} ت</b><button class="x" data-a="bTrDel" data-id="${tr.id}">✕</button></div>`;
     }).join('');
 
-    // جمع‌آوری تمام تگ‌های استفاده‌شده در این ماه (مثلاً #سفر_شمال، #ماشین)
     const tagTotals={};
     M.tx.forEach(t=>{
       const tags=(t.n||'').match(/#[\w\u0600-\u06FF]+/g);
       if(tags)tags.forEach(tg=>{tagTotals[tg]=(tagTotals[tg]||0)+(isIn(t.c)?0:t.a)});
     });
-    const tagSummary=Object.entries(tagTotals).map(([tg,sum])=>`<button class="tag-pill" onclick="q('[data-f=bq]').value='${tg}';q('[data-f=bq]').dispatchEvent(new Event('input',{bubbles:true}))">${esc(tg)}: ${pmo(sum)} ت</button>`).join(' ');
+    const tagSummary=Object.entries(tagTotals).map(([tg,sum])=>`<span class="tag-pill" onclick="q('[data-f=bq]').value='${tg}';q('[data-f=bq]').dispatchEvent(new Event('input',{bubbles:true}))">${esc(tg)}: ${pmo(sum)} ت</span>`).join(' ');
 
     return `<div class="g2">
-      <!-- کارت ۱: ثبت سریع یک‌خطی هوشمند + استخراج پیامک با تشخیص تکراری -->
       <div class="cd">
         <h2>⚡ ثبت سریع یک‌خطی یا پیامک بانکی</h2>
         <div class="row"><input type="text" id="fastTxInp" placeholder="مثال: ۳۸۰ هزار رستوران دیروز #سفر (یا پیامک بانک)..." onkeydown="if(event.key==='Enter')parseFastOrSms()"><button class="p" data-a="bFastParse">ثبت هوشمند</button></div>
-        <div class="mu">مبلغ، دسته‌بندی، تاریخ («دیروز») و تگ (`#`) را خودکار تشخیص می‌دهد و از ثبت پیامک تکراری جلوگیری می‌کند.</div>
+        <div class="mu">مبلغ، دسته‌بندی، تاریخ («دیروز») و تگ (#) را خودکار تشخیص می‌دهد و از ثبت پیامک تکراری جلوگیری می‌کند.</div>
       </div>
-
-      <!-- کارت ۲: انتقال بین حساب‌ها (بدون اثر روی درآمد و هزینه) -->
       <div class="cd">
-        <h2>⇄ انتقال بین کارت‌ها / حساب‌ها</h2>
+        <h2>⇄ انتقال بین کارت‌ها / حساب‌ها (بدون ثبت هزینه کاذب)</h2>
         <div class="row fw">
           <select id="trFrom" class="f1">${accOpts}</select>
           <span>به</span>
@@ -3419,16 +3399,12 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
         </div>
       </div>
     </div>
-
-    <!-- کارت ۳: تراکنش‌های تکرارشونده ماهانه (اجاره، اشتراک، حقوق) -->
     <div class="cd">
-      <div class="row sb fw"><h2 style="margin:0">🔁 تراکنش‌های تکرارشونده ماهانه (ثبت ۱کلیکی)</h2></div>
-      <div class="ctr" style="justify-content:flex-start">${(B.recs||[]).map((rc,i)=>`<button data-a="bRecApply" data-i="${i}" title="ثبت فوری در این ماه">+ ${esc(rc.t)} (${rc.a?pmo(rc.a)+' ت':'تنظیم مبلغ'})</button>`).join('')}<button data-a="bRecNew" style="border-style:dashed">+ تعریف تکرارشونده جدید</button></div>
+      <h2>🔁 تراکنش‌های تکرارشونده ماهانه (ثبت با ۱ کلیک)</h2>
+      <div class="ctr" style="justify-content:flex-start">${(B.recs||[]).map((rc,i)=>`<button data-a="bRecApply" data-i="${i}">+ ${esc(rc.t)} (${rc.a?pmo(rc.a)+' ت':'تنظیم مبلغ'})</button>`).join('')}<button data-a="bRecNew" style="border-style:dashed">+ تعریف تکرارشونده جدید</button></div>
     </div>
-
-    <!-- کارت ۴: فرم کامل ثبت تراکنش با انتخاب حساب و تگ -->
     <div class="cd">
-      <h2>➕ ثبت دقیق تراکنش (همراه با حساب و تگ #)</h2>
+      <h2>➕ ثبت دقیق تراکنش (همراه با انتخاب کارت و تگ #)</h2>
       <div class="row fw">
         <input type="number" id="bdy" min="1" max="${n}" value="${cd||1}" style="width:62px" title="روز ماه">
         <select id="bAccSel" style="width:155px">${accOpts}</select>
@@ -3439,12 +3415,9 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
       </div>
       <div id="bamWords" class="mu" style="font-weight:600;color:var(--tx)"></div>
     </div>
-
     ${trList?`<div class="cd"><h2>⇄ انتقال‌های بین‌حسابی این ماه</h2>${trList}</div>`:''}
-
-    <!-- کارت ۵: لیست تراکنش‌ها و تگ‌های ماه -->
     <div class="cd">
-      <div class="row sb fw"><h2>🧾 تراکنش‌های ${PM[hs.m-1]} (${fa(M.tx.length)})</h2>${tagSummary?`<div>تگ‌ها: ${tagSummary}</div>`:''}</div>
+      <div class="row sb fw"><h2>🧾 تراکنش‌های ${PM[hs.m-1]} (${fa(M.tx.length)})</h2>${tagSummary?`<div>جمع تگ‌ها: ${tagSummary}</div>`:''}</div>
       <div class="row fw">
         <select id="bFltAcc" onchange="filterTxList()" style="width:150px"><option value="">همه حساب‌ها</option>${accOpts}</select>
         <select data-f="bfg" style="width:150px"><option value="">همه سرفصل‌ها</option>${GR.map(g=>`<option value="${g[0]}" ${bfg==g[0]?'selected':''}>${g[1]}</option>`).join('')}</select>
@@ -3467,26 +3440,17 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
       return `<div class="row"><span class="mu" style="width:28px">${fa(t.d)}</span><span class="bdg" style="font-size:10px">${esc(accName)}</span><span class="f1">${catL(t.c)}${noteHtml?' — '+noteHtml:''}</span><b style="color:${ii?'var(--ok)':'var(--er)'}">${ii?'+':'−'}${pmo(t.a)}</b><button class="x" data-a="bx" data-id="${t.id}">✕</button></div>`;
     }).join('');
   };
-  window.filterTxList=function(){
-    bAccFilter=$('bFltAcc')?.value||'';
-    const tl=$('tl');if(tl)tl.innerHTML=renderRichTxList();
-  };
-
-  // یادگیری خودکار دسته‌بندی از روی کلمات توضیح (مثلاً «اسنپ» ➔ تاکسی)
+  window.filterTxList=function(){bAccFilter=$('bFltAcc')?.value||'';const tl=$('tl');if(tl)tl.innerHTML=renderRichTxList()};
   window.autoSuggestCat=function(val){
-    const B=ensureWealthDB(),rules=B.catRules||{},sel=$('bcat');
-    if(!sel||!val)return;
-    const words=val.trim().split(/\s+/);
-    for(const w of words){if(rules[w]){sel.value=rules[w];return}}
+    const B=ensureWealthDB(),rules=B.catRules||{},sel=$('bcat');if(!sel||!val)return;
+    for(const w of val.trim().split(/\s+/)){if(rules[w]){sel.value=rules[w];return}}
   };
 
-  // ==================== ۳. زیرتب «دارایی‌ها همراه با محاسبه سود و زیان واقعی (P&L)» (wAs) ====================
   function wAs(c){
     const {B}=c,assets=B.assets||[];
     const totVal=sm_(assets.map(a=>(a.q||0)*(a.p||0)));
     const totCost=sm_(assets.map(a=>(a.q||0)*(a.buyP||a.p||0)));
     const totProfit=totVal-totCost,totProfitPct=totCost>0?Math.round((totProfit/totCost)*1000)/10:0;
-
     return `${window.mktWidget?mktWidget():''}
     <div class="td-dash">
       <div class="td-kpi"><div class="k-top"><span>ارزش روز کل دارایی‌ها</span></div><div class="k-num" style="color:var(--ok)">${pmo(totVal)}<small>تومان</small></div></div>
@@ -3502,7 +3466,7 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
           return `<tr>
             <td style="text-align:right;font-weight:700">${esc(a.n)}</td>
             <td><input type="number" step="0.01" data-f="asq" data-id="${a.id}" value="${a.q||0}" style="width:78px"></td>
-            <td><input type="number" step="1000" data-f="asbuy" data-id="${a.id}" value="${a.buyP||a.p||0}" style="width:110px" title="میانگین قیمت خرید هر واحد"></td>
+            <td><input type="number" step="1000" data-f="asbuy" data-id="${a.id}" value="${a.buyP||a.p||0}" style="width:110px"></td>
             <td><input type="number" step="1000" data-f="asp" data-id="${a.id}" value="${a.p||0}" style="width:110px"></td>
             <td><b>${pmo(curV)}</b></td>
             <td style="color:${pf>=0?'var(--ok)':'var(--er)'};font-weight:700">${a.q>0?`${pf>=0?'+':'−'}${pmo(Math.abs(pf))} (${pf>=0?'+':''}${fa(pfPct)}٪)`:'—'}</td>
@@ -3520,16 +3484,14 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
     </div>`;
   }
 
-  // ==================== ۴. زیرتب «چک‌های صیادی و اقساط ماهانه + خط زمان سررسیدها» (wChksAndInst) ====================
   function wChksAndInst(c){
     const {B,k}=c,chks=B.chks||[],inst=B.inst||[];
-    const totInst=sm_(inst.map(i=>insAm(i,k)||0)),paidInst=sm_(inst.filter(i=>i.paid&&i.paid[k]).map(i=>insAm(i,k)||0));
-
+    const totInst=sm_(inst.map(i=>getInsAm(i,k)||0)),paidInst=sm_(inst.filter(i=>i.paid&&i.paid[k]).map(i=>getInsAm(i,k)||0));
     return `<div class="cd">
       <h2>🧾 مدیریت چک‌های صیادی (دریافتی و پرداختی)</h2>
       ${chks.length?chks.map((ck,i)=>`<div class="row fw" style="padding:8px 4px;border-bottom:1px solid var(--bd2)">
         <span class="bdg ${ck.tp==='in'?'ok':'wn'}">${ck.tp==='in'?'چک دریافتی':'چک پرداختی'}</span>
-        <span class="f1" style="min-width:160px"><b>${esc(ck.person)}</b> <small class="mu">(سررسید: ${esc(ck.dt)} ${ck.num?'· شناسه: '+esc(ck.num):''})</small></span>
+        <span class="f1" style="min-width:160px"><b>${esc(ck.person)}</b> <small class="mu">(سررسید: ${esc(ck.dt)} ${ck.num?'· صیادی: '+esc(ck.num):''})</small></span>
         <b style="color:${ck.tp==='in'?'var(--ok)':'var(--er)'}">${pmo(ck.a)} ت</b>
         <select onchange="BD().chks[${i}].st=this.value;save();render()" style="width:120px;padding:4px 6px">
           <option value="pending" ${ck.st==='pending'?'selected':''}>⏳ در جریان</option>
@@ -3542,15 +3504,14 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
         <select id="chkTp" style="width:135px"><option value="out">🔴 چک پرداختی</option><option value="in">🟢 چک دریافتی</option></select>
         <input type="text" id="chkPerson" placeholder="در وجه / صادرکننده..." class="f1" style="min-width:130px">
         <input type="number" id="chkAm" placeholder="مبلغ چک (تومان)" class="f1" style="min-width:120px">
-        <input type="text" id="chkDate" placeholder="تاریخ سررسید (مثلاً ۲۵ آذر ۱۴۰۵)" class="f1" style="min-width:140px">
-        <input type="text" id="chkNum" placeholder="شناسه صیادی (اختیاری)" style="width:130px">
+        <input type="text" id="chkDate" placeholder="تاریخ سررسید (مثلاً ۲۵ آذر)" class="f1" style="min-width:130px">
+        <input type="text" id="chkNum" placeholder="شناسه صیادی" style="width:120px">
         <button class="p" data-a="bChkAdd">+ ثبت چک</button>
       </div>
     </div>
-
     <div class="cd">
-      <div class="row sb fw"><h2>🏦 مدیریت اقساط ماهانه (مانده این ماه: ${pmo(totInst-paidInst)} از ${pmo(totInst)} ت)</h2></div>
-      ${inst.length?inst.map(i=>{const isP=!!(i.paid&&i.paid[k]),pc=Object.keys(i.paid||{}).length,curA=insAm(i,k),isC=i.amts&&i.amts[k]!=null&&i.amts[k]!==i.a;
+      <h2>🏦 مدیریت اقساط ماهانه (مانده این ماه: ${pmo(totInst-paidInst)} از ${pmo(totInst)} ت)</h2>
+      ${inst.length?inst.map(i=>{const isP=!!(i.paid&&i.paid[k]),pc=Object.keys(i.paid||{}).length,curA=getInsAm(i,k),isC=i.amts&&i.amts[k]!=null&&i.amts[k]!==i.a;
       return `<div class="row fw" style="padding:8px 4px;border-bottom:1px solid var(--bd2)">
         <span class="f1" style="min-width:160px"><b>${esc(i.t)}</b> <small class="mu">(روز ${fa(i.d)} ماه · قسط ${fa(pc)}/${fa(i.tot)})</small>${isC?` <small class="bdg wn">پایه: ${pmo(i.a)}</small>`:''}</span>
         <span class="mu" style="font-size:12px">مبلغ ${PM[hs.m-1]}:</span>
@@ -3563,15 +3524,43 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
     </div>`;
   }
 
-  // ==================== ۵. زیرتب «بودجه‌بندی و چند هدف پس‌انداز (سفر، خرید، اضطراری)» (wPl) ====================
-  const prevBPl=window.bPl;
+  function wDebts(){
+    const list=ensureWealthDB().debts||[];
+    const talab=sm_(list.filter(x=>!x.done&&x.tp==='talab').map(x=>x.a));
+    const bedehi=sm_(list.filter(x=>!x.done&&x.tp==='bedehi').map(x=>x.a));
+    const net=talab-bedehi;
+    return `<div class="td-dash">
+      <div class="td-kpi"><div class="k-top"><span>کل طلب من از دیگران</span></div><div class="k-num" style="color:var(--ok)">${pmo(talab)}<small>تومان</small></div></div>
+      <div class="td-kpi"><div class="k-top"><span>کل بدهی من به دیگران</span></div><div class="k-num" style="color:var(--er)">${pmo(bedehi)}<small>تومان</small></div></div>
+      <div class="td-kpi"><div class="k-top"><span>تراز خالص حساب دفتری</span></div><div class="k-num" style="color:${net>=0?'var(--ok)':'var(--er)'}">${net<0?'−':'+'}${pmo(Math.abs(net))}<small>تومان</small></div></div>
+    </div>
+    <div class="cd"><h2>ثبت طلب، بدهی یا دنگ جدید</h2>
+      <div class="row fw">
+        <input type="text" id="dtPerson" placeholder="نام شخص / طرف حساب..." class="f1" style="min-width:130px">
+        <select id="dtType" style="width:155px"><option value="talab">🟢 طلب دارم (قرض دادم)</option><option value="bedehi">🔴 بدهکارم (قرض گرفتم)</option></select>
+        <input type="number" id="dtAm" placeholder="مبلغ (تومان)" class="f1" style="min-width:120px">
+        <input type="text" id="dtNote" placeholder="بابت (مثلاً: دنگ سفر...)" class="f1" style="min-width:130px">
+        <button class="p" data-a="dtAdd">+ ثبت حساب</button>
+      </div>
+    </div>
+    <div class="cd"><h2>فهرست طلب‌ها و بدهی‌ها</h2>
+      ${list.length?list.map((x,i)=>`<div class="row fw" style="padding:8px 4px;border-bottom:1px solid var(--bd2)">
+        <span class="bdg ${x.tp==='talab'?'ok':'wn'}">${x.tp==='talab'?'طلب از':'بدهکار به'}</span>
+        <span class="f1" style="min-width:150px"><b class="${x.done?'done':''}">${esc(x.person)}</b> <small class="mu">${x.note?'— '+esc(x.note):''} (${esc(x.dt)})</small></span>
+        <b style="color:${x.tp==='talab'?'var(--ok)':'var(--er)'}">${pmo(x.a)} ت</b>
+        <button class="${x.done?'p':''}" data-a="dtSettle" data-i="${i}">${x.done?'تسویه شد ✓':'تسویه حساب'}</button>
+        <button data-a="dtShare" data-i="${i}">✈️ رسید</button>
+        <button class="x" data-a="dtDel" data-i="${i}">✕</button>
+      </div>`).join(''):'<div class="mu">حساب باز یا طلب/بدهی ثبت نشده است.</div>'}
+    </div>`;
+  }
+
   function wPl(c){
     const {B}=c,sGoals=B.sGoals||[];
-    const goalsHtml=`<div class="cd">
+    return `<div class="cd">
       <h2>🎯 اهداف پس‌انداز چندگانه (سفر، خرید، صندوق اضطراری)</h2>
       ${sGoals.map((g,i)=>{
-        const pct=g.target>0?Math.min(100,Math.round(100*(g.saved||0)/g.target)):0;
-        const rem=Math.max(0,(g.target||0)-(g.saved||0));
+        const pct=g.target>0?Math.min(100,Math.round(100*(g.saved||0)/g.target)):0,rem=Math.max(0,(g.target||0)-(g.saved||0));
         return `<div style="margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--bd2)">
           <div class="row sb fw" style="margin-bottom:4px">
             <b>${esc(g.t)} (${fa(pct)}٪)</b>
@@ -3583,7 +3572,7 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
             </div>
           </div>
           ${bar(pct)}
-          <div class="mu" style="font-size:11.5px;margin-top:3px">مانده تا هدف: ${pmo(rem)} تومان ${g.mTarget?`· پیشنهاد کنار گذاشتن ماهانه: <b>${pmo(g.mTarget)} ت</b> (${fa(Math.ceil(rem/g.mTarget))} ماه تا تحقق)`:''}</div>
+          <div class="mu" style="font-size:11.5px;margin-top:3px">مانده تا هدف: ${pmo(rem)} تومان ${g.mTarget?`· پیشنهاد ماهانه: <b>${pmo(g.mTarget)} ت</b> (${fa(Math.ceil(rem/g.mTarget))} ماه تا تحقق)`:''}</div>
         </div>`;
       }).join('')}
       <div class="row fw" style="margin-top:8px">
@@ -3592,29 +3581,20 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
         <input type="number" id="sgMonth" placeholder="پس‌انداز ماهانه پیشنهادی" class="f1" style="min-width:130px">
         <button class="p" data-a="bSgAdd">+ افزودن هدف</button>
       </div>
-    </div>`;
-    return goalsHtml + prevBPl(c);
+    </div>`+(window.bPl?window.bPl(c):'');
   }
 
-  // ثبت سریع هوشمند یک‌خطی یا پیامک بانکی با تشخیص تکراری
   window.parseFastOrSms=function(){
     const raw=($('fastTxInp')?.value||'').trim();if(!raw)return;
     const B=ensureWealthDB(),k=hs.y+'-'+hs.m,en=toEnDigits(raw);
-    // تشخیص تکراری بودن پیامک
-    if((B.tx[k]||[]).some(t=>t.rawSms&&t.rawSms===raw)){
-      return alert('⚠️ این پیامک بانکی قبلاً در همین ماه ثبت شده است (تراکنش تکراری).');
-    }
-    const np=pp(new Date());
-    let d=en.includes('دیروز')?Math.max(1,np.d-1):np.d;
+    if((B.tx[k]||[]).some(t=>t.rawSms&&t.rawSms===raw))return alert('⚠️ این پیامک بانکی قبلاً ثبت شده است (تراکنش تکراری).');
+    const np=pp(new Date()),d=en.includes('دیروز')?Math.max(1,np.d-1):np.d;
     let am=0;
-    const mM=en.match(/(\d+(?:\.\d+)?)\s*(?:میلیون|ملیون)/);
-    const mH=en.match(/(\d+(?:\.\d+)?)\s*(?:هزار)/);
-    const mR=en.replace(/,/g,'').match(/(\d{4,11})/);
+    const mM=en.match(/(\d+(?:\.\d+)?)\s*(?:میلیون|ملیون)/),mH=en.match(/(\d+(?:\.\d+)?)\s*(?:هزار)/),mR=en.replace(/,/g,'').match(/(\d{4,11})/);
     if(mM)am=Math.round(parseFloat(mM[1])*1e6);
     else if(mH)am=Math.round(parseFloat(mH[1])*1e3);
     else if(mR){am=parseInt(mR[1],10);if(en.includes('ریال')&&am>=1000)am=Math.round(am/10)}
     if(am<=0)return alert('مبلغی در متن تشخیص داده نشد.');
-
     let cat=/(واریز|درآمد|حقوق)/.test(en)?'sal':'sup';
     if(/رستوران|فست|غذا|شام|ناهار/.test(en))cat='rest';
     else if(/کافه|قهوه/.test(en))cat='cafe';
@@ -3627,15 +3607,23 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
     if(window.showToast)showToast(`ثبت شد: ${mo(am)} ت (${catL(cat)}) ✓`);
   };
 
-  // مدیریت کلیک‌های ماژول بانکداری شخصی
+  // تزریق مستقیم و تضمینی به حلقه رندر اصلی برنامه
+  const prevR=window.render;
+  window.render=function(){
+    prevR();
+    if(tab==='bg'){
+      $('main').innerHTML=renderWealthTab();
+    }
+  };
+
   document.addEventListener('click',e=>{
     const b=e.target.closest('[data-a]');if(!b)return;
     const a=b.dataset.a,B=ensureWealthDB(),k=hs.y+'-'+hs.m;
-    if(a==='bTogglePrivacy'){hideMoney=!hideMoney;localStorage.setItem('wp26_hide_mo',hideMoney?'1':'0');render()}
+    if(a==='wSubBtn'){wSub=b.dataset.v;render()}
+    else if(a==='bTogglePrivacy'){hideMoney=!hideMoney;localStorage.setItem('wp26_hide_mo',hideMoney?'1':'0');render()}
     else if(a==='bNowM'){const t=new Date();t.setHours(12,0,0,0);const p=pp(t);hs={y:p.y,m:p.m,s:new Date(t.getTime()-(p.d-1)*864e5)};render()}
     else if(a==='bCsvExp'){
-      const txs=B.tx[k]||[];
-      const rows=[['روز','حساب','سرفصل','نوع','مبلغ (تومان)','توضیحات']];
+      const txs=B.tx[k]||[],rows=[['روز','حساب','سرفصل','نوع','مبلغ (تومان)','توضیحات']];
       txs.forEach(t=>rows.push([t.d,B.accs.find(x=>x.id===(t.acc||'acc_main'))?.n||'کارت اصلی',catL(t.c),isIn(t.c)?'درآمد':'هزینه',t.a,`"${(t.n||'').replace(/"/g,'""')}"`]));
       const csv='\uFEFF'+rows.map(r=>r.join(',')).join('\n');
       const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}),lnk=document.createElement('a');
@@ -3664,7 +3652,6 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
       const am=+$('bam').value||0,d=clamp(+$('bdy').value||1,1,ML(hs.y,hs.m)),cat=$('bcat').value,acc=$('bAccSel').value,nt=$('bnt').value.trim();
       if(am<=0)return;
       (B.tx[k]=B.tx[k]||[]).push({id:'t'+Date.now(),d,c:cat,a:am,n:nt,acc});
-      // ذخیره کلمه اول توضیح برای یادگیری هوشمند دسته‌بندی دفعات بعد
       const firstWord=nt.split(/\s+/)[0];if(firstWord&&firstWord.length>2&&!firstWord.startsWith('#'))B.catRules[firstWord]=cat;
       save();render();
     }
