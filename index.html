@@ -2527,6 +2527,265 @@ nav{background:rgba(255,255,255,0.95)!important}
 }
 .more-menu.on{display:flex}
 </style>
+<!-- ==================== ماژول ارتقای جامع UI/UX: نوار پایین موبایل، کارت‌های تاشو، گیت‌هاب هیت‌مپ، پالت فرمان و جشن ==================== -->
+<style>
+/* ۱. مقیاس تایپوگرافی، اعداد یکنواخت (Tabular) و رنگ شاخص هر بخش */
+body{font-feature-settings:"ss01","tnum";font-variant-numeric:tabular-nums}
+body[data-sec="tm"],body[data-sec="lrn"],body[data-sec="st"]{--ac:#4f46e5!important}
+body[data-sec="hb"]{--ac:#0d9488!important}
+body[data-sec="ai"]{--ac:#7c3aed!important}
+:root[data-theme="dark"] body[data-sec="tm"],:root[data-theme="dark"] body[data-sec="lrn"]{--ac:#818cf8!important}
+:root[data-theme="dark"] body[data-sec="hb"]{--ac:#2dd4bf!important}
+:root[data-theme="dark"] body[data-sec="ai"]{--ac:#a78bfa!important}
+
+/* ۲. انیمیشن نرم تیک خوردن کارها */
+.row input[type=checkbox]{transition:transform .18s cubic-bezier(.34,1.56,.64,1)}
+.row input[type=checkbox]:checked{transform:scale(1.12)}
+.done{transition:color .2s,opacity .2s}
+
+/* ۳. کارت‌های قابل جمع‌شدن (Progressive Disclosure) و مرتب‌سازی */
+.cd.is-col > *:not(h2):not(.cd-hdr){display:none!important}
+.cd.is-col{padding-bottom:12px!important}
+.cd.is-col h2{margin-bottom:0!important}
+.cd-tools{margin-right:auto;display:inline-flex;gap:3px;align-items:center}
+.cd-tools button{padding:2px 6px;font-size:11px;border-radius:7px;background:transparent;color:var(--mu)}
+.cd-tools button:hover{background:var(--ac2);color:var(--tx)}
+
+/* ۴. سه شاخص کلیدی بزرگ (Hero KPIs) در بالای صفحه اول */
+.hero-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;margin-top:10px;padding-top:10px;border-top:1px solid var(--bd2)}
+.hk-item{background:var(--sf2);border:1px solid var(--bd2);border-radius:14px;padding:8px 10px;text-align:center}
+.hk-item b{display:block;font-size:18px;font-weight:800;color:var(--ac)}
+.hk-item span{font-size:11px;color:var(--mu)}
+
+/* ۵. نمای گرمایی فعالیت شبیه گیت‌هاب (Heatmap) */
+.hm-grid{display:grid;grid-template-columns:repeat(26,minmax(0,1fr));gap:3px;direction:ltr;padding:4px 0}
+.hm-cell{aspect-ratio:1;border-radius:3px;background:var(--ac2);position:relative}
+.hm-cell[data-lv="1"]{background:color-mix(in srgb,var(--ok) 30%,var(--ac2))}
+.hm-cell[data-lv="2"]{background:color-mix(in srgb,var(--ok) 55%,var(--ac2))}
+.hm-cell[data-lv="3"]{background:color-mix(in srgb,var(--ok) 80%,var(--ac2))}
+.hm-cell[data-lv="4"]{background:var(--ok)}
+
+/* ۶. نوار ناوبری پایین مخصوص موبایل (Thumb-Friendly Bottom Bar) */
+#mobNav{display:none}
+@media(max-width:640px){
+  .w{padding-bottom:82px!important}
+  #agFab{bottom:74px!important;left:14px!important}
+  #toastBar{bottom:74px!important;right:14px!important}
+  #mobNav{
+    display:grid;grid-template-columns:repeat(5,1fr);position:fixed;bottom:0;left:0;right:0;z-index:48;
+    background:color-mix(in srgb,var(--sf) 96%,var(--bg));-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
+    border-top:1px solid var(--bd2);padding:6px 4px calc(env(safe-area-inset-bottom,0px) + 6px);
+    box-shadow:0 -8px 25px rgba(0,0,0,.12);
+  }
+  #mobNav button{background:transparent;border:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 2px;font-size:10.5px;color:var(--mu);border-radius:10px;min-height:auto}
+  #mobNav button.on{color:var(--ac);font-weight:700}
+  #mobNav svg{width:19px;height:19px;stroke:currentColor;stroke-width:2;fill:none}
+}
+</style>
+
+<!-- نوار ناوبری پایین موبایل (دسترسی سریع با انگشت شست) -->
+<div id="mobNav" role="navigation" aria-label="ناوبری موبایل">
+  <button data-mnav="ov"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg><span>امروز</span></button>
+  <button data-mnav="day"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>روزانه</span></button>
+  <button data-mnav="tm"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><polyline points="12 9 12 13 15 15"/><line x1="9" y1="2" x2="15" y2="2"/></svg><span>تمرکز</span></button>
+  <button data-mnav="bg"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span>مالی</span></button>
+  <button data-mnav="ai"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span>تحلیل</span></button>
+</div>
+
+<!-- مودال راهنمای میانبرهای کیبورد (?) و شخصی‌سازی ظاهر -->
+<div class="mdl-bg" id="kbMdl">
+  <div class="cd mdl">
+    <div class="row sb"><h2 style="margin:0">⌨️ میانبرهای کیبورد و شخصی‌سازی ظاهر</h2><button class="x" onclick="$('kbMdl').classList.remove('on')">✕</button></div>
+    <div class="mu" style="margin-bottom:6px">اندازه فونت برنامه:</div>
+    <div class="row">
+      <button class="f1" onclick="setFontScale('13.5px')">کوچک</button>
+      <button class="f1" onclick="setFontScale('14.5px')">استاندارد</button>
+      <button class="f1" onclick="setFontScale('16px')">بزرگ</button>
+    </div>
+    <hr style="border:0;border-top:1px solid var(--bd2);margin:10px 0">
+    <div class="mu" style="margin-bottom:6px">میانبرهای سریع کیبورد (در دسکتاپ):</div>
+    <div style="font-size:13px;line-height:1.9">
+      <div class="row sb"><span>پالت فرمان و جستجوی سراسری</span><span class="bdg">Ctrl + K</span></div>
+      <div class="row sb"><span>رفتن به تب‌های ۱ تا ۷</span><span class="bdg">Alt + 1..7</span></div>
+      <div class="row sb"><span>جمع‌بندی شبانه</span><span class="bdg">Alt + N</span></div>
+      <div class="row sb"><span>باز کردن دستیار هوشمند</span><span class="bdg">Alt + A</span></div>
+      <div class="row sb"><span>نمایش همین راهنما</span><span class="bdg">?</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- بوم جشن تکمیل کارها (Confetti Canvas) -->
+<canvas id="cnfCanvas" style="position:fixed;inset:0;pointer-events:none;z-index:99;display:none"></canvas>
+
+<script>
+(function(){
+  $('kbMdl').onclick=e=>{if(e.target===$('kbMdl'))$('kbMdl').classList.remove('on')};
+  window.setFontScale=function(sz){
+    document.body.style.fontSize=sz;
+    localStorage.setItem('wp26_fsz',sz);
+  };
+  if(localStorage.getItem('wp26_fsz'))document.body.style.fontSize=localStorage.getItem('wp26_fsz');
+
+  // افزودن دکمه شخصی‌سازی و میانبرها به منوی ⋯
+  const moreMenu=$('moreMenu');
+  if(moreMenu&&!$('kbOpenBtn')){
+    const b=document.createElement('button');
+    b.id='kbOpenBtn';b.textContent='⌨️ ظاهر و میانبرها (?)';
+    b.onclick=()=>{$('moreMenu').classList.remove('on');$('kbMdl').classList.add('on')};
+    moreMenu.appendChild(b);
+  }
+
+  // ۱. جشن کوچک (Confetti Burst) هنگام تکمیل ۱۰۰٪ کارهای امروز
+  function fireConfetti(){
+    const cv=$('cnfCanvas');if(!cv)return;
+    cv.width=window.innerWidth;cv.height=window.innerHeight;cv.style.display='block';
+    const ctx=cv.getContext('2d'),pts=[];
+    const cols=['#2563eb','#16a34a','#f59e0b','#06b6d4','#ec4899'];
+    for(let i=0;i<55;i++){
+      pts.push({x:cv.width/2,y:cv.height/2,vx:(Math.random()-.5)*14,vy:(Math.random()-1)*14-3,c:cols[i%cols.length],s:Math.random()*6+4,a:1});
+    }
+    function anim(){
+      ctx.clearRect(0,0,cv.width,cv.height);
+      let alive=false;
+      pts.forEach(p=>{
+        p.x+=p.vx;p.y+=p.vy;p.vy+=.35;p.a-=.016;
+        if(p.a>0){alive=true;ctx.globalAlpha=p.a;ctx.fillStyle=p.c;ctx.fillRect(p.x,p.y,p.s,p.s)}
+      });
+      if(alive)requestAnimationFrame(anim);else cv.style.display='none';
+    }
+    anim();
+  }
+
+  // بررسی تکمیل ۱۰۰٪ کارهای امروز بعد از تیک زدن
+  document.addEventListener('change',e=>{
+    if(e.target.type==='checkbox'&&e.target.checked){
+      const tdIdx=(new Date().getDay()+1)%7,td=W().days[tdIdx];
+      if(td.t.length>0&&td.t.every(x=>x.d)){
+        fireConfetti();
+        if(window.showToast)showToast('🎉 عالی! تمام کارهای امروزت تکمیل شد!');
+      }
+    }
+  });
+
+  // ۲. افزودن ۳ عدد کلیدی (KPI) به کارت اول و ماتریس حرارتی (GitHub Heatmap)
+  function enhanceOverviewHero(){
+    if(tab!=='ov')return;
+    const w=W(),tdIdx=(new Date().getDay()+1)%7,td=w.days[tdIdx];
+    const done=td.t.filter(x=>x.d).length,tot=td.t.length,pr=(td.pr||[]).filter(Boolean).length;
+    const hero=q('#main .hero-top');
+    if(hero&&!q('.hero-kpis')){
+      const kpiHtml=`<div class="hero-kpis">
+        <div class="hk-item"><b>${fa(done)}/${fa(tot)}</b><span>کارهای امروز</span></div>
+        <div class="hk-item"><b style="color:var(--ok)">${fa(Math.round(dayMin(td)))} د</b><span>تمرکز امروز</span></div>
+        <div class="hk-item"><b>${fa(pr)}/۳</b><span>نمازهای امروز</span></div>
+      </div>`;
+      const qBox=hero.querySelector('.q-box');
+      if(qBox)qBox.insertAdjacentHTML('beforebegin',kpiHtml);
+    }
+
+    // ساخت نمای گرمایی ۱۸۲ روز اخیر (شبیه گیت‌هاب)
+    if(!$('ghHeatmapCard')){
+      let cells='';
+      const now=new Date();now.setHours(12,0,0,0);
+      for(let i=181;i>=0;i--){
+        const d=new Date(now.getTime()-i*864e5),wk=sat(d).toISOString().slice(0,10),di_=(d.getDay()+1)%7;
+        const dObj=S[wk]&&S[wk].days&&S[wk].days[di_];
+        let score=0;
+        if(dObj){
+          if((dObj.t||[]).some(x=>x.d))score++;
+          if(dayPct(dObj)>=70)score++;
+          if(dayMin(dObj)>=30)score++;
+          if((dObj.pr||[]).filter(Boolean).length>=2)score++;
+        }
+        cells+=`<div class="hm-cell" data-lv="${score}" title="${pdy(d)}"></div>`;
+      }
+      const hmCard=document.createElement('div');
+      hmCard.className='cd';hmCard.id='ghHeatmapCard';
+      hmCard.innerHTML=`<h2>نمای گرمایی پیوستگی شما (۶ ماه اخیر)</h2><div class="hm-grid">${cells}</div>`;
+      $('main').appendChild(hmCard);
+    }
+  }
+
+  // ۳. افشای تدریجی (جمع/باز کردن کارت‌های صفحه اول) با حفظ وضعیت
+  function makeCardsCollapsible(){
+    if(tab!=='ov')return;
+    const colState=JSON.parse(localStorage.getItem('wp26_col_cards')||'{}');
+    document.querySelectorAll('#main > .cd, #main > .g2 > .cd').forEach((cd,idx)=>{
+      const h2=cd.querySelector('h2');
+      if(!h2||h2.dataset.hasCol||cd.classList.contains('hero-top'))return;
+      h2.dataset.hasCol='1';
+      const key='c_'+idx;
+      if(colState[key])cd.classList.add('is-col');
+      const tools=document.createElement('span');
+      tools.className='cd-tools';
+      tools.innerHTML=`<button type="button" title="جمع/باز کردن کارت">${cd.classList.contains('is-col')?'باز کردن ▸':'جمع کردن ▾'}</button>`;
+      tools.querySelector('button').onclick=(e)=>{
+        e.stopPropagation();
+        cd.classList.toggle('is-col');
+        const isC=cd.classList.contains('is-col');
+        tools.querySelector('button').textContent=isC?'باز کردن ▸':'جمع کردن ▾';
+        const st=JSON.parse(localStorage.getItem('wp26_col_cards')||'{}');
+        if(isC)st[key]=1;else delete st[key];
+        localStorage.setItem('wp26_col_cards',JSON.stringify(st));
+      };
+      h2.appendChild(tools);
+    });
+  }
+
+  // ۴. ارتقای Ctrl+K به پالت فرمان واقعی (اجرای دستور + جستجو)
+  const srchInp=$('srchInp');
+  if(srchInp){
+    const origInput=srchInp.oninput;
+    srchInp.placeholder='جستجو یا اجرای فرمان (مثلاً: تایمر، جمع‌بندی، تم، مالی)...';
+    srchInp.oninput=function(e){
+      const v=e.target.value.trim();
+      const cmds=[
+        {k:'تایمر تمرکز پومودورو',fn:()=>{tab='tm';render();$('srchMdl').classList.remove('on')}},
+        {k:'جمع‌بندی شبانه امروز',fn:()=>{$('srchMdl').classList.remove('on');if(window.openNightlyReview)openNightlyReview()}},
+        {k:'تغییر تم روشن / تیره',fn:()=>{$('th')?.click();$('srchMdl').classList.remove('on')}},
+        {k:'رفتن به مدیریت مالی و بودجه',fn:()=>{tab='bg';render();$('srchMdl').classList.remove('on')}},
+        {k:'رفتن به تقویم ماهانه',fn:()=>{tab='cal';render();$('srchMdl').classList.remove('on')}},
+        {k:'باز کردن دستیار هوشمند',fn:()=>{$('srchMdl').classList.remove('on');if(window.openLocalAgent)openLocalAgent()}}
+      ].filter(c=>!v||c.k.includes(v));
+
+      if(origInput)origInput.call(this,e);
+      const cmdHtml=cmds.map((c,i)=>`<div class="row sb d-row" data-cmd-idx="${i}" style="padding:6px 8px;background:var(--ac2);border-radius:9px;margin-bottom:4px"><b>⚡ فرمان: ${c.k}</b><span class="bdg">اجرا ↵</span></div>`).join('');
+      $('srchRes').insertAdjacentHTML('afterbegin',cmdHtml);
+      $('srchRes').querySelectorAll('[data-cmd-idx]').forEach(el=>{
+        el.onclick=()=>cmds[+el.dataset.cmdIdx].fn();
+      });
+    };
+  }
+
+  // ۵. همگام‌سازی نوار ناوبری پایین موبایل و رنگ شاخص هر بخش
+  const prevR=window.render;
+  window.render=function(){
+    document.body.dataset.sec=tab;
+    prevR();
+    enhanceOverviewHero();
+    makeCardsCollapsible();
+    document.querySelectorAll('#mobNav button').forEach(b=>{
+      b.classList.toggle('on',b.dataset.mnav===tab);
+    });
+  };
+
+  document.querySelectorAll('#mobNav button').forEach(b=>{
+    b.onclick=()=>{tab=b.dataset.mnav;render();window.scrollTo({top:0,behavior:'smooth'})};
+  });
+
+  // میانبرهای کیبورد جهانی (? و Alt+1..7)
+  document.addEventListener('keydown',e=>{
+    if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+    if(e.key==='?'||e.key==='؟'){e.preventDefault();$('kbMdl').classList.toggle('on')}
+    else if(e.altKey&&e.key>='1'&&e.key<='7'){
+      const idx=+e.key-1;if(TABS[idx]){e.preventDefault();tab=TABS[idx][0];render()}
+    }else if(e.altKey&&e.key.toLowerCase()==='n'){e.preventDefault();if(window.openNightlyReview)openNightlyReview()}
+    else if(e.altKey&&e.key.toLowerCase()==='a'){e.preventDefault();if(window.openLocalAgent)openLocalAgent()}
+  });
+
+  render();
+})();
+</script>
 </body>
 <meta name="theme-color" content="#141824">
 <meta name="apple-mobile-web-app-capable" content="yes">
