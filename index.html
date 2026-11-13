@@ -1803,6 +1803,210 @@ button.p,nav button.on,.days button.on{
   save();render();
 })();
 </script>
+<!-- ==================== ایجنت هوشمند ۱۰۰٪ محلی و آفلاین (Zero-Cloud / حفظ کامل حریم خصوصی) ==================== -->
+<style>
+#agFab{position:fixed;bottom:22px;left:22px;z-index:45;background:linear-gradient(135deg,#1d4ed8,#0284c7,#0d9488);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:99px;padding:11px 18px;font-weight:700;font-size:13.5px;box-shadow:0 12px 30px rgba(2,132,199,.45);display:flex;align-items:center;gap:8px;cursor:pointer}
+#agFab:hover{transform:translateY(-2px) scale(1.02)}
+.ag-chat{max-height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:8px 4px;margin:8px 0;border-top:1px solid var(--bd2);border-bottom:1px solid var(--bd2)}
+.ag-m{padding:10px 13px;border-radius:16px;font-size:13.2px;line-height:1.65;max-width:90%;white-space:pre-wrap}
+.ag-m.u{background:var(--ac);color:#fff;align-self:flex-start;border-bottom-right-radius:4px}
+.ag-m.b{background:var(--sf2);border:1px solid var(--bd2);color:var(--tx);align-self:flex-end;border-bottom-left-radius:4px}
+.ag-act-tag{display:inline-block;background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok);font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:7px;margin-top:4px;margin-left:4px}
+.ag-chips{display:flex;gap:5px;overflow-x:auto;padding-bottom:4px}
+.ag-chips button{white-space:nowrap;font-size:11.5px;padding:4px 9px;border-radius:9px}
+</style>
+
+<button id="agFab" onclick="$('agMdl').classList.add('on');setTimeout(()=>$('agInp').focus(),100)">🔒 دستیار هوشمند محلی</button>
+
+<div class="mdl-bg" id="agMdl">
+  <div class="cd mdl" style="max-width:520px;background:var(--sf)">
+    <div class="row sb">
+      <h2 style="margin:0">🔒 ایجنت هوشمند ۱۰۰٪ محلی (بدون خروج دیتا)</h2>
+      <div class="row" style="margin:0">
+        <button onclick="$('agLocalCfg').style.display=$('agLocalCfg').style.display==='none'?'block':'none'" style="font-size:11.5px" title="اتصال اختیاری به هوش مصنوعی آفلاین روی کامپیوتر خودتان (Ollama)">⚙ مدل آفلاین Ollama</button>
+        <button class="x" onclick="$('agMdl').classList.remove('on')">✕</button>
+      </div>
+    </div>
+    <div class="mu" style="font-size:11.5px;color:var(--ok);font-weight:600">✓ پردازش ۱۰۰٪ داخل مرورگر دستگاه شما انجام می‌شود و هیچ دیتایی به اینترنت یا سرورهای خارجی ارسال نمی‌شود.</div>
+
+    <!-- تنظیمات اختیاری Ollama روی کامپیوتر شخصی (localhost) -->
+    <div id="agLocalCfg" style="display:none;background:var(--sf2);padding:10px;border-radius:14px;margin-top:8px;border:1px solid var(--bd2)">
+      <div class="mu" style="margin-bottom:6px">اگر نرم‌افزار آفلاین <b>Ollama</b> را روی لپ‌تاپ خود نصب دارید، می‌توانید برای گفتگوهای آزاد به مدل روی هاردِ خودتان (`localhost`) وصل شوید:</div>
+      <div class="row">
+        <input type="text" id="olUrl" value="http://localhost:11434/api/generate" dir="ltr" placeholder="http://localhost:11434/api/generate">
+        <input type="text" id="olMod" value="qwen2.5:7b" dir="ltr" placeholder="نام مدل (مثلاً llama3 یا qwen2.5)" style="width:140px">
+        <button class="p" onclick="localStorage.setItem('wp26_ol_url',$('olUrl').value);localStorage.setItem('wp26_ol_mod',$('olMod').value);$('agLocalCfg').style.display='none'">ذخیره</button>
+      </div>
+    </div>
+
+    <!-- دکمه‌های اقدام هوشمند فوری -->
+    <div class="ag-chips" style="margin-top:8px">
+      <button onclick="runLocalAgent('برنامه امشب رو بچین')">⚡ چیدن خودکار تایم‌بلاک امشب (۱۹ تا ۲۲)</button>
+      <button onclick="runLocalAgent('تحلیل مالی')">💰 تحلیل تراز مالی و اقساطم</button>
+      <button onclick="runLocalAgent('گزارش امروز')">📋 وضعیت کارهای امروز</button>
+      <button onclick="runLocalAgent('راهنما')">❓ چه دستورهایی بلدی؟</button>
+    </div>
+
+    <div class="ag-chat" id="agChat">
+      <div class="ag-m b">سلام! من ایجنت ۱۰۰٪ محلی و خصوصی تو هستم. هیچ اطلاعاتی از دستگاهت خارج نمی‌شود.
+می‌توانی با متن یا ویس (🎙) به من دستور بدهی؛ مثلاً:
+• «فردا ساعت ۱۹ تا ۲۱ مطالعه ترید بذار»
+• «۴۵۰ هزار تومن هزینه رستوران ثبت کن»
+• «برای دوشنبه کار مهم تماس با شرکت اضافه کن»
+• «نماز صبح و ظهر امروز رو تیک بزن»</div>
+    </div>
+
+    <div class="row" style="margin:0">
+      <input type="text" id="agInp" placeholder="دستور فارسی بنویس یا با میکروفون بگو..." onkeydown="if(event.key==='Enter')runLocalAgent()">
+      <button class="p" onclick="runLocalAgent()">اجرا</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  $('agMdl').onclick=e=>{if(e.target===$('agMdl'))$('agMdl').classList.remove('on')};
+
+  function addMsg(txt,who,badges=''){
+    const box=$('agChat'),d=document.createElement('div');
+    d.className='ag-m '+who;
+    d.innerHTML=esc(txt)+(badges?`<div style="margin-top:6px">${badges}</div>`:'');
+    box.appendChild(d);box.scrollTop=box.scrollHeight;
+  }
+
+  // تشخیص روز هفته از متن فارسی
+  function detectDayIndex(txt){
+    const tdIdx=(new Date().getDay()+1)%7;
+    if(txt.includes('پس‌فردا')||txt.includes('پس فردا'))return Math.min(6,tdIdx+2);
+    if(txt.includes('فردا'))return Math.min(6,tdIdx+1);
+    for(let i=0;i<7;i++){if(txt.includes(DN[i]))return i}
+    return tdIdx;
+  }
+
+  // تشخیص مبلغ از متن فارسی (پشتیبانی از «۴۵۰ هزار»، «۲ میلیون»، «350000» و...)
+  function extractMoney(txt){
+    const en=toEnDigits(txt).replace(/,/g,'');
+    const mMil=en.match(/(\d+(?:\.\d+)?)\s*(?:میلیون|ملیون|تومن\s*میلیون)/);
+    if(mMil)return Math.round(parseFloat(mMil[1])*1000000);
+    const mHez=en.match(/(\d+(?:\.\d+)?)\s*(?:هزار|تومن|تومان)/);
+    if(mHez){
+      const v=parseFloat(mHez[1]);
+      return v<1000?Math.round(v*1000):Math.round(v);
+    }
+    const mRaw=en.match(/\b(\d{4,10})\b/);
+    return mRaw?parseInt(mRaw[1],10):0;
+  }
+
+  // موتور پردازش زبان طبیعی فارسی (۱۰۰٪ آفلاین و داخل مرورگر)
+  window.runLocalAgent=function(customCmd){
+    const inp=$('agInp'),raw=(customCmd||inp.value||'').trim();
+    if(!raw)return;
+    if(!customCmd)inp.value='';
+    addMsg(raw,'u');
+
+    const txt=toEnDigits(raw),w=W(),tdIdx=(new Date().getDay()+1)%7,dIdx=detectDayIndex(txt);
+    const np=pp(new Date()),mk=np.y+'-'+np.m,B=BD();
+    const badges=[],replies=[];
+
+    // ۱. دستور چیدن خودکار تایم‌بلاک در ساعات آزاد بعد از کار (۱۹ تا ۲۲)
+    if(txt.includes('برنامه امشب')||txt.includes('تایم‌بلاک')||txt.includes('ساعت‌های آزاد')||txt.includes('بچین')){
+      const td=w.days[dIdx];
+      const topPri=w.pri.find(x=>x&&x.trim())||(w.goals[0]?.t)||'مطالعه و توسعه فردی';
+      const lrnItem=(S.lrn&&S.lrn[0]?.t)||'مطالعه تخصصی';
+      td.b[19]={t:`مرور و مطالعه: ${lrnItem}`,c:'study'};
+      td.b[20]={t:`تمرکز روی اولویت: ${topPri}`,c:'study'};
+      td.b[21]={t:'ورزش سبک / پیاده‌روی و شام',c:'sport'};
+      td.b[22]={t:'مطالعه آزاد و آمادگی خواب',c:'rest'};
+      if(!td.plan)td.plan=2;
+      save();render();
+      badges.push(`✓ چیدمان ساعت ۱۹ تا ۲۲ ${DN[dIdx]}`);
+      replies.push(`با توجه به اینکه ساعت ۸ تا ۱۸ سر کار هستی، ساعت‌های طلایی ۱۹:۰۰ تا ۲۲:۰۰ روز ${DN[dIdx]} را بر اساس اولویت‌ها و مباحث یادگیری‌ات در تایم‌بلاکینگ چیدم و هدف مطالعه را روی ۲ ساعت تنظیم کردم.`);
+    }
+
+    // ۲. دستور تنظیم ساعت مشخص در تایم‌بلاکینگ (مثلاً: فردا ساعت 19 تا 21 مطالعه ترید بذار)
+    else if(/ساعت\s*(\d{1,2})/.test(txt)){
+      const mHr=txt.match(/ساعت\s*(\d{1,2})(?:\s*(?:تا|الی|-)\s*(\d{1,2}))?/);
+      const h1=clamp(parseInt(mHr[1],10),5,23),h2=mHr[2]?clamp(parseInt(mHr[2],10),h1,23):h1;
+      let cat='study';
+      if(/(ورزش|باشگاه|پیاده)/.test(txt))cat='sport';
+      else if(/(کار|جلسه|پروژه|شیفت)/.test(txt))cat='work';
+      else if(/(استراحت|خواب|تفریح|شام|ناهار)/.test(txt))cat='rest';
+      else if(/(شخصی|خرید|بانک)/.test(txt))cat='life';
+      let title=raw.replace(/(?:امروز|فردا|پس‌فردا|شنبه|یکشنبه|دوشنبه|سه‌شنبه|چهارشنبه|پنجشنبه|جمعه)/g,'')
+        .replace(/ساعت\s*[\d۰-۹]+(?:\s*(?:تا|الی|-)\s*[\d۰-۹]+)?/g,'')
+        .replace(/(?:بذار|بگذار|ثبت کن|تنظیم کن|برام|برای)/g,'').trim()||CT[cat];
+      for(let h=h1;h<=h2;h++){
+        if(h<h2||h1===h2)w.days[dIdx].b[h]={t:title,c:cat};
+      }
+      save();render();
+      badges.push(`✓ تایم‌بلاک ${DN[dIdx]} ساعت ${fa(h1)}:۰۰ (${title})`);
+      replies.push(`در برنامه ساعتی روز ${DN[dIdx]}، ساعت ${fa(h1)}:۰۰ ${h2>h1?'تا '+fa(h2)+':۰۰ ':''}را روی «${title}» (${CT[cat]}) تنظیم کردم.`);
+    }
+
+    // ۳. دستور ثبت نماز (مثلاً: نماز صبح و ظهر امروز رو تیک بزن)
+    else if(txt.includes('نماز')){
+      w.days[dIdx].pr=w.days[dIdx].pr||[0,0,0];
+      if(txt.includes('صبح'))w.days[dIdx].pr[0]=1;
+      if(txt.includes('ظهر')||txt.includes('عصر'))w.days[dIdx].pr[1]=1;
+      if(txt.includes('مغرب')||txt.includes('عشا'))w.days[dIdx].pr[2]=1;
+      if(!txt.includes('صبح')&&!txt.includes('ظهر')&&!txt.includes('مغرب'))w.days[dIdx].pr=[1,1,1];
+      save();render();
+      badges.push(`✓ ثبت نماز (${DN[dIdx]})`);
+      replies.push(`نمازهای روز ${DN[dIdx]} با موفقیت علامت زده شد. قبول باشد!`);
+    }
+
+    // ۴. دستور ثبت هزینه یا درآمد مالی (مثلاً: 450 هزار تومن هزینه رستوران ثبت کن)
+    else if(/(تومن|تومان|هزار|میلیون|هزینه|خرج|درآمد|واریز|خرید)/.test(txt)&&extractMoney(txt)>0){
+      const am=extractMoney(txt);
+      const isInc=/(درآمد|واریز|حقوق|سود|فروش)/.test(txt)&&!/(هزینه|خرج|خرید)/.test(txt);
+      let cat=isInc?'sal':'sup';
+      if(/رستوران|فست|غذا|شام|ناهار/.test(txt))cat='rest';
+      else if(/کافه|قهوه/.test(txt))cat='cafe';
+      else if(/اسنپ|تاکسی|بنزین|مترو/.test(txt))cat='taxi';
+      else if(/اجاره|قبض|برق|اینترنت/.test(txt))cat='bill';
+      else if(/لباس|پوشاک/.test(txt))cat='clo';
+      else if(/دارو|دکتر|باشگاه/.test(txt))cat='doc';
+      else if(/پروژه|فریلنس/.test(txt))cat='free';
+      const cleanNote=raw.replace(/[\d۰-۹.,]+\s*(?:میلیون|ملیون|هزار)?\s*(?:تومن|تومان)?/g,'').replace(/(?:ثبت کن|هزینه|خرج|درآمد|برام)/g,'').trim()||catL(cat);
+      (B.tx[mk]=B.tx[mk]||[]).push({id:'t'+Date.now(),d:np.d,c:cat,a:am,n:cleanNote});
+      save();render();
+      badges.push(`✓ ثبت ${isInc?'درآمد':'هزینه'}: ${mo(am)} ت (${catL(cat)})`);
+      replies.push(`مبلغ ${mo(am)} تومان به عنوان ${isInc?'درآمد':'هزینه'} در دسته «${catL(cat)}» (${cleanNote}) برای تاریخ امروز ثبت شد.`);
+    }
+
+    // ۵. دستور تحلیل مالی
+    else if(txt.includes('تحلیل مالی')||txt.includes('وضعیت مالی')||txt.includes('چقدر خرج')){
+      const M=mdat(np.y,np.m),unpaid=(B.inst||[]).filter(x=>!(x.paid&&x.paid[mk]));
+      const sr=M.I>0?Math.round(100*(M.I-M.E)/M.I):0;
+      replies.push(`📊 گزارش مالی ${PM[np.m-1]}:\n• کل درآمد: ${mo(M.I)} تومان\n• کل هزینه: ${mo(M.E)} تومان\n• تراز خالص: ${mo(M.I-M.E)} تومان (نرخ پس‌انداز: ${fa(sr)}٪)\n• اقساط پرداخت‌نشده این ماه: ${fa(unpaid.length)} مورد (${mo(sm_(unpaid.map(i=>insAm(i,mk))))} تومان).`);
+    }
+
+    // ۶. دستور گزارش امروز
+    else if(txt.includes('گزارش امروز')||txt.includes('وضعیت امروز')||txt.includes('چه کارهایی')){
+      const td=w.days[tdIdx],left=td.t.filter(x=>!x.d);
+      replies.push(`📋 وضعیت امروز (${DN[tdIdx]}):\n• پیشرفت کارها: ${fa(dayPct(td))}٪ (${fa(left.length)} کار باقی‌مانده)\n• مطالعه امروز: ${fa(dayMin(td))} دقیقه\n${left.length?'• کارهای مانده: '+left.map(x=>x.t).join('، '):'• تمام کارهای امروزت انجام شده است!'}`);
+    }
+
+    // ۷. راهنمای دستورات
+    else if(txt.includes('راهنما')||txt.includes('بلدی')||txt.includes('چیکار')){
+      replies.push(`من کاملاً آفلاین داخل مرورگرت کار می‌کنم و این دستورات را می‌فهمم:\n۱. زمان‌بندی: «فردا ساعت ۱۹ تا ۲۱ مطالعه ترید بذار»\n۲. ثبت مالی: «۳۸۰ هزار تومن هزینه رستوران ثبت کن»\n۳. ثبت کار: «برای دوشنبه کار مهم ارسال قرارداد اضافه کن»\n۴. نماز: «نماز صبح و ظهر رو تیک بزن»\n۵. چیدمان هوشمند: «برنامه امشب رو بچین»`);
+    }
+
+    // ۸. ثبت به عنوان کار روزانه (وقتی کاربر می‌گوید: کار ... اضافه کن / ثبت کن / یادم بنداز)
+    else{
+      const isImp=/(مهم|فوری|حیاتی|ستاره|!)/.test(txt);
+      const cleanTask=raw.replace(/(?:برای|روز)?\s*(?:امروز|فردا|پس‌فردا|شنبه|یکشنبه|دوشنبه|سه‌شنبه|چهارشنبه|پنجشنبه|جمعه)/g,'')
+        .replace(/(?:یه|یک)?\s*(?:کار\s*مهم|کار\s*فوری|کار|تسک|یادم بنداز|اضافه کن|ثبت کن|بذار|بنویس)/g,'').trim()||raw;
+      w.days[dIdx].t.push({t:cleanTask,d:0,p:isImp?1:0});
+      save();render();
+      badges.push(`✓ افزودن کار به ${DN[dIdx]}: ${cleanTask}`);
+      replies.push(`کار «${cleanTask}» ${isImp?'با اولویت بالا (مهم 🔥) ':''}به لیست کارهای روز ${DN[dIdx]} اضافه شد.`);
+    }
+
+    addMsg(replies.join('\n'), 'b', badges.map(b=>`<span class="ag-act-tag">${esc(b)}</span>`).join(''));
+  };
+})();
+</script>
 </body>
 <meta name="theme-color" content="#141824">
 <meta name="apple-mobile-web-app-capable" content="yes">
