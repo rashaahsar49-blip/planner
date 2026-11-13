@@ -4158,6 +4158,130 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
   padding: 3px 2px !important;
 }
 </style>
+<!-- ==================== مرکز مدیریت عادت‌ها + کارت‌های ۳ ستونی وضعیت هر عادت ==================== -->
+<style>
+.hb-hero-cd{background:var(--sf);border:1px solid var(--bd);border-radius:24px;padding:22px;margin-bottom:16px;box-shadow:var(--sh)}
+.hb-kpis-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}
+@media(max-width:768px){.hb-kpis-4{grid-template-columns:repeat(2,1fr)}}
+.hb-kpi-box{background:var(--sf2);border:1px solid var(--bd2);border-radius:18px;padding:16px 18px;text-align:right;display:flex;flex-direction:column;justify-content:space-between}
+.hb-kpi-box span.lbl{font-size:12.5px;color:var(--mu);font-weight:500}
+.hb-kpi-box b.val{font-size:30px;font-weight:900;color:var(--tx);margin:6px 0 4px;line-height:1.1;font-variant-numeric:tabular-nums}
+.hb-kpi-box small.sub{font-size:11.5px;color:var(--mu)}
+
+.hb-cards-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:16px}
+@media(max-width:960px){.hb-cards-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.hb-cards-grid{grid-template-columns:1fr}}
+
+.hb-item-cd{background:var(--sf);border:1px solid var(--bd);border-radius:22px;padding:18px;box-shadow:var(--sh);display:flex;flex-direction:column;gap:14px;transition:transform .16s ease,border-color .16s ease}
+.hb-item-cd:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--ac) 35%,var(--bd))}
+.hb-ic-box{width:42px;height:42px;border-radius:13px;background:var(--ac2);color:var(--ac);display:grid;place-items:center;font-size:18px;flex:none;border:1px solid var(--bd2)}
+.hb-item-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.hb-item-pct{font-size:18px;font-weight:800;color:var(--ok);font-variant-numeric:tabular-nums;white-space:nowrap}
+.hb-item-foot{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--mu)}
+</style>
+
+<script>
+(function(){
+  const HB_ICONS=['✦','◈','◎','✳','∿','◇','❖','✧','◉','⬡'];
+
+  function buildHabitCenterHtml(){
+    const H=HD(),k=hs.y+'-'+hs.m,n=ML(hs.y,hs.m),lg=H.log[k]||{},L=H.list||[];
+    let totTicks=0,bestStreakAll=0;
+
+    const st=L.map((h,idx)=>{
+      const daysArr=lg[h.id]||[];
+      const c=daysArr.length,g=h.g||n;
+      let best=0,cur=0;
+      for(let d=1;d<=n;d++){
+        if(daysArr.includes(d)){cur++;if(cur>best)best=cur}
+        else cur=0;
+      }
+      totTicks+=c;
+      if(best>bestStreakAll)bestStreakAll=best;
+      const pct=Math.min(100,Math.round(100*c/Math.max(1,g)));
+      const statusTxt=pct>=75?'عالی و پایدار':pct>=40?'در مسیر رشد':'نیازمند توجه';
+      const ic=HB_ICONS[idx%HB_ICONS.length];
+      return {h,c,g,pct,best,statusTxt,ic};
+    });
+
+    const monthRate=L.length?Math.round(100*totTicks/(L.length*n)):0;
+
+    const heroHtml=`<div class="hb-hero-cd" id="hbCenterHero">
+      <div class="row sb fw" style="align-items:flex-start;margin-bottom:4px">
+        <div>
+          <h2 style="font-size:20px;font-weight:900;margin:0 0 4px">مرکز مدیریت عادت‌ها</h2>
+          <div class="mu" style="font-size:13px">پیوستگی مهم‌تر از شدت است؛ روند ماه را با چند شاخص ساده دنبال کن.</div>
+        </div>
+        <div class="row" style="margin:0;gap:6px">
+          <button data-a="hm" data-v="-1">‹ ماه قبل</button>
+          <b style="font-size:15px;padding:0 8px">${PM[hs.m-1]} ${fy(hs.y)}</b>
+          <button data-a="hm" data-v="1">ماه بعد ›</button>
+        </div>
+      </div>
+
+      <div class="hb-kpis-4">
+        <div class="hb-kpi-box">
+          <span class="lbl">نرخ استمرار ماه</span>
+          <b class="val">${fa(monthRate)} ٪</b>
+          <small class="sub">از کل فرصت‌های ثبت</small>
+        </div>
+        <div class="hb-kpi-box">
+          <span class="lbl">ثبت‌های انجام‌شده</span>
+          <b class="val">${fa(totTicks)}</b>
+          <small class="sub">تیک در این ماه</small>
+        </div>
+        <div class="hb-kpi-box">
+          <span class="lbl">تعداد عادت فعال</span>
+          <b class="val">${fa(L.length)}</b>
+          <small class="sub">عادت در حال پیگیری</small>
+        </div>
+        <div class="hb-kpi-box">
+          <span class="lbl">بهترین رکورد</span>
+          <b class="val">${fa(bestStreakAll)}</b>
+          <small class="sub">روز متوالی</small>
+        </div>
+      </div>
+    </div>`;
+
+    const cardsHtml=`<div class="hb-cards-grid" id="hbCardsGrid">
+      ${st.map(item=>`<div class="hb-item-cd">
+        <div class="hb-item-top">
+          <div class="row" style="margin:0;gap:11px">
+            <div class="hb-ic-box">${item.ic}</div>
+            <div>
+              <div style="font-weight:800;font-size:15px;color:var(--tx)">${esc(item.h.n)}</div>
+              <div class="mu" style="font-size:12px">${fa(item.c)} ثبت از ${fa(item.g)} روز هدف</div>
+            </div>
+          </div>
+          <span class="hb-item-pct">${fa(item.pct)} ٪</span>
+        </div>
+        <div class="bar" style="height:8px"><i style="width:${item.pct}%;background:var(--ok)"></i></div>
+        <div class="hb-item-foot">
+          <span>🔥 رکورد ${fa(item.best)} روز</span>
+          <span style="color:${item.pct>=75?'var(--ok)':item.pct>=40?'var(--wn)':'var(--mu)'};font-weight:600">${item.statusTxt}</span>
+        </div>
+      </div>`).join('')}
+    </div>`;
+
+    return heroHtml+cardsHtml;
+  }
+
+  const prevR=window.render;
+  window.render=function(){
+    prevR();
+    if(tab==='hb'){
+      // حذف هدر ساده قبلی بالای تب عادت‌ها و جایگزینی با مرکز مدیریت عادت‌ها + کارت‌های ۳ ستونی
+      const firstCd=q('#main > .cd');
+      if(firstCd&&firstCd.textContent.includes('ردیاب عادت‌ها'))firstCd.remove();
+      if(!$('hbCenterHero')){
+        $('main').insertAdjacentHTML('afterbegin',buildHabitCenterHtml());
+      }
+    }
+  };
+
+  render();
+})();
+</script>
 </body>
 <meta name="theme-color" content="#141824">
 <meta name="apple-mobile-web-app-capable" content="yes">
