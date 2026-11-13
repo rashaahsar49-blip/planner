@@ -2211,9 +2211,17 @@ button.p,nav button.on,.days button.on{
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
-/* منوی کشویی ⋯ در هدر */
-.more-wrap{position:relative;display:inline-block}
-.more-menu{position:absolute;left:0;top:calc(100% + 8px);background:var(--sf);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border:1px solid var(--bd);border-radius:16px;padding:6px;min-width:175px;box-shadow:0 18px 40px rgba(0,0,0,.22);display:none;flex-direction:column;gap:4px;z-index:60}
+/* بالا بردن لایه هدر و منوی ⋯ روی تمام المان‌های صفحه */
+header, header .wk{position:relative;z-index:45!important}
+.more-wrap{position:relative;display:inline-block;z-index:46!important}
+.more-menu{
+  position:absolute;left:0;top:calc(100% + 8px);
+  background:color-mix(in srgb,var(--sf) 94%,var(--bg))!important;
+  -webkit-backdrop-filter:blur(28px)!important;backdrop-filter:blur(28px)!important;
+  border:1px solid var(--bd);border-radius:16px;padding:6px;min-width:180px;
+  box-shadow:0 20px 45px rgba(0,0,0,.35);display:none;flex-direction:column;gap:4px;
+  z-index:999!important;
+}
 .more-menu.on{display:flex}
 .more-menu button{width:100%;text-align:right;display:flex;align-items:center;justify-content:space-between;padding:7px 11px;border-radius:10px;background:transparent}
 .more-menu button:hover{background:var(--ac2)}
