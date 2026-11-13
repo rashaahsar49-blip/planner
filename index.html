@@ -1803,61 +1803,49 @@ button.p,nav button.on,.days button.on{
   save();render();
 })();
 </script>
-<!-- ==================== ایجنت هوشمند ۱۰۰٪ محلی و آفلاین (Zero-Cloud / حفظ کامل حریم خصوصی) ==================== -->
+<!-- ==================== ایجنت هوشمند ۱۰۰٪ محلی نسخه ۲ (فرامین پیشرفته + میکروفون + بریفینگ صبحگاهی) ==================== -->
 <style>
-#agFab{position:fixed;bottom:22px;left:22px;z-index:45;background:linear-gradient(135deg,#1d4ed8,#0284c7,#0d9488);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:99px;padding:11px 18px;font-weight:700;font-size:13.5px;box-shadow:0 12px 30px rgba(2,132,199,.45);display:flex;align-items:center;gap:8px;cursor:pointer}
-#agFab:hover{transform:translateY(-2px) scale(1.02)}
-.ag-chat{max-height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:8px 4px;margin:8px 0;border-top:1px solid var(--bd2);border-bottom:1px solid var(--bd2)}
-.ag-m{padding:10px 13px;border-radius:16px;font-size:13.2px;line-height:1.65;max-width:90%;white-space:pre-wrap}
+#agFab{position:fixed;bottom:20px;left:20px;z-index:45;background:linear-gradient(135deg,#1d4ed8,#0284c7,#0ea5e9);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:99px;padding:8px 14px;font-weight:700;font-size:12.5px;box-shadow:0 8px 22px rgba(2,132,199,.4);display:flex;align-items:center;gap:6px;cursor:pointer;transition:all .2s}
+#agFab:hover{transform:translateY(-2px)}
+@media(max-width:640px){
+  #agFab{width:42px;height:42px;padding:0;border-radius:50%;justify-content:center;bottom:14px;left:14px;box-shadow:0 6px 16px rgba(2,132,199,.45)}
+  #agFab .ag-lbl{display:none}
+}
+.ag-chat{max-height:360px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:8px 4px;margin:8px 0;border-top:1px solid var(--bd2);border-bottom:1px solid var(--bd2)}
+.ag-m{padding:10px 13px;border-radius:16px;font-size:13px;line-height:1.7;max-width:92%;white-space:pre-wrap}
 .ag-m.u{background:var(--ac);color:#fff;align-self:flex-start;border-bottom-right-radius:4px}
 .ag-m.b{background:var(--sf2);border:1px solid var(--bd2);color:var(--tx);align-self:flex-end;border-bottom-left-radius:4px}
-.ag-act-tag{display:inline-block;background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok);font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:7px;margin-top:4px;margin-left:4px}
+.ag-act-tag{display:inline-block;background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok);font-size:11px;font-weight:700;padding:2px 8px;border-radius:7px;margin-top:4px;margin-left:4px}
 .ag-chips{display:flex;gap:5px;overflow-x:auto;padding-bottom:4px}
 .ag-chips button{white-space:nowrap;font-size:11.5px;padding:4px 9px;border-radius:9px}
 </style>
 
-<button id="agFab" onclick="$('agMdl').classList.add('on');setTimeout(()=>$('agInp').focus(),100)">🔒 دستیار هوشمند محلی</button>
+<button id="agFab" onclick="openLocalAgent()" title="دستیار هوشمند محلی">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z"/></svg>
+  <span class="ag-lbl">دستیار هوشمند</span>
+</button>
 
 <div class="mdl-bg" id="agMdl">
-  <div class="cd mdl" style="max-width:520px;background:var(--sf)">
+  <div class="cd mdl" style="max-width:540px;background:var(--sf)">
     <div class="row sb">
-      <h2 style="margin:0">🔒 ایجنت هوشمند ۱۰۰٪ محلی (بدون خروج دیتا)</h2>
-      <div class="row" style="margin:0">
-        <button onclick="$('agLocalCfg').style.display=$('agLocalCfg').style.display==='none'?'block':'none'" style="font-size:11.5px" title="اتصال اختیاری به هوش مصنوعی آفلاین روی کامپیوتر خودتان (Ollama)">⚙ مدل آفلاین Ollama</button>
-        <button class="x" onclick="$('agMdl').classList.remove('on')">✕</button>
-      </div>
+      <h2 style="margin:0">✨ دستیار و تحلیلگر هوشمند محلی</h2>
+      <button class="x" onclick="$('agMdl').classList.remove('on')">✕</button>
     </div>
-    <div class="mu" style="font-size:11.5px;color:var(--ok);font-weight:600">✓ پردازش ۱۰۰٪ داخل مرورگر دستگاه شما انجام می‌شود و هیچ دیتایی به اینترنت یا سرورهای خارجی ارسال نمی‌شود.</div>
+    <div class="mu" style="font-size:11px;color:var(--ok);font-weight:600">🔒 ۱۰۰٪ محلی و آفلاین — بدون خروج هیچ اطلاعاتی از دستگاه شما</div>
 
-    <!-- تنظیمات اختیاری Ollama روی کامپیوتر شخصی (localhost) -->
-    <div id="agLocalCfg" style="display:none;background:var(--sf2);padding:10px;border-radius:14px;margin-top:8px;border:1px solid var(--bd2)">
-      <div class="mu" style="margin-bottom:6px">اگر نرم‌افزار آفلاین <b>Ollama</b> را روی لپ‌تاپ خود نصب دارید، می‌توانید برای گفتگوهای آزاد به مدل روی هاردِ خودتان (`localhost`) وصل شوید:</div>
-      <div class="row">
-        <input type="text" id="olUrl" value="http://localhost:11434/api/generate" dir="ltr" placeholder="http://localhost:11434/api/generate">
-        <input type="text" id="olMod" value="qwen2.5:7b" dir="ltr" placeholder="نام مدل (مثلاً llama3 یا qwen2.5)" style="width:140px">
-        <button class="p" onclick="localStorage.setItem('wp26_ol_url',$('olUrl').value);localStorage.setItem('wp26_ol_mod',$('olMod').value);$('agLocalCfg').style.display='none'">ذخیره</button>
-      </div>
-    </div>
-
-    <!-- دکمه‌های اقدام هوشمند فوری -->
     <div class="ag-chips" style="margin-top:8px">
-      <button onclick="runLocalAgent('برنامه امشب رو بچین')">⚡ چیدن خودکار تایم‌بلاک امشب (۱۹ تا ۲۲)</button>
-      <button onclick="runLocalAgent('تحلیل مالی')">💰 تحلیل تراز مالی و اقساطم</button>
-      <button onclick="runLocalAgent('گزارش امروز')">📋 وضعیت کارهای امروز</button>
-      <button onclick="runLocalAgent('راهنما')">❓ چه دستورهایی بلدی؟</button>
+      <button onclick="runLocalAgent('بریفینگ صبحگاهی')">☀️ تحلیل صبحگاهی امروز</button>
+      <button onclick="runLocalAgent('تغییر ارزش دارایی')">💎 درصد تغییر دارایی‌ها</button>
+      <button onclick="runLocalAgent('تحلیل تفکیکی هزینه و درآمد')">📊 کالبدشکافی هزینه و درآمد</button>
+      <button onclick="runLocalAgent('برنامه امشب رو بچین')">⚡ چیدن تایم‌بلاک امشب</button>
+      <button onclick="runLocalAgent('راهنما')">❓ لیست همه فرمان‌ها</button>
     </div>
 
-    <div class="ag-chat" id="agChat">
-      <div class="ag-m b">سلام! من ایجنت ۱۰۰٪ محلی و خصوصی تو هستم. هیچ اطلاعاتی از دستگاهت خارج نمی‌شود.
-می‌توانی با متن یا ویس (🎙) به من دستور بدهی؛ مثلاً:
-• «فردا ساعت ۱۹ تا ۲۱ مطالعه ترید بذار»
-• «۴۵۰ هزار تومن هزینه رستوران ثبت کن»
-• «برای دوشنبه کار مهم تماس با شرکت اضافه کن»
-• «نماز صبح و ظهر امروز رو تیک بزن»</div>
-    </div>
+    <div class="ag-chat" id="agChat"></div>
 
     <div class="row" style="margin:0">
-      <input type="text" id="agInp" placeholder="دستور فارسی بنویس یا با میکروفون بگو..." onkeydown="if(event.key==='Enter')runLocalAgent()">
+      <input type="text" id="agInp" placeholder="فرمان بده (متنی یا با میکروفون 🎙)..." onkeydown="if(event.key==='Enter')runLocalAgent()">
+      <button type="button" id="agMicBtn" class="mic-btn" title="فرمان صوتی فارسی">🎙</button>
       <button class="p" onclick="runLocalAgent()">اجرا</button>
     </div>
   </div>
@@ -1867,6 +1855,21 @@ button.p,nav button.on,.days button.on{
 (function(){
   $('agMdl').onclick=e=>{if(e.target===$('agMdl'))$('agMdl').classList.remove('on')};
 
+  // ۱. میکروفون اختصاصی داخل کادر متنی ایجنت
+  $('agMicBtn').onclick=()=>{
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR)return alert('مرورگر شما از تایپ صوتی پشتیبانی نمی‌کند.');
+    const rec=new SR();rec.lang='fa-IR';rec.interimResults=false;
+    $('agMicBtn').classList.add('rec');
+    rec.onresult=ev=>{
+      const txt=ev.results[0][0].transcript;
+      $('agInp').value=($('agInp').value?$('agInp').value+' ':'')+txt;
+    };
+    rec.onend=()=>$('agMicBtn').classList.remove('rec');
+    rec.onerror=()=>$('agMicBtn').classList.remove('rec');
+    rec.start();
+  };
+
   function addMsg(txt,who,badges=''){
     const box=$('agChat'),d=document.createElement('div');
     d.className='ag-m '+who;
@@ -1874,7 +1877,82 @@ button.p,nav button.on,.days button.on{
     box.appendChild(d);box.scrollTop=box.scrollHeight;
   }
 
-  // تشخیص روز هفته از متن فارسی
+  // ۲. ثبت خودکار تاریخچه روزانه ارزش کل دارایی‌ها برای محاسبه درصد تغییرات زمانی
+  function recordAssetHistory(){
+    const B=BD();if(!B.asHist)B.asHist={};
+    const tot=sm_((B.assets||[]).map(a=>(a.q||0)*(a.p||0)));
+    const todayIso=new Date().toISOString().slice(0,10);
+    if(tot>0)B.asHist[todayIso]=tot;
+    return {tot,hist:B.asHist};
+  }
+  function getHistVal(daysAgo,curVal){
+    const B=BD(),hist=B.asHist||{},targetMs=Date.now()-daysAgo*864e5;
+    const targetIso=new Date(targetMs).toISOString().slice(0,10);
+    if(hist[targetIso])return hist[targetIso];
+    // پیدا کردن نزدیک‌ترین تاریخ ثبت‌شده در آن بازه
+    const keys=Object.keys(hist).sort();
+    if(!keys.length)return curVal;
+    let bestK=keys[0],minDiff=Infinity;
+    keys.forEach(k=>{
+      const df=Math.abs(new Date(k).getTime()-targetMs);
+      if(df<minDiff){minDiff=df;bestK=k}
+    });
+    return hist[bestK]||curVal;
+  }
+  function fmtPctDiff(cur,old){
+    if(!old||old<=0)return '۰٪ (بدون سابقه قبلی)';
+    const pct=((cur-old)/old)*100,diff=cur-old;
+    const sign=pct>0?'▲ +':pct<0?'▼ ':'';
+    return `${sign}${fa(Math.round(pct*10)/10)}٪ (${diff>=0?'+':'−'}${mo(Math.abs(diff))} ت)`;
+  }
+
+  // ۳. تولید گزارش و تحلیل جذاب صبحگاهی از گذشته و برنامه امروز
+  function generateMorningBriefing(){
+    recordAssetHistory();
+    const w=W(),tdIdx=(new Date().getDay()+1)%7,td=w.days[tdIdx];
+    const ydDate=new Date(Date.now()-864e5),ydWKey=sat(ydDate).toISOString().slice(0,10),ydIdx=(ydDate.getDay()+1)%7;
+    const yd=(S[ydWKey]&&S[ydWKey].days&&S[ydWKey].days[ydIdx])||{t:[],ses:[],pr:[0,0,0]};
+    const yDone=(yd.t||[]).filter(x=>x.d).length,yTot=(yd.t||[]).length,yPct=yTot?Math.round(100*yDone/yTot):0;
+    const yMin=dayMin(yd),yPr=(yd.pr||[]).filter(Boolean).length;
+
+    const np=pp(new Date()),mk=np.y+'-'+np.m,M=mdat(np.y,np.m),B=BD();
+    const {tot:curAsset}=recordAssetHistory();
+    const weekAgoAsset=getHistVal(7,curAsset);
+    const dueToday=(B.inst||[]).filter(i=>Number(i.d)===np.d&&!(i.paid&&i.paid[mk]));
+    const tdTasks=td.t.filter(x=>!x.d);
+
+    return `☀️ صبح بخیر! خلاصه هوشمند عملکرد گذشته و نقشه راه امروزت (${pfull(new Date())}):\n\n`+
+      `⏪ مرور عملکرد دیروز:\n`+
+      `• انجام کارها: ${yTot?`${fa(yDone)} از ${fa(yTot)} کار (${fa(yPct)}٪)`:'کاری ثبت نشده بود'}\n`+
+      `• تمرکز و مطالعه دیروز: ${fa(yMin)} دقیقه | نمازهای دیروز: ${fa(yPr)} از ۳\n\n`+
+      `💎 نبض مالی و دارایی تا این لحظه:\n`+
+      `• ارزش کل سبد دارایی: ${mo(curAsset)} تومان (${fmtPctDiff(curAsset,weekAgoAsset)} نسبت به هفته قبل)\n`+
+      `• تراز ${PM[np.m-1]}: درآمد ${mo(M.I)} ت | هزینه ${mo(M.E)} ت\n`+
+      `${dueToday.length?`⚠️ هشدار سررسید قسط امروز: ${dueToday.map(x=>x.t+' ('+mo(insAm(x,mk))+' ت)').join('، ')}\n`:''}\n`+
+      `🎯 ماموریت امروز (${DN[tdIdx]}):\n`+
+      `• ${tdTasks.length?`امروز ${fa(tdTasks.length)} کار در لیست داری؛ مهم‌ترینش: «${tdTasks[0].t}»`:'لیست کارهای امروزت هنوز خالیست؛ ۳ کار کلیدی امروزت را به من بگو تا ثبت کنم!'}`;
+  }
+
+  window.openLocalAgent=function(){
+    $('agMdl').classList.add('on');
+    if(!$('agChat').children.length){
+      addMsg(generateMorningBriefing(),'b');
+    }
+    setTimeout(()=>$('agInp').focus(),100);
+  };
+
+  // نمایش خودکار بریفینگ صبحگاهی در اولین باز کردن اپ در هر روز
+  setTimeout(()=>{
+    const todayKey=new Date().toISOString().slice(0,10);
+    recordAssetHistory();
+    if(localStorage.getItem('wp26_morning_brief')!==todayKey&&!$('lckScreen').classList.contains('on')){
+      localStorage.setItem('wp26_morning_brief',todayKey);
+      $('agChat').innerHTML='';
+      addMsg(generateMorningBriefing(),'b');
+      $('agMdl').classList.add('on');
+    }
+  },1200);
+
   function detectDayIndex(txt){
     const tdIdx=(new Date().getDay()+1)%7;
     if(txt.includes('پس‌فردا')||txt.includes('پس فردا'))return Math.min(6,tdIdx+2);
@@ -1883,21 +1961,16 @@ button.p,nav button.on,.days button.on{
     return tdIdx;
   }
 
-  // تشخیص مبلغ از متن فارسی (پشتیبانی از «۴۵۰ هزار»، «۲ میلیون»، «350000» و...)
   function extractMoney(txt){
     const en=toEnDigits(txt).replace(/,/g,'');
-    const mMil=en.match(/(\d+(?:\.\d+)?)\s*(?:میلیون|ملیون|تومن\s*میلیون)/);
-    if(mMil)return Math.round(parseFloat(mMil[1])*1000000);
-    const mHez=en.match(/(\d+(?:\.\d+)?)\s*(?:هزار|تومن|تومان)/);
-    if(mHez){
-      const v=parseFloat(mHez[1]);
-      return v<1000?Math.round(v*1000):Math.round(v);
-    }
-    const mRaw=en.match(/\b(\d{4,10})\b/);
-    return mRaw?parseInt(mRaw[1],10):0;
+    const mB=en.match(/(\d+(?:\.\d+)?)\s*میلیارد/);if(mB)return Math.round(parseFloat(mB[1])*1e9);
+    const mM=en.match(/(\d+(?:\.\d+)?)\s*(?:میلیون|ملیون|تومن\s*میلیون)/);if(mM)return Math.round(parseFloat(mM[1])*1e6);
+    const mH=en.match(/(\d+(?:\.\d+)?)\s*(?:هزار|تومن|تومان)/);
+    if(mH){const v=parseFloat(mH[1]);return v<1000?Math.round(v*1000):Math.round(v)}
+    const mR=en.match(/\b(\d{4,11})\b/);return mR?parseInt(mR[1],10):0;
   }
 
-  // موتور پردازش زبان طبیعی فارسی (۱۰۰٪ آفلاین و داخل مرورگر)
+  // ۴. موتور جامع پردازش فرمان‌های فارسی (بیش از ۱۵ قابلیت تحلیلی و عملیاتی)
   window.runLocalAgent=function(customCmd){
     const inp=$('agInp'),raw=(customCmd||inp.value||'').trim();
     if(!raw)return;
@@ -1908,22 +1981,149 @@ button.p,nav button.on,.days button.on{
     const np=pp(new Date()),mk=np.y+'-'+np.m,B=BD();
     const badges=[],replies=[];
 
-    // ۱. دستور چیدن خودکار تایم‌بلاک در ساعات آزاد بعد از کار (۱۹ تا ۲۲)
-    if(txt.includes('برنامه امشب')||txt.includes('تایم‌بلاک')||txt.includes('ساعت‌های آزاد')||txt.includes('بچین')){
-      const td=w.days[dIdx];
-      const topPri=w.pri.find(x=>x&&x.trim())||(w.goals[0]?.t)||'مطالعه و توسعه فردی';
+    // ۱. بریفینگ صبحگاهی و مرور گذشته
+    if(txt.includes('بریفینگ')||txt.includes('صبحگاهی')||txt.includes('مرور گذشته')||txt.includes('دیروز')){
+      replies.push(generateMorningBriefing());
+    }
+
+    // ۲. تحلیل درصد تغییر ارزش دارایی‌ها (نسبت به دیروز، هفته قبل، ماه قبل، سال قبل)
+    else if(txt.includes('دارایی')||txt.includes('ارزش سبد')||txt.includes('درصد تغییر')){
+      // امکان ثبت ارزش دارایی پایه برای مقایسه (مثلاً: ارزش دارایی ماه قبل 150 میلیون)
+      const am=extractMoney(txt);
+      if(am>0&&(txt.includes('تنظیم')||txt.includes('بود'))){
+        let dAgo=30;if(txt.includes('دیروز'))dAgo=1;else if(txt.includes('هفته'))dAgo=7;else if(txt.includes('سال'))dAgo=365;
+        const iso=new Date(Date.now()-dAgo*864e5).toISOString().slice(0,10);
+        B.asHist=B.asHist||{};B.asHist[iso]=am;save();
+        badges.push(`✓ ثبت سابقه دارایی (${fa(dAgo)} روز قبل): ${mo(am)} ت`);
+      }
+      const {tot}=recordAssetHistory();
+      const v1d=getHistVal(1,tot),v7d=getHistVal(7,tot),v30d=getHistVal(30,tot),v365d=getHistVal(365,tot);
+      const breakdown=(B.assets||[]).filter(a=>a.q>0).map(a=>`• ${a.n}: ${fa(a.q)} واحد × ${mo(a.p)} = ${mo(a.q*a.p)} ت`).join('\n')||'هنوز مقدار دارایی‌ها در تب مالی وارد نشده است.';
+      replies.push(`💎 تحلیل ارزش سبد دارایی‌های شما:\n`+
+        `ارزش کل فعلی: ${mo(tot)} تومان\n\n`+
+        `📈 درصد تغییرات زمانی:\n`+
+        `• نسبت به دیروز: ${fmtPctDiff(tot,v1d)}\n`+
+        `• نسبت به هفته گذشته: ${fmtPctDiff(tot,v7d)}\n`+
+        `• نسبت به ماه گذشته: ${fmtPctDiff(tot,v30d)}\n`+
+        `• نسبت به سال گذشته: ${fmtPctDiff(tot,v365d)}\n\n`+
+        `ترکیب فعلی سبد:\n${breakdown}\n`+
+        `(نکته: برای ثبت سابقه قبلی می‌توانی بنویسی: «ارزش دارایی ماه قبل ۱۵۰ میلیون بود»)`);
+    }
+
+    // ۳. تحلیل تفکیکی هزینه‌ها و درآمدها بر اساس گروه و زمان (این ماه، ماه قبل، ۳ ماهه، سالانه)
+    else if(txt.includes('تحلیل تفکیکی')||txt.includes('تحلیل مالی')||txt.includes('گروه هزینه')||txt.includes('تفکیک هزینه')||txt.includes('کالبدشکافی')){
+      const M0=mdat(np.y,np.m),pm1=pvM(np.y,np.m,1),M1=mdat(pm1.y,pm1.m);
+      // محاسبه امروز و این هفته
+      const todayExp=sm_(M0.ex.filter(t=>t.d===np.d).map(t=>t.a));
+      const weekExp=sm_(M0.ex.filter(t=>t.d>=Math.max(1,np.d-6)&&t.d<=np.d).map(t=>t.a));
+      // محاسبه سال جاری
+      let yrI=0,yrE=0;for(let m=1;m<=12;m++){const mm=mdat(np.y,m);yrI+=mm.I;yrE+=mm.E}
+      // تفکیک گروه‌های هزینه در ماه جاری
+      const grpBreakdown=GXs.map(g=>({name:g[1],cur:gs(M0.ex,g[0]),prev:gs(M1.ex,g[0])})).filter(x=>x.cur>0||x.prev>0).sort((a,b)=>b.cur-a.cur);
+      const grpLines=grpBreakdown.map(g=>{
+        const share=M0.E>0?Math.round(100*g.cur/M0.E):0;
+        const chg=g.prev>0?Math.round(100*(g.cur-g.prev)/g.prev):null;
+        return `• ${g.name}: ${mo(g.cur)} ت (${fa(share)}٪ کل خرج)${chg!==null?` [${chg>0?'▲ +':'▼ '}${fa(chg)}٪ نسبت به ماه قبل]`:''}`;
+      }).join('\n')||'در این ماه هنوز هزینه‌ای ثبت نشده است.';
+
+      const incLines=GR.filter(g=>g[3]==='in').map(g=>({name:g[1],v:gs(M0.inc,g[0])})).filter(x=>x.v>0).map(x=>`• ${x.name}: ${mo(x.v)} ت (${fa(Math.round(100*x.v/M0.I))}٪)`).join('\n')||'درآمدی در این ماه ثبت نشده است.';
+
+      replies.push(`📊 تحلیل جامع درآمد و هزینه به تفکیک زمان و گروه:\n\n`+
+        `⏱ برش زمانی هزینه‌ها:\n`+
+        `• هزینه امروز: ${mo(todayExp)} ت | ۷ روز اخیر: ${mo(weekExp)} ت\n`+
+        `• کل ${PM[np.m-1]} (ماه جاری): درآمد ${mo(M0.I)} ت | هزینه ${mo(M0.E)} ت\n`+
+        `• کل ${PM[pm1.m-1]} (ماه گذشته): درآمد ${mo(M1.I)} ت | هزینه ${mo(M1.E)} ت\n`+
+        `• تجمعی کل سال ${fy(np.y)}: درآمد ${mo(yrI)} ت | هزینه ${mo(yrE)} ت (خالص: ${mo(yrI-yrE)} ت)\n\n`+
+        `🔴 تفکیک هزینه‌های ${PM[np.m-1]} بر اساس گروه:\n${grpLines}\n\n`+
+        `🟢 تفکیک منابع درآمد ${PM[np.m-1]}:\n${incLines}`);
+    }
+
+    // ۴. ثبت رویداد جدید در روزشمار تقویم شمسی (مثلاً: رویداد آزمون آیلتس برای 15 آذر ثبت کن یا برای 10 روز دیگه)
+    else if(txt.includes('رویداد')||txt.includes('ددلاین')||txt.includes('روزشمار')||txt.includes('موعد')){
+      let targetDate=null;
+      const mRel=txt.match(/(\d+)\s*روز\s*(?:دیگه|دیگر|بعد)/);
+      if(mRel){
+        targetDate=new Date(Date.now()+parseInt(mRel[1],10)*864e5);
+      }else{
+        for(let mIdx=0;mIdx<12;mIdx++){
+          if(txt.includes(PM[mIdx])){
+            const mDay=txt.match(/(\d{1,2})\s*(?:ام|م)?\s*'+PM[mIdx]+'/)|txt.match(new RegExp('(\\d{1,2})\\s*'+PM[mIdx]));
+            const dNum=mDay?clamp(parseInt(mDay[1],10),1,31):1;
+            const yNum=(mIdx+1<np.m)?np.y+1:np.y;
+            targetDate=j2d(yNum,mIdx+1,dNum);
+            break;
+          }
+        }
+      }
+      if(!targetDate)targetDate=new Date(Date.now()+7*864e5);
+      const cleanEv=raw.replace(/(?:رویداد|ددلاین|روزشمار|موعد|ثبت کن|بذار|برای|در تاریخ)/g,'')
+        .replace(/[\d۰-۹]+\s*(?:روز\s*دیگه|روز\s*بعد)/g,'')
+        .replace(new RegExp('[\\d۰-۹]+\\s*('+PM.join('|')+')','g'),'').trim()||'رویداد مهم';
+      CDs().push({t:cleanEv,dt:targetDate.toISOString().slice(0,10)});
+      save();render();
+      badges.push(`✓ ثبت رویداد: ${cleanEv} (${pdy(targetDate)})`);
+      replies.push(`رویداد «${cleanEv}» برای تاریخ ${pdy(targetDate)} در روزشمار و تقویم ماهانه ثبت شد.`);
+    }
+
+    // ۵. ثبت یادداشت روزانه یا هفتگی (مثلاً: یادداشت روز: جلسه خوبی بود / یادداشت هفته: ...)
+    else if(txt.includes('یادداشت')){
+      const isWeekly=txt.includes('هفته')||txt.includes('هفتگی');
+      const noteTxt=raw.replace(/^(?:یادداشت\s*(?:روزانه|روز|هفتگی|هفته)?|بنویس\s*تو\s*یادداشت|ثبت\s*یادداشت)\s*[:\-]?\s*/i,'').trim();
+      if(isWeekly){
+        w.notes=(w.notes?w.notes+'\n':'')+noteTxt;
+        badges.push(`✓ افزودن به یادداشت هفته`);
+        replies.push(`متن «${noteTxt}» به یادداشت‌های این هفته اضافه شد.`);
+      }else{
+        w.days[dIdx].n=(w.days[dIdx].n?w.days[dIdx].n+'\n':'')+noteTxt;
+        badges.push(`✓ افزودن به یادداشت ${DN[dIdx]}`);
+        replies.push(`متن «${noteTxt}» در یادداشت روز ${DN[dIdx]} ذخیره شد.`);
+      }
+      save();render();
+    }
+
+    // ۶. ثبت خواب، آب یا پارت مطالعه (مثلاً: دیشب 7 ساعت خوابیدم و 8 لیوان آب خوردم / 45 دقیقه مطالعه ترید ثبت کن)
+    else if(/(\d+(?:\.\d+)?)\s*(?:ساعت\s*خواب|لیوان\s*آب|دقیقه\s*مطالعه)/.test(txt)){
+      const mSlp=txt.match(/(\d+(?:\.\d+)?)\s*ساعت\s*خواب/);
+      const mWtr=txt.match(/(\d+)\s*لیوان\s*آب/);
+      const mStd=txt.match(/(\d+)\s*دقیقه\s*مطالعه(?:\s+(.+))?/);
+      if(mSlp){w.days[dIdx].sleep=parseFloat(mSlp[1]);badges.push(`✓ خواب: ${fa(mSlp[1])} ساعت`)}
+      if(mWtr){w.days[dIdx].water=parseInt(mWtr[1],10);badges.push(`✓ آب: ${fa(mWtr[1])} لیوان`)}
+      if(mStd){
+        const mins=parseInt(mStd[1],10),subj=(mStd[2]||'مطالعه').replace(/ثبت کن|بذار/g,'').trim();
+        w.days[dIdx].ses.push({s:subj,m:mins});
+        badges.push(`✓ مطالعه: ${fa(mins)} دقیقه (${subj})`);
+      }
+      save();render();
+      replies.push(`اطلاعات سلامت/مطالعه روز ${DN[dIdx]} با موفقیت ثبت شد.`);
+    }
+
+    // ۷. ثبت طلب یا بدهی (مثلاً: 500 هزار تومن از علی طلب دارم بابت شام)
+    else if((txt.includes('طلب دارم')||txt.includes('قرض دادم')||txt.includes('بدهکارم')||txt.includes('قرض گرفتم'))&&extractMoney(txt)>0){
+      const am=extractMoney(txt),isTalab=txt.includes('طلب')||txt.includes('قرض دادم');
+      const mP=raw.match(/(?:از|به)\s+([^\s]+)\s+(?:طلب|بدهکار|قرض)/);
+      const person=mP?mP[1]:'طرف حساب';
+      if(!B.debts)B.debts=[];
+      B.debts.unshift({id:'d'+Date.now(),person,tp:isTalab?'talab':'bedehi',a:am,note:raw,dt:pdy(new Date()),done:0});
+      save();render();
+      badges.push(`✓ ثبت ${isTalab?'طلب':'بدهی'}: ${mo(am)} ت (${person})`);
+      replies.push(`در دفترچه طلب و بدهی ثبت شد: ${mo(am)} تومان ${isTalab?'طلب از':'بدهی به'} «${person}».`);
+    }
+
+    // ۸. چیدن خودکار تایم‌بلاک امشب
+    else if(txt.includes('برنامه امشب')||txt.includes('تایم‌بلاک')||txt.includes('بچین')){
+      const td=w.days[dIdx],topPri=w.pri.find(x=>x&&x.trim())||(w.goals[0]?.t)||'مطالعه و توسعه فردی';
       const lrnItem=(S.lrn&&S.lrn[0]?.t)||'مطالعه تخصصی';
       td.b[19]={t:`مرور و مطالعه: ${lrnItem}`,c:'study'};
       td.b[20]={t:`تمرکز روی اولویت: ${topPri}`,c:'study'};
-      td.b[21]={t:'ورزش سبک / پیاده‌روی و شام',c:'sport'};
-      td.b[22]={t:'مطالعه آزاد و آمادگی خواب',c:'rest'};
+      td.b[21]={t:'ورزش سبک و شام',c:'sport'};
+      td.b[22]={t:'مطالعه آزاد و استراحت شبانه',c:'rest'};
       if(!td.plan)td.plan=2;
       save();render();
       badges.push(`✓ چیدمان ساعت ۱۹ تا ۲۲ ${DN[dIdx]}`);
-      replies.push(`با توجه به اینکه ساعت ۸ تا ۱۸ سر کار هستی، ساعت‌های طلایی ۱۹:۰۰ تا ۲۲:۰۰ روز ${DN[dIdx]} را بر اساس اولویت‌ها و مباحث یادگیری‌ات در تایم‌بلاکینگ چیدم و هدف مطالعه را روی ۲ ساعت تنظیم کردم.`);
+      replies.push(`چون ساعت ۸ تا ۱۸ سر کار هستی، ساعت‌های ۱۹ تا ۲۲ روز ${DN[dIdx]} را بر اساس اولویت‌ها و کتاب/دوره‌هایت برنامه‌ریزی کردم.`);
     }
 
-    // ۲. دستور تنظیم ساعت مشخص در تایم‌بلاکینگ (مثلاً: فردا ساعت 19 تا 21 مطالعه ترید بذار)
+    // ۹. تنظیم ساعت مشخص در تایم‌بلاکینگ
     else if(/ساعت\s*(\d{1,2})/.test(txt)){
       const mHr=txt.match(/ساعت\s*(\d{1,2})(?:\s*(?:تا|الی|-)\s*(\d{1,2}))?/);
       const h1=clamp(parseInt(mHr[1],10),5,23),h2=mHr[2]?clamp(parseInt(mHr[2],10),h1,23):h1;
@@ -1935,15 +2135,13 @@ button.p,nav button.on,.days button.on{
       let title=raw.replace(/(?:امروز|فردا|پس‌فردا|شنبه|یکشنبه|دوشنبه|سه‌شنبه|چهارشنبه|پنجشنبه|جمعه)/g,'')
         .replace(/ساعت\s*[\d۰-۹]+(?:\s*(?:تا|الی|-)\s*[\d۰-۹]+)?/g,'')
         .replace(/(?:بذار|بگذار|ثبت کن|تنظیم کن|برام|برای)/g,'').trim()||CT[cat];
-      for(let h=h1;h<=h2;h++){
-        if(h<h2||h1===h2)w.days[dIdx].b[h]={t:title,c:cat};
-      }
+      for(let h=h1;h<=h2;h++){if(h<h2||h1===h2)w.days[dIdx].b[h]={t:title,c:cat}}
       save();render();
-      badges.push(`✓ تایم‌بلاک ${DN[dIdx]} ساعت ${fa(h1)}:۰۰ (${title})`);
-      replies.push(`در برنامه ساعتی روز ${DN[dIdx]}، ساعت ${fa(h1)}:۰۰ ${h2>h1?'تا '+fa(h2)+':۰۰ ':''}را روی «${title}» (${CT[cat]}) تنظیم کردم.`);
+      badges.push(`✓ تایم‌بلاک ${DN[dIdx]} ساعت ${fa(h1)}:۰۰`);
+      replies.push(`ساعت ${fa(h1)}:۰۰ ${h2>h1?'تا '+fa(h2)+':۰۰ ':''}روز ${DN[dIdx]} روی «${title}» (${CT[cat]}) تنظیم شد.`);
     }
 
-    // ۳. دستور ثبت نماز (مثلاً: نماز صبح و ظهر امروز رو تیک بزن)
+    // ۱۰. ثبت نماز
     else if(txt.includes('نماز')){
       w.days[dIdx].pr=w.days[dIdx].pr||[0,0,0];
       if(txt.includes('صبح'))w.days[dIdx].pr[0]=1;
@@ -1952,13 +2150,12 @@ button.p,nav button.on,.days button.on{
       if(!txt.includes('صبح')&&!txt.includes('ظهر')&&!txt.includes('مغرب'))w.days[dIdx].pr=[1,1,1];
       save();render();
       badges.push(`✓ ثبت نماز (${DN[dIdx]})`);
-      replies.push(`نمازهای روز ${DN[dIdx]} با موفقیت علامت زده شد. قبول باشد!`);
+      replies.push(`نمازهای روز ${DN[dIdx]} ثبت شد. قبول باشد!`);
     }
 
-    // ۴. دستور ثبت هزینه یا درآمد مالی (مثلاً: 450 هزار تومن هزینه رستوران ثبت کن)
+    // ۱۱. ثبت هزینه یا درآمد مالی
     else if(/(تومن|تومان|هزار|میلیون|هزینه|خرج|درآمد|واریز|خرید)/.test(txt)&&extractMoney(txt)>0){
-      const am=extractMoney(txt);
-      const isInc=/(درآمد|واریز|حقوق|سود|فروش)/.test(txt)&&!/(هزینه|خرج|خرید)/.test(txt);
+      const am=extractMoney(txt),isInc=/(درآمد|واریز|حقوق|سود|فروش)/.test(txt)&&!/(هزینه|خرج|خرید)/.test(txt);
       let cat=isInc?'sal':'sup';
       if(/رستوران|فست|غذا|شام|ناهار/.test(txt))cat='rest';
       else if(/کافه|قهوه/.test(txt))cat='cafe';
@@ -1967,32 +2164,31 @@ button.p,nav button.on,.days button.on{
       else if(/لباس|پوشاک/.test(txt))cat='clo';
       else if(/دارو|دکتر|باشگاه/.test(txt))cat='doc';
       else if(/پروژه|فریلنس/.test(txt))cat='free';
-      const cleanNote=raw.replace(/[\d۰-۹.,]+\s*(?:میلیون|ملیون|هزار)?\s*(?:تومن|تومان)?/g,'').replace(/(?:ثبت کن|هزینه|خرج|درآمد|برام)/g,'').trim()||catL(cat);
+      const cleanNote=raw.replace(/[\d۰-۹.,]+\s*(?:میلیارد|میلیون|ملیون|هزار)?\s*(?:تومن|تومان)?/g,'').replace(/(?:ثبت کن|هزینه|خرج|درآمد|برام)/g,'').trim()||catL(cat);
       (B.tx[mk]=B.tx[mk]||[]).push({id:'t'+Date.now(),d:np.d,c:cat,a:am,n:cleanNote});
       save();render();
-      badges.push(`✓ ثبت ${isInc?'درآمد':'هزینه'}: ${mo(am)} ت (${catL(cat)})`);
-      replies.push(`مبلغ ${mo(am)} تومان به عنوان ${isInc?'درآمد':'هزینه'} در دسته «${catL(cat)}» (${cleanNote}) برای تاریخ امروز ثبت شد.`);
+      badges.push(`✓ ${isInc?'درآمد':'هزینه'}: ${mo(am)} ت (${catL(cat)})`);
+      replies.push(`مبلغ ${mo(am)} تومان در دسته «${catL(cat)}» (${cleanNote}) ثبت شد.`);
     }
 
-    // ۵. دستور تحلیل مالی
-    else if(txt.includes('تحلیل مالی')||txt.includes('وضعیت مالی')||txt.includes('چقدر خرج')){
-      const M=mdat(np.y,np.m),unpaid=(B.inst||[]).filter(x=>!(x.paid&&x.paid[mk]));
-      const sr=M.I>0?Math.round(100*(M.I-M.E)/M.I):0;
-      replies.push(`📊 گزارش مالی ${PM[np.m-1]}:\n• کل درآمد: ${mo(M.I)} تومان\n• کل هزینه: ${mo(M.E)} تومان\n• تراز خالص: ${mo(M.I-M.E)} تومان (نرخ پس‌انداز: ${fa(sr)}٪)\n• اقساط پرداخت‌نشده این ماه: ${fa(unpaid.length)} مورد (${mo(sm_(unpaid.map(i=>insAm(i,mk))))} تومان).`);
+    // ۱۲. راهنمای کامل فرمان‌ها
+    else if(txt.includes('راهنما')||txt.includes('فرمان')||txt.includes('بلدی')){
+      replies.push(`لیست فرمان‌های صوتی و متنی که اجرا می‌کنم:\n`+
+        `۱. «بریفینگ صبحگاهی» (گزارش عملکرد دیروز و برنامه امروز)\n`+
+        `۲. «تغییر ارزش دارایی» (محاسبه درصد رشد نسبت به دیروز/هفته/ماه/سال قبل)\n`+
+        `۳. «تحلیل تفکیکی هزینه و درآمد» (بر اساس گروه و بازه زمانی)\n`+
+        `۴. «رویداد آزمون آیلتس برای ۱۵ آذر ثبت کن» (یا «برای ۱۰ روز دیگه»)\n`+
+        `۵. «یادداشت روز: ...» یا «یادداشت هفته: ...»\n`+
+        `۶. «فردا ساعت ۱۹ تا ۲۱ مطالعه ترید بذار»\n`+
+        `۷. «۴۵۰ هزار تومن هزینه رستوران ثبت کن»\n`+
+        `۸. «۵۰۰ هزار تومن از علی طلب دارم بابت شام»\n`+
+        `۹. «دیشب ۷.۵ ساعت خوابیدم و ۸ لیوان آب خوردم»\n`+
+        `۱۰. «۴۵ دقیقه مطالعه اقتصاد ثبت کن»\n`+
+        `۱۱. «نماز صبح و ظهر رو تیک بزن»\n`+
+        `۱۲. «برای شنبه کار مهم تماس با شرکت اضافه کن»`);
     }
 
-    // ۶. دستور گزارش امروز
-    else if(txt.includes('گزارش امروز')||txt.includes('وضعیت امروز')||txt.includes('چه کارهایی')){
-      const td=w.days[tdIdx],left=td.t.filter(x=>!x.d);
-      replies.push(`📋 وضعیت امروز (${DN[tdIdx]}):\n• پیشرفت کارها: ${fa(dayPct(td))}٪ (${fa(left.length)} کار باقی‌مانده)\n• مطالعه امروز: ${fa(dayMin(td))} دقیقه\n${left.length?'• کارهای مانده: '+left.map(x=>x.t).join('، '):'• تمام کارهای امروزت انجام شده است!'}`);
-    }
-
-    // ۷. راهنمای دستورات
-    else if(txt.includes('راهنما')||txt.includes('بلدی')||txt.includes('چیکار')){
-      replies.push(`من کاملاً آفلاین داخل مرورگرت کار می‌کنم و این دستورات را می‌فهمم:\n۱. زمان‌بندی: «فردا ساعت ۱۹ تا ۲۱ مطالعه ترید بذار»\n۲. ثبت مالی: «۳۸۰ هزار تومن هزینه رستوران ثبت کن»\n۳. ثبت کار: «برای دوشنبه کار مهم ارسال قرارداد اضافه کن»\n۴. نماز: «نماز صبح و ظهر رو تیک بزن»\n۵. چیدمان هوشمند: «برنامه امشب رو بچین»`);
-    }
-
-    // ۸. ثبت به عنوان کار روزانه (وقتی کاربر می‌گوید: کار ... اضافه کن / ثبت کن / یادم بنداز)
+    // ۱۳. پیش‌فرض: افزودن به لیست کارهای روز
     else{
       const isImp=/(مهم|فوری|حیاتی|ستاره|!)/.test(txt);
       const cleanTask=raw.replace(/(?:برای|روز)?\s*(?:امروز|فردا|پس‌فردا|شنبه|یکشنبه|دوشنبه|سه‌شنبه|چهارشنبه|پنجشنبه|جمعه)/g,'')
@@ -2000,7 +2196,7 @@ button.p,nav button.on,.days button.on{
       w.days[dIdx].t.push({t:cleanTask,d:0,p:isImp?1:0});
       save();render();
       badges.push(`✓ افزودن کار به ${DN[dIdx]}: ${cleanTask}`);
-      replies.push(`کار «${cleanTask}» ${isImp?'با اولویت بالا (مهم 🔥) ':''}به لیست کارهای روز ${DN[dIdx]} اضافه شد.`);
+      replies.push(`کار «${cleanTask}» ${isImp?'(مهم 🔥) ':''}به لیست کارهای روز ${DN[dIdx]} اضافه شد.`);
     }
 
     addMsg(replies.join('\n'), 'b', badges.map(b=>`<span class="ag-act-tag">${esc(b)}</span>`).join(''));
