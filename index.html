@@ -2786,6 +2786,235 @@ body[data-sec="ai"]{--ac:#7c3aed!important}
   render();
 })();
 </script>
+<!-- ==================== موتور حرفه‌ای نمودارها (Tooltip، خط هدف، هیت‌مپ ۳۶۵ روزه سال و داشبورد ۳ شاخص امروز) ==================== -->
+<style>
+/* ۱. داشبورد ۳ عدد کلیدی بزرگ امروز */
+.td-dash{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+@media(max-width:640px){.td-dash{grid-template-columns:1fr;gap:8px}}
+.td-kpi{background:var(--sf);border:1px solid var(--bd);border-radius:20px;padding:16px;box-shadow:var(--sh);display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.td-kpi .k-top{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--mu);font-weight:600}
+.td-kpi .k-num{font-size:32px;font-weight:900;color:var(--tx);line-height:1.2;margin:8px 0;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:8px}
+.td-kpi .k-num small{font-size:13px;font-weight:500;color:var(--mu)}
+.k-dl{font-size:11.5px;font-weight:700;padding:2px 7px;border-radius:7px;display:inline-flex;align-items:center;gap:2px}
+.k-dl.up{background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok)}
+.k-dl.dn{background:color-mix(in srgb,var(--er) 15%,transparent);color:var(--er)}
+.k-dl.eq{background:var(--ac2);color:var(--mu)}
+
+/* ۲. ابزارک شناور (Tooltip) هنگام لمس یا هاور روی نمودارها */
+#svgTip{
+  position:fixed;z-index:9999;pointer-events:none;background:#0f172a;color:#f8fafc;
+  border:1px solid rgba(56,189,248,.35);padding:7px 12px;border-radius:10px;
+  font-size:12px;line-height:1.5;box-shadow:0 10px 25px rgba(0,0,0,.4);
+  display:none;white-space:pre-line;text-align:right;max-width:220px
+}
+svg [data-tip], .yh-cell[data-tip]{cursor:pointer;transition:opacity .15s}
+svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
+
+/* ۳. نمای گرمایی ۳۶۵ روزه کل سال شبیه گیت‌هاب */
+.yh-wrap{overflow-x:auto;padding-bottom:6px;direction:ltr}
+.yh-months{display:grid;grid-template-columns:repeat(12,1fr);font-size:10.5px;color:var(--mu);margin-bottom:4px;min-width:640px;text-align:center;direction:rtl}
+.yh-grid{display:grid;grid-template-rows:repeat(7,11px);grid-auto-flow:column;grid-auto-columns:11px;gap:3px;min-width:640px;direction:rtl}
+.yh-cell{width:11px;height:11px;border-radius:2.5px;background:var(--ac2)}
+.yh-cell[data-lv="1"]{background:color-mix(in srgb,var(--ok) 28%,var(--ac2))}
+.yh-cell[data-lv="2"]{background:color-mix(in srgb,var(--ok) 52%,var(--ac2))}
+.yh-cell[data-lv="3"]{background:color-mix(in srgb,var(--ok) 78%,var(--ac2))}
+.yh-cell[data-lv="4"]{background:var(--ok)}
+.yh-cell.st-m[data-lv="1"]{background:color-mix(in srgb,var(--ac) 30%,var(--ac2))}
+.yh-cell.st-m[data-lv="2"]{background:color-mix(in srgb,var(--ac) 55%,var(--ac2))}
+.yh-cell.st-m[data-lv="3"]{background:color-mix(in srgb,var(--ac) 80%,var(--ac2))}
+.yh-cell.st-m[data-lv="4"]{background:var(--ac)}
+</style>
+
+<!-- ابزارک شناور (Tooltip) نمودارها -->
+<div id="svgTip"></div>
+
+<script>
+(function(){
+  let hmMode='habit'; // 'habit' | 'study'
+
+  // ==================== ۱. سیستم Tooltip هوشمند (لمسی در موبایل + هاور در دسکتاپ) ====================
+  const tip=$('svgTip');
+  function showTip(e,txt){
+    if(!txt)return;
+    tip.textContent=txt;tip.style.display='block';
+    const cx=e.touches?e.touches[0].clientX:e.clientX;
+    const cy=e.touches?e.touches[0].clientY:e.clientY;
+    const x=Math.min(window.innerWidth-210,Math.max(10,cx-90));
+    const y=Math.max(10,cy-tip.offsetHeight-14);
+    tip.style.left=x+'px';tip.style.top=y+'px';
+  }
+  document.addEventListener('mousemove',e=>{
+    const t=e.target.closest('[data-tip]');
+    if(t)showTip(e,t.dataset.tip);else tip.style.display='none';
+  });
+  document.addEventListener('touchstart',e=>{
+    const t=e.target.closest('[data-tip]');
+    if(t)showTip(e,t.dataset.tip);else tip.style.display='none';
+  },{passive:true});
+
+  function fmtDelta(cur,prev,unit=''){
+    const df=Math.round((cur-prev)*10)/10;
+    if(df>0)return `<span class="k-dl up">▲ +${fa(df)}${unit} نسبت به قبل</span>`;
+    if(df<0)return `<span class="k-dl dn">▼ ${fa(df)}${unit} نسبت به قبل</span>`;
+    return `<span class="k-dl eq">▬ برابر با دوره قبل</span>`;
+  }
+
+  // ==================== ۲. داشبورد ۳ عدد کلیدی بزرگ «امروز» در بالای صفحه اول ====================
+  function buildToday3KPIs(){
+    const w=W(),tdIdx=(new Date().getDay()+1)%7,td=w.days[tdIdx];
+    const ydDate=new Date(Date.now()-864e5),ydW=S[sat(ydDate).toISOString().slice(0,10)],yd=(ydW&&ydW.days&&ydW.days[(ydDate.getDay()+1)%7])||{t:[],ses:[],pr:[0,0,0]};
+
+    const tDone=td.t.filter(x=>x.d).length,tTot=td.t.length,tPct=dayPct(td),yPct=dayPct(yd);
+    const sMin=Math.round(dayMin(td)),yMin=Math.round(dayMin(yd)),pMin=Math.round((td.plan||2)*60),sPct=Math.min(100,Math.round(100*sMin/Math.max(1,pMin)));
+    const pr=td.pr||[0,0,0],prCnt=pr.filter(Boolean).length,yPr=(yd.pr||[]).filter(Boolean).length;
+
+    return `<div class="td-dash" id="td3Dash">
+      <!-- عدد کلیدی ۱: کارهای امروز -->
+      <div class="td-kpi">
+        <div class="k-top"><span>کارهای امروز (${DN[tdIdx]})</span>${fmtDelta(tPct,yPct,'٪')}</div>
+        <div class="k-num">${fa(tDone)}<small>از ${fa(tTot)} کار (${fa(tPct)}٪)</small></div>
+        ${bar(tPct)}
+      </div>
+      <!-- عدد کلیدی ۲: ساعت تمرکز امروز -->
+      <div class="td-kpi">
+        <div class="k-top"><span>تمرکز و مطالعه امروز</span>${fmtDelta(sMin,yMin,' د')}</div>
+        <div class="k-num" style="color:var(--ok)">${fa(+(sMin/60).toFixed(1))}<small>ساعت (${fa(sMin)} دقیقه از هدف ${fa(td.plan||2)}h)</small></div>
+        <div class="bar"><i style="width:${sPct}%;background:var(--ok)"></i></div>
+      </div>
+      <!-- عدد کلیدی ۳: نمازهای امروز -->
+      <div class="td-kpi">
+        <div class="k-top"><span>نمازهای امروز</span>${fmtDelta(prCnt,yPr,' نوبت')}</div>
+        <div class="k-num">${fa(prCnt)}<small>از ۳ نوبت</small></div>
+        <div class="row" style="margin:0;gap:4px">
+          ${['صبح','ظهر','مغرب'].map((nm,i)=>`<button class="pr-btn f1 ${pr[i]?'on':''}" data-a="prTog" data-d="${tdIdx}" data-p="${i}" style="padding:3px 4px;font-size:11px">${nm} ${pr[i]?'✓':''}</button>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ==================== ۳. نمای گرمایی ۳۶۵ روزه کل سال شبیه گیت‌هاب (برای عادت‌ها و مطالعه) ====================
+  function buildYearlyHeatmapCard(){
+    const np=pp(new Date()),yr=hs?.y||np.y,H=HD(),L=H.list||[];
+    const startD=j2d(yr,1,1),startOff=(startD.getDay()+1)%7;
+    let cells='',activeDays=0,totalStudyYr=0,curStreak=0,maxStreak=0;
+
+    for(let o=0;o<startOff;o++)cells+=`<div style="width:11px;height:11px"></div>`;
+
+    for(let m=1;m<=12;m++){
+      const mLen=ML(yr,m),mk=yr+'-'+m,lg=H.log[mk]||{};
+      for(let d=1;d<=mLen;d++){
+        const dt=j2d(yr,m,d),wk=sat(dt).toISOString().slice(0,10),di_=(dt.getDay()+1)%7;
+        const dObj=(S[wk]&&S[wk].days&&S[wk].days[di_])||{t:[],ses:[],pr:[0,0,0]};
+        const sMin=Math.round(dayMin(dObj));
+        totalStudyYr+=sMin;
+        let hCnt=0;L.forEach(h=>{if((lg[h.id]||[]).includes(d))hCnt++});
+        const prCnt=(dObj.pr||[]).filter(Boolean).length;
+        const tDone=(dObj.t||[]).filter(x=>x.d).length;
+
+        let lv=0;
+        if(hmMode==='study'){
+          if(sMin>0)lv=sMin>=180?4:sMin>=90?3:sMin>=45?2:1;
+        }else{
+          const pts=hCnt+prCnt+tDone;
+          if(pts>0)lv=pts>=7?4:pts>=5?3:pts>=3?2:1;
+        }
+        if(lv>0){activeDays++;curStreak++;if(curStreak>maxStreak)maxStreak=curStreak}
+        else if(dt<=new Date())curStreak=0;
+
+        const tipTxt=`📅 ${fa(d)} ${PM[m-1]} ${fy(yr)}\n⏱ مطالعه: ${fa(sMin)} دقیقه\n🔁 عادت‌ها: ${fa(hCnt)} مورد\n✓ کارها: ${fa(tDone)} | نماز: ${fa(prCnt)}/۳`;
+        cells+=`<div class="yh-cell ${hmMode==='study'?'st-m':''}" data-lv="${lv}" data-tip="${esc(tipTxt)}"></div>`;
+      }
+    }
+
+    return `<div class="cd" id="yearlyHmCard">
+      <div class="row sb fw" style="margin-bottom:10px">
+        <h2 style="margin:0">نمای گرمایی کل سال ${fy(yr)} (${fa(activeDays)} روز فعال · بلندترین زنجیره: ${fa(maxStreak)} روز)</h2>
+        <div class="row" style="margin:0">
+          <button class="${hmMode==='habit'?'p':''}" data-a="hmSwitch" data-v="habit" style="font-size:11.5px;padding:4px 9px">🔥 عادت‌ها و نظم</button>
+          <button class="${hmMode==='study'?'p':''}" data-a="hmSwitch" data-v="study" style="font-size:11.5px;padding:4px 9px">📚 ساعت مطالعه (${fa(+(totalStudyYr/60).toFixed(1))}h)</button>
+        </div>
+      </div>
+      <div class="yh-wrap">
+        <div class="yh-months">${PM.map(m=>`<span>${m}</span>`).join('')}</div>
+        <div class="yh-grid">${cells}</div>
+      </div>
+      <div class="lg" style="justify-content:space-between;margin-top:8px">
+        <span class="mu">روی هر مربع لمس کنید یا موس را نگه دارید تا آمار دقیق آن روز نمایش داده شود.</span>
+        <span style="display:flex;align-items:center;gap:4px">کم <i class="yh-cell" data-lv="0"></i><i class="yh-cell ${hmMode==='study'?'st-m':''}" data-lv="1"></i><i class="yh-cell ${hmMode==='study'?'st-m':''}" data-lv="2"></i><i class="yh-cell ${hmMode==='study'?'st-m':''}" data-lv="3"></i><i class="yh-cell ${hmMode==='study'?'st-m':''}" data-lv="4"></i> زیاد</span>
+      </div>
+    </div>`;
+  }
+
+  // ==================== ۴. ارتقای نمودار تب «آمار مطالعه» (برچسب روی میله + خط هدف + مقایسه با هفته قبل + Tooltip) ====================
+  window.vSt=function(){
+    const w=W(),pwKey=new Date(ws.getTime()-7*864e5).toISOString().slice(0,10),pw=S[pwKey];
+    const tp=w.days.reduce((a,d)=>a+(d.plan||0),0),ta=w.days.reduce((a,d)=>a+dayMin(d),0)/60;
+    const pta=pw&&pw.days?pw.days.reduce((a,d)=>a+dayMin(d),0)/60:0;
+    const avgGoal=tp/7;
+
+    let mx=1;w.days.forEach(d=>{mx=Math.max(mx,d.plan||0,dayMin(d)/60)});
+    const W0=580,H=210,bw=22,baseY=H-28,chartH=H-58;
+    const goalY=baseY-(avgGoal/mx*chartH);
+
+    let sv=`<!-- خط هدف میانگین روزانه -->
+    ${avgGoal>0?`<line x1="15" x2="${W0-15}" y1="${goalY}" y2="${goalY}" stroke="var(--wn)" stroke-width="1.5" stroke-dasharray="5,4"/>
+    <text x="${W0-18}" y="${goalY-5}" text-anchor="end" font-size="10" font-weight="700" fill="var(--wn)">خط هدف میانگین (${fa(+(avgGoal).toFixed(1))}h)</text>`:''}`;
+
+    w.days.forEach((d,i)=>{
+      const x=28+i*76,pl=d.plan||0,ac=+(dayMin(d)/60).toFixed(1);
+      const hP=(pl/mx)*chartH,hA=(ac/mx)*chartH;
+      const tipP=`${DN[i]} (${pd(dd(i))})\nهدف: ${fa(pl)} ساعت\nواقعی: ${fa(ac)} ساعت (${fa(Math.round(dayMin(d)))} دقیقه)\nاختلاف: ${ac-pl>=0?'+':''}${fa(+(ac-pl).toFixed(1))} ساعت`;
+      sv+=`<g data-tip="${esc(tipP)}">
+        <rect x="${x}" y="${baseY-hP}" width="${bw}" height="${Math.max(2,hP)}" rx="5" fill="var(--mu)" opacity=".28"/>
+        <rect x="${x+bw+4}" y="${baseY-hA}" width="${bw}" height="${Math.max(2,hA)}" rx="5" fill="${ac>=pl&&ac>0?'var(--ok)':'var(--ac)'}"/>
+        ${pl>0?`<text x="${x+bw/2}" y="${baseY-hP-5}" text-anchor="middle" font-size="9.5" fill="var(--mu)">${fa(pl)}</text>`:''}
+        ${ac>0?`<text x="${x+bw+4+bw/2}" y="${baseY-hA-5}" text-anchor="middle" font-size="10" font-weight="700" fill="${ac>=pl?'var(--ok)':'var(--ac)'}">${fa(ac)}h</text>`:''}
+        <text x="${x+bw+2}" y="${H-8}" text-anchor="middle" font-size="11" font-weight="600" fill="var(--tx)">${DN[i]}</text>
+      </g>`;
+    });
+
+    return `<div class="td-dash">
+      <div class="td-kpi"><div class="k-top"><span>مطالعه این هفته</span>${fmtDelta(+(ta).toFixed(1),+(pta).toFixed(1),' ساعت')}</div><div class="k-num" style="color:var(--ok)">${fa(+(ta).toFixed(1))}<small>ساعت از هدف ${fa(tp)} ساعت</small></div>${bar(tp?Math.min(100,Math.round(100*ta/tp)):0)}</div>
+      <div class="td-kpi"><div class="k-top"><span>میانگین روزانه این هفته</span></div><div class="k-num">${fa(+(ta/7).toFixed(1))}<small>ساعت در روز (${fa(Math.round(ta*60/7))} دقیقه)</small></div></div>
+      <div class="td-kpi"><div class="k-top"><span>نرخ تحقق هدف هفتگی</span></div><div class="k-num" style="color:${ta>=tp&&tp>0?'var(--ok)':'var(--ac)'}">${tp?fa(Math.round(100*ta/tp)):'۰'}٪<small>اختلاف کل: ${ta-tp>=0?'+':''}${fa(+(ta-tp).toFixed(1))}h</small></div></div>
+    </div>
+    <div class="cd">
+      <div class="row sb fw" style="margin-bottom:8px">
+        <h2 style="margin:0">نمودار هدف‌گذاری در برابر واقعیت (با برچسب مستقیم و خط هدف)</h2>
+        <div class="lg" style="margin:0"><span><b style="background:var(--mu);opacity:.35"></b>هدف</span><span><b style="background:var(--ok)"></b>واقعی (رسیده به هدف)</span><span><b style="background:var(--ac)"></b>واقعی</span></div>
+      </div>
+      <div class="wide"><svg viewBox="0 0 ${W0} ${H}" width="100%" style="min-width:440px;direction:ltr">${sv}</svg></div>
+    </div>
+    <div class="cd"><h2>جدول تنظیم هدف روزانه و عملکرد</h2><div class="wide"><table><tr><th>روز</th><th>هدف (ساعت)</th><th>عملکرد واقعی</th><th>اختلاف با هدف</th></tr>
+    ${w.days.map((d,i)=>{const a=+(dayMin(d)/60).toFixed(1),df=+(a-(d.plan||0)).toFixed(1);return `<tr><td><b>${DN[i]}</b> ${d.hol?'<small class="mu">(تعطیل)</small>':''}</td><td><input type="number" min="0" step="0.5" data-f="plan" data-i="${i}" value="${d.plan}"></td><td><b>${fa(a)} ساعت</b></td><td style="color:${df>=0?'var(--ok)':'var(--er)'};font-weight:700">${df>0?'▲ +':df<0?'▼ ':''}${fa(df)} ساعت</td></tr>`}).join('')}
+    <tr><th>مجموع هفته</th><th>${fa(tp)} ساعت</th><th>${fa(+(ta).toFixed(1))} ساعت</th><th style="color:${ta-tp>=0?'var(--ok)':'var(--er)'}">${ta-tp>0?'+':''}${fa(+(ta-tp).toFixed(1))} ساعت</th></tr></table></div></div>`+buildYearlyHeatmapCard();
+  };
+
+  // ==================== ۵. تزریق داشبورد امروز، هیت‌مپ سالانه و برچسب/Tooltip به سایر تب‌ها ====================
+  const prevR=window.render;
+  window.render=function(){
+    prevR();
+    // حذف کارت‌های تکراری قبلی و جایگزینی با داشبورد ۳ شاخص بزرگ و هیت‌مپ سالانه
+    const oldKpi=q('.hero-kpis');if(oldKpi)oldKpi.remove();
+    const oldHm=$('ghHeatmapCard');if(oldHm)oldHm.remove();
+
+    if(tab==='ov'){
+      const hero=q('#main .hero-top');
+      if(hero&&!$('td3Dash'))hero.insertAdjacentHTML('afterend',buildToday3KPIs());
+      if(!$('yearlyHmCard'))$('main').insertAdjacentHTML('beforeend',buildYearlyHeatmapCard());
+    }else if(tab==='hb'){
+      if(!$('yearlyHmCard'))$('main').insertAdjacentHTML('beforeend',buildYearlyHeatmapCard());
+    }
+  };
+
+  document.addEventListener('click',e=>{
+    const b=e.target.closest('[data-a="hmSwitch"]');
+    if(b){hmMode=b.dataset.v;render()}
+  });
+
+  render();
+})();
+</script>
 </body>
 <meta name="theme-color" content="#141824">
 <meta name="apple-mobile-web-app-capable" content="yes">
