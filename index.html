@@ -3696,6 +3696,205 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
   render();
 })();
 </script>
+<!-- ==================== اصلاح تراز ۱۰۰٪ نقشه حرارتی با ماه‌ها + تبدیل تحلیل به یکساله کامل ==================== -->
+<style>
+.yh-12m-wrap{display:grid;grid-template-columns:repeat(12,minmax(62px,1fr));gap:8px;overflow-x:auto;padding-bottom:8px;direction:rtl}
+.yh-m-box{background:var(--sf2);border:1px solid var(--bd2);border-radius:12px;padding:7px 5px;display:flex;flex-direction:column;align-items:center}
+.yh-m-title{font-size:11px;font-weight:700;color:var(--tx);margin-bottom:6px;white-space:nowrap}
+.yh-m-grid{display:grid;grid-template-rows:repeat(7,10.5px);grid-auto-flow:column;grid-auto-columns:10.5px;gap:2.5px;direction:rtl}
+.yh-cell{width:10.5px;height:10.5px;border-radius:2.5px;background:var(--ac2)}
+.yh-cell.empty{background:transparent;pointer-events:none}
+</style>
+
+<script>
+(function(){
+  let hmMode='habit';
+
+  // ۱. نقشه حرارتی ۳۶۵ روزه یکساله با تراز ۱۰۰٪ دقیق هر ماه زیر نام خودش
+  window.buildYearlyHeatmapCard=function(){
+    const np=pp(new Date()),yr=hs?.y||np.y,H=HD(),L=H.list||[];
+    let monthsHtml='',activeDays=0,totalStudyYr=0,curStreak=0,maxStreak=0;
+
+    for(let m=1;m<=12;m++){
+      const mLen=ML(yr,m),mk=yr+'-'+m,lg=H.log[mk]||{};
+      const firstDate=j2d(yr,m,1),startOff=(firstDate.getDay()+1)%7;
+      let mCells='';
+      // خانه‌های خالی ابتدای ماه برای اینکه ردیف اول همیشه «شنبه» باشد
+      for(let o=0;o<startOff;o++)mCells+=`<div class="yh-cell empty"></div>`;
+
+      for(let d=1;d<=mLen;d++){
+        const dt=j2d(yr,m,d),wk=sat(dt).toISOString().slice(0,10),di_=(dt.getDay()+1)%7;
+        const dObj=(S[wk]&&S[wk].days&&S[wk].days[di_])||{t:[],ses:[],pr:[0,0,0]};
+        const sMin=Math.round(dayMin(dObj));
+        totalStudyYr+=sMin;
+        let hCnt=0;L.forEach(h=>{if((lg[h.id]||[]).includes(d))hCnt++});
+        const prCnt=(dObj.pr||[]).filter(Boolean).length;
+        const tDone=(dObj.t||[]).filter(x=>x.d).length;
+
+        let lv=0;
+        if(hmMode==='study'){
+          if(sMin>0)lv=sMin>=180?4:sMin>=90?3:sMin>=45?2:1;
+        }else{
+          const pts=hCnt+prCnt+tDone;
+          if(pts>0)lv=pts>=7?4:pts>=5?3:pts>=3?2:1;
+        }
+        if(lv>0){activeDays++;curStreak++;if(curStreak>maxStreak)maxStreak=curStreak}
+        else if(dt<=new Date())curStreak=0;
+
+        const tipTxt=`📅 ${DN[di_]} ${fa(d)} ${PM[m-1]} ${fy(yr)}\n⏱ مطالعه: ${fa(sMin)} دقیقه\n🔁 عادت‌ها: ${fa(hCnt)} مورد\n✓ کارها: ${fa(tDone)} | نماز: ${fa(prCnt)}/۳`;
+        mCells+=`<div class="yh-cell ${hmMode==='study'?'st-m':''}" data-lv="${lv}" data-tip="${esc(tipTxt)}"></div>`;
+      }
+
+      monthsHtml+=`<div class="yh-m-box">
+        <div class="yh-m-title">${PM[m-1]}</div>
+        <div class="yh-m-grid">${mCells}</div>
+      </div>`;
+    }
+
+    return `<div class="cd" id="yearlyHmCard">
+      <div class="row sb fw" style="margin-bottom:10px">
+        <h2 style="margin:0">نمای گرمایی یکساله ${fy(yr)} (${fa(activeDays)} روز فعال · بلندترین زنجیره: ${fa(maxStreak)} روز)</h2>
+        <div class="row" style="margin:0">
+          <button class="${hmMode==='habit'?'p':''}" data-a="hmSwitch2" data-v="habit" style="font-size:11.5px;padding:4px 9px">🔥 عادت‌ها و نظم</button>
+          <button class="${hmMode==='study'?'p':''}" data-a="hmSwitch2" data-v="study" style="font-size:11.5px;padding:4px 9px">📚 ساعت مطالعه (${fa(+(totalStudyYr/60).toFixed(1))}h)</button>
+        </div>
+      </div>
+      <div class="yh-12m-wrap">${monthsHtml}</div>
+      <div class="lg" style="justify-content:space-between;margin-top:6px">
+        <span class="mu">هر باکس دقیقاً روزهای همان ماه (از شنبه در ردیف بالا تا جمعه در ردیف پایین) را نشان می‌دهد.</span>
+        <span style="display:flex;align-items:center;gap:4px">کم <i class="yh-cell" data-lv="0"></i><i class="yh-cell ${hmMode==='study'?'st-m':''}" data-lv="1"></i><i class="yh-cell ${hmMode==='study'?'st-m':''}" data-lv="2"></i><i class="yh-cell ${hmMode==='study'?'st-m':''}" data-lv="3"></i><i class="yh-cell ${hmMode==='study'?'st-m':''}" data-lv="4"></i> زیاد</span>
+      </div>
+    </div>`;
+  };
+
+  // ۲. تبدیل بخش ۶ ماهه در «تحلیل عملکرد» به «تحلیل جامع یکساله (۱۲ ماه و ۴ فصل)»
+  function getMonthStat(y,m){
+    const mk=y+'-'+m,n=ML(y,m),M=mdat(y,m),H=HD(),lg=H.log[mk]||{},L=H.list||[];
+    let hDone=0;L.forEach(h=>{hDone+=(lg[h.id]||[]).length});
+    const hPct=L.length?Math.round(100*hDone/(L.length*n)):0;
+    let tTot=0,tDone=0,sMin=0,prCnt=0;
+    for(let d=1;d<=n;d++){
+      const dt=j2d(y,m,d),wk=sat(dt).toISOString().slice(0,10),di_=(dt.getDay()+1)%7;
+      const dayObj=S[wk]&&S[wk].days&&S[wk].days[di_];
+      if(dayObj){
+        tTot+=(dayObj.t||[]).length;tDone+=(dayObj.t||[]).filter(x=>x.d).length;
+        sMin+=dayMin(dayObj);prCnt+=(dayObj.pr?dayObj.pr.filter(Boolean).length:0);
+      }
+    }
+    return {m,I:M.I,E:M.E,bal:M.I-M.E,hPct,tDone,tPct:tTot?Math.round(100*tDone/tTot):0,sHr:+(sMin/60).toFixed(1),prCnt};
+  }
+
+  function renderFullYearAnalysis(){
+    const yr=hs?.y||pp(new Date()).y;
+    const m12=Array.from({length:12},(_,i)=>getMonthStat(yr,i+1));
+    const yrStudy=+(sm_(m12.map(x=>x.sHr))).toFixed(1);
+    const yrTasks=sm_(m12.map(x=>x.tDone));
+    const yrInc=sm_(m12.map(x=>x.I)),yrExp=sm_(m12.map(x=>x.E)),yrNet=yrInc-yrExp;
+    const yrPrayers=sm_(m12.map(x=>x.prCnt));
+
+    // آمار ۴ فصل سال (بهار، تابستان، پاییز، زمستان)
+    const seasons=[
+      {name:'🌱 بهار (فروردین–خرداد)',ms:m12.slice(0,3),col:'var(--ok)'},
+      {name:'☀️ تابستان (تیر–شهریور)',ms:m12.slice(3,6),col:'var(--ac)'},
+      {name:'🍂 پاییز (مهر–آذر)',ms:m12.slice(6,9),col:'var(--wn)'},
+      {name:'❄️ زمستان (دی–اسفند)',ms:m12.slice(9,12),col:'#6366f1'}
+    ].map(s=>({
+      ...s,
+      sHr:+(sm_(s.ms.map(x=>x.sHr))).toFixed(1),
+      tDone:sm_(s.ms.map(x=>x.tDone)),
+      hAvg:Math.round(sm_(s.ms.map(x=>x.hPct))/3),
+      net:sm_(s.ms.map(x=>x.bal))
+    }));
+
+    const activeM=m12.filter(x=>x.sHr>0||x.tDone>0||x.I>0).length||1;
+    const proj1yStudy=Math.round((yrStudy/activeM)*12);
+    const proj1ySave=Math.round((Math.max(0,yrNet)/activeM)*12);
+    const proj1yTasks=Math.round((yrTasks/activeM)*12);
+
+    const maxS=Math.max(1,...m12.map(x=>x.sHr));
+    const sCols=['var(--ok)','var(--ok)','var(--ok)','var(--ac)','var(--ac)','var(--ac)','var(--wn)','var(--wn)','var(--wn)','#6366f1','#6366f1','#6366f1'];
+    const chart12=m12.map((x,i)=>{
+      const bx=16+i*48,h=(x.sHr/maxS)*96;
+      const tip=`📅 ${PM[i]} ${fy(yr)}\n📚 مطالعه: ${fa(x.sHr)} ساعت\n✓ کارهای انجام‌شده: ${fa(x.tDone)}\n🔁 عادت‌ها: ${fa(x.hPct)}٪\n💰 تراز مالی: ${mo(x.bal)} ت`;
+      return `<g data-tip="${esc(tip)}">
+        <rect x="${bx}" y="${116-h}" width="32" height="${Math.max(3,h)}" rx="5" fill="${sCols[i]}"/>
+        <text x="${bx+16}" y="133" text-anchor="middle" font-size="9.5" font-weight="600" fill="var(--tx)">${PM[i]}</text>
+        ${x.sHr>0?`<text x="${bx+16}" y="${111-h}" text-anchor="middle" font-size="9" font-weight="700" fill="${sCols[i]}">${fa(x.sHr)}h</text>`:''}
+      </g>`;
+    }).join('');
+
+    return `<div class="cmp-grid">
+      <div class="cmp-card"><small>کل مطالعه سال ${fy(yr)}</small><b style="color:var(--ok)">${fa(yrStudy)} ساعت</b></div>
+      <div class="cmp-card"><small>کل کارهای تکمیل‌شده سال</small><b>${fa(yrTasks)} کار</b></div>
+      <div class="cmp-card"><small>کل نمازهای ثبت‌شده سال</small><b>${fa(yrPrayers)} نوبت</b></div>
+      <div class="cmp-card"><small>تراز خالص مالی کل سال ${fy(yr)}</small><b style="color:${yrNet>=0?'var(--ok)':'var(--er)'}">${mo(yrNet)} ت</b></div>
+    </div>
+
+    <div class="cd">
+      <h2>نمودار ۱۲ ماهه سال ${fy(yr)} به تفکیک ۴ فصل (ساعت مطالعه و تمرکز)</h2>
+      <div class="wide"><svg viewBox="0 0 595 142" width="100%" style="min-width:480px;direction:ltr">${chart12}</svg></div>
+      <div class="lg" style="justify-content:center">
+        <span><b style="background:var(--ok)"></b>بهار</span>
+        <span><b style="background:var(--ac)"></b>تابستان</span>
+        <span><b style="background:var(--wn)"></b>پاییز</span>
+        <span><b style="background:#6366f1"></b>زمستان</span>
+      </div>
+    </div>
+
+    <div class="cd">
+      <h2>مقایسه عملکرد ۴ فصل سال ${fy(yr)}</h2>
+      <div class="wide"><table>
+        <tr><th>فصل</th><th>ساعت مطالعه</th><th>کارهای انجام‌شده</th><th>میانگین عادت‌ها</th><th>تراز خالص مالی فصل</th></tr>
+        ${seasons.map(s=>`<tr>
+          <td style="text-align:right;font-weight:700">${s.name}</td>
+          <td><b>${fa(s.sHr)} ساعت</b></td>
+          <td>${fa(s.tDone)} کار</td>
+          <td><span class="bdg">${fa(s.hAvg)}٪</span></td>
+          <td style="color:${s.net>=0?'var(--ok)':'var(--er)'};font-weight:700">${s.net>=0?'+':'−'}${mo(Math.abs(s.net))} ت</td>
+        </tr>`).join('')}
+      </table></div>
+    </div>
+
+    <div class="cd next">
+      <h2>🔭 چشم‌انداز و پیش‌بینی ۱ سال آینده (بر اساس میانگین عملکرد سالانه شما)</h2>
+      <div class="rx-box" style="margin-top:8px;margin-bottom:0;border-color:var(--ok)">
+        <h3>🏆 خروجی ۱ سال آینده شما با فرمان فعلی</h3>
+        <p>• انباشت مطالعه و مهارت‌آموزی یکساله: <b>+${fa(proj1yStudy)} ساعت</b> (معادل تسلط کامل بر ۲ مهارت تخصصی یا مطالعه حدود ${fa(Math.max(1,Math.round(proj1yStudy/8)))} جلد کتاب).<br>
+        • مجموع کارهای به سرانجام رسیده در طول سال: <b>+${fa(proj1yTasks)} اقدام</b>.<br>
+        • انباشت سرمایه و پس‌انداز خالص یکساله: <b>+${mo(proj1ySave)} تومان</b> (معادل حدود ${fa(Math.round(proj1ySave/Math.max(1,MKT().g18)*10)/10)} گرم طلای ۱۸ عیار).</p>
+        <span class="rx-act">💡 استراتژی سالانه: تنها با بهبود ۱۵٪ در نظم روزانه (مثلاً ۲۵ دقیقه تمرکز بیشتر در روز)، در پایان سال <b>+${fa(proj1yStudy+150)} ساعت</b> مطالعه مفید خواهید داشت!</span>
+      </div>
+    </div>`;
+  }
+
+  // اتصال به رندر اصلی برای جایگزینی نقشه حرارتی و تب تحلیل یکساله
+  const prevR=window.render;
+  window.render=function(){
+    prevR();
+    // جایگزینی نقشه حرارتی قدیمی با نسخه جدید تراز شده با ماه‌ها
+    const oldHm=$('yearlyHmCard');
+    if(oldHm)oldHm.outerHTML=window.buildYearlyHeatmapCard();
+
+    if(tab==='ai'){
+      const yrBtn=q('[data-a="aiMode"][data-v="year"]');
+      if(yrBtn){
+        yrBtn.textContent='🔭 تحلیل یکساله (۱۲ ماه و ۴ فصل)';
+        if(yrBtn.classList.contains('p')){
+          const nav=q('#main .ai-nav');
+          if(nav)$('main').innerHTML=nav.outerHTML+renderFullYearAnalysis();
+        }
+      }
+    }
+  };
+
+  document.addEventListener('click',e=>{
+    const b=e.target.closest('[data-a="hmSwitch2"]');
+    if(b){hmMode=b.dataset.v;render()}
+  });
+
+  render();
+})();
+</script>
 </body>
 <meta name="theme-color" content="#141824">
 <meta name="apple-mobile-web-app-capable" content="yes">
