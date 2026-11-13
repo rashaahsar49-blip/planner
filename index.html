@@ -2203,6 +2203,292 @@ button.p,nav button.on,.days button.on{
   };
 })();
 </script>
+<!-- ==================== پچ جامع مهندسی + ورود بیومتریک (اثر انگشت / FaceID) + منوی هدر + Undo ==================== -->
+<style>
+@media(max-width:640px){
+  .wk,nav,.cd,.days button,.ht td.hn,.mdl-bg{-webkit-backdrop-filter:blur(12px)!important;backdrop-filter:blur(12px)!important}
+  button{min-height:34px}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* منوی کشویی ⋯ در هدر */
+.more-wrap{position:relative;display:inline-block}
+.more-menu{position:absolute;left:0;top:calc(100% + 8px);background:var(--sf);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border:1px solid var(--bd);border-radius:16px;padding:6px;min-width:175px;box-shadow:0 18px 40px rgba(0,0,0,.22);display:none;flex-direction:column;gap:4px;z-index:60}
+.more-menu.on{display:flex}
+.more-menu button{width:100%;text-align:right;display:flex;align-items:center;justify-content:space-between;padding:7px 11px;border-radius:10px;background:transparent}
+.more-menu button:hover{background:var(--ac2)}
+
+/* نوار پیام و بازگردانی حذف (Toast & Undo) */
+#toastBar{position:fixed;bottom:22px;right:22px;z-index:98;background:var(--ac);color:var(--act);padding:10px 16px;border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.3);display:none;align-items:center;gap:12px;font-size:13px;font-weight:600}
+#toastBar.on{display:flex}
+#toastBar button{background:rgba(255,255,255,.2);color:#fff;padding:4px 10px;border-radius:8px;font-size:12px}
+
+/* دکمه اثر انگشت روی صفحه قفل */
+.bio-btn{width:100%;margin-top:8px;padding:10px;border-radius:12px;background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok);border:1px solid color-mix(in srgb,var(--ok) 35%,transparent);font-weight:700;font-size:13.5px;display:flex;align-items:center;justify-content:center;gap:8px}
+#agFab{bottom:18px;left:18px}
+</style>
+
+<!-- نوار بازگردانی (Undo Toast) -->
+<div id="toastBar" role="status" aria-live="polite">
+  <span id="toastMsg">انجام شد</span>
+  <button id="toastUndoBtn" style="display:none">↶ بازگردانی</button>
+</div>
+
+<script>
+(function(){
+  // ==================== ۱. سیستم ورود با اثر انگشت و FaceID (WebAuthn Biometric) ====================
+  const bufToB64=buf=>btoa(String.fromCharCode(...new Uint8Array(buf)));
+  const b64ToBuf=b64=>Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
+
+  // تزریق دکمه ثبت اثر انگشت در پنجره تنظیمات رمز (#pwMdl) و صفحه قفل (#lckScreen)
+  const pwMdlCard=q('#pwMdl .cd');
+  if(pwMdlCard&&!$('bioRegBtn')){
+    const bioRow=document.createElement('div');
+    bioRow.style.marginTop='10px';
+    bioRow.innerHTML=`<hr style="border:0;border-top:1px solid var(--bd2);margin:10px 0">
+      <div class="mu" style="margin-bottom:6px">ورود سریع در موبایل و لپ‌تاپ با سنسور اثر انگشت یا تشخیص چهره:</div>
+      <div class="row" style="margin:0">
+        <button type="button" id="bioRegBtn" class="f1" style="background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok);font-weight:700">🫆 ثبت اثر انگشت / FaceID</button>
+        <button type="button" id="bioClrBtn" class="x" title="حذف اثر انگشت">حذف بیومتریک</button>
+      </div>`;
+    pwMdlCard.appendChild(bioRow);
+  }
+
+  const lckCard=q('#lckScreen .cd');
+  if(lckCard&&!$('bioUnlockBtn')){
+    const uBtn=document.createElement('button');
+    uBtn.type='button';uBtn.id='bioUnlockBtn';uBtn.className='bio-btn';
+    uBtn.style.display=localStorage.getItem('wp26_bio_id')?'flex':'none';
+    uBtn.innerHTML=`<span>🫆</span><span>باز کردن قفل با اثر انگشت / FaceID</span>`;
+    lckCard.appendChild(uBtn);
+  }
+
+  // ثبت اثر انگشت دستگاه
+  if($('bioRegBtn'))$('bioRegBtn').onclick=async()=>{
+    if(!window.PublicKeyCredential)return showToast('مرورگر یا دستگاه شما از سنسور بیومتریک پشتیبانی نمی‌کند.');
+    if(!localStorage.getItem('wp26_pin')){
+      const pVal=($('pwNew')?.value||'').trim();
+      if(!pVal)return showToast('ابتدا یک رمز عبور در کادر بالا وارد و ذخیره کنید، سپس اثر انگشت را فعال نمایید.');
+      localStorage.setItem('wp26_pin',pVal);
+    }
+    try{
+      const challenge=crypto.getRandomValues(new Uint8Array(32));
+      const userId=crypto.getRandomValues(new Uint8Array(16));
+      const cred=await navigator.credentials.create({
+        publicKey:{
+          challenge,
+          rp:{name:'پلنر شخصی من'},
+          user:{id:userId,name:'planner-owner',displayName:'مالک پلنر'},
+          pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],
+          authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required'},
+          timeout:60000
+        }
+      });
+      if(cred&&cred.rawId){
+        localStorage.setItem('wp26_bio_id',bufToB64(cred.rawId));
+        if($('bioUnlockBtn'))$('bioUnlockBtn').style.display='flex';
+        $('pwMdl').classList.remove('on');
+        showToast('اثر انگشت / FaceID با موفقیت ثبت شد ✓');
+      }
+    }catch(err){
+      showToast('ثبت اثر انگشت لغو شد یا سنسور روی این دستگاه فعال نیست.');
+    }
+  };
+
+  if($('bioClrBtn'))$('bioClrBtn').onclick=()=>{
+    localStorage.removeItem('wp26_bio_id');
+    if($('bioUnlockBtn'))$('bioUnlockBtn').style.display='none';
+    showToast('ورود با اثر انگشت غیرفعال شد.');
+  };
+
+  // باز کردن قفل با اثر انگشت
+  async function unlockWithBiometric(){
+    const savedId=localStorage.getItem('wp26_bio_id');
+    if(!savedId||!window.PublicKeyCredential)return;
+    try{
+      const challenge=crypto.getRandomValues(new Uint8Array(32));
+      const assertion=await navigator.credentials.get({
+        publicKey:{
+          challenge,
+          allowCredentials:[{id:b64ToBuf(savedId),type:'public-key'}],
+          userVerification:'required',
+          timeout:60000
+        }
+      });
+      if(assertion){
+        $('lckScreen').classList.remove('on');
+        if($('lckInp'))$('lckInp').value='';
+        if($('lckErr'))$('lckErr').textContent='';
+        showToast('خوش آمدید ✓');
+      }
+    }catch(e){
+      if($('lckErr'))$('lckErr').textContent='تایید اثر انگشت انجام نشد؛ دوباره بزنید یا رمز را وارد کنید.';
+    }
+  }
+  if($('bioUnlockBtn'))$('bioUnlockBtn').onclick=unlockWithBiometric;
+
+  // اجرای خودکار درخواست اثر انگشت به محض بالا آمدن صفحه قفل
+  if($('lckScreen')?.classList.contains('on')){
+    setTimeout(()=>{
+      if(localStorage.getItem('wp26_bio_id'))unlockWithBiometric();
+      else $('lckInp')?.focus();
+    },350);
+  }
+
+  // ==================== ۲. سیستم Undo (بازگردانی بعد از هر حذف) و Toast ====================
+  let undoStack=[],toastTimer=null;
+  window.pushUndo=function(label){
+    undoStack.push({label,snap:JSON.stringify(S)});
+    if(undoStack.length>15)undoStack.shift();
+  };
+  window.showToast=function(msg,canUndo=false){
+    const bar=$('toastBar'),m=$('toastMsg'),btn=$('toastUndoBtn');
+    if(!bar)return;
+    m.textContent=msg;
+    btn.style.display=canUndo&&undoStack.length?'inline-block':'none';
+    bar.classList.add('on');
+    clearTimeout(toastTimer);
+    toastTimer=setTimeout(()=>bar.classList.remove('on'),5000);
+  };
+  $('toastUndoBtn').onclick=()=>{
+    const last=undoStack.pop();
+    if(last){
+      S=JSON.parse(last.snap);
+      save();render();
+      showToast('به حالت قبل بازگردانده شد ✓',false);
+    }
+  };
+  document.addEventListener('click',e=>{
+    const b=e.target.closest('[data-a]');if(!b)return;
+    const a=b.dataset.a;
+    if(['gx','tx','sx','hx','bx','cdDel','wlDel','lrnDel','dtDel','binsDel','basDel'].includes(a)){
+      pushUndo(a);
+      setTimeout(()=>showToast('حذف شد',true),50);
+    }
+  },true);
+
+  // ==================== ۳. خلوت کردن هدر موبایل با منوی کشویی «⋯» ====================
+  const wkBar=q('header .wk');
+  if(wkBar&&!$('moreMenuWrap')){
+    const wrap=document.createElement('div');
+    wrap.className='more-wrap';wrap.id='moreMenuWrap';
+    wrap.innerHTML=`<button id="moreBtn" aria-label="منوی ابزارها" title="ابزارها و تنظیمات"><span class="s-dot" id="moreDot"></span>⋯</button><div class="more-menu" id="moreMenu"></div>`;
+    wkBar.appendChild(wrap);
+    const menu=$('moreMenu');
+    ['nrOpenBtn','tgOpenBtn','syBtn','ntfBtn','pwBtn','prtBtn','th'].forEach(id=>{
+      const el=$(id);if(el)menu.appendChild(el);
+    });
+    $('moreBtn').onclick=e=>{e.stopPropagation();menu.classList.toggle('on')};
+    document.addEventListener('click',()=>menu.classList.remove('on'));
+    menu.onclick=e=>e.stopPropagation();
+    setInterval(()=>{
+      const d1=$('syDot'),d2=$('moreDot');
+      if(d1&&d2)d2.className=d1.className;
+    },1000);
+  }
+
+  const fab=$('agFab');
+  if(fab)fab.innerHTML=`<span style="font-size:16px;line-height:1">✦</span><span class="ag-lbl">دستیار هوشمند</span>`;
+
+  // ==================== ۴. اصلاح باگ عقب ماندن تایمر پومودورو در پس‌زمینه موبایل ====================
+  let lastTickTime=Date.now();
+  const origTick=window.tick;
+  window.tick=function(){
+    const now=Date.now(),elapsedSec=Math.max(1,Math.round((now-lastTickTime)/1000));
+    lastTickTime=now;
+    if(elapsedSec>1&&T.run){
+      if(T.mode==='pomo'){
+        const step=Math.min(T.left-1,elapsedSec-1);
+        if(step>0){T.left-=step;if(T.ph==='w')T.el+=step}
+      }else{
+        T.el+=elapsedSec-1;
+      }
+    }
+    origTick();
+  };
+  document.addEventListener('click',e=>{
+    if(e.target.closest('[data-a="tg"]'))lastTickTime=Date.now();
+  },true);
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible'&&T.run){
+      reqWake(true);
+      tick();
+    }
+  });
+
+  // ==================== ۵. قفل ساعت روی وقت رسمی ایران (Asia/Tehran) حتی با روشن بودن VPN ====================
+  window.upClock=function(){
+    const el=$('liveClock');
+    if(el){
+      try{el.textContent=new Intl.DateTimeFormat('fa-IR',{timeZone:'Asia/Tehran',hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(new Date())}
+      catch(e){el.textContent=new Date().toLocaleTimeString('fa-IR')}
+    }
+  };
+
+  // ==================== ۶. پذیرش اعداد فارسی در تمام فیلدهای عددی موبایل ====================
+  function fixNumericInputs(){
+    document.querySelectorAll('input[type="number"]').forEach(inp=>{
+      if(inp.dataset.faFixed)return;
+      inp.dataset.faFixed='1';
+      inp.type='text';
+      inp.inputMode='decimal';
+      inp.addEventListener('input',()=>{
+        const clean=toEnDigits(inp.value).replace(/[^0-9.-]/g,'');
+        if(inp.value!==clean)inp.value=clean;
+      },true);
+    });
+  }
+
+  // ==================== ۷. کارت دسترسی سریع «کارهای امروز» در بالای صفحه اول ====================
+  function injectTodayCardInOverview(){
+    if(tab!=='ov')return;
+    const w=W(),tdIdx=(new Date().getDay()+1)%7,td=w.days[tdIdx],p=dayPct(td);
+    const hero=q('#main .hero-top');
+    if(!hero||$('ovTodayCard'))return;
+    const card=document.createElement('div');
+    card.className='cd';card.id='ovTodayCard';
+    card.innerHTML=`<div class="row sb"><h2 style="margin:0">⚡ کارهای امروز (${DN[tdIdx]} — ${fa(p)}٪)</h2><button data-a="goDay" data-v="${tdIdx}" style="font-size:11.5px">برنامه ساعتی امروز ←</button></div>
+      ${bar(p)}
+      <div style="margin-top:10px">${td.t.map((x,i)=>`<div class="row"><input type="checkbox" onchange="W().days[${tdIdx}].t[${i}].d=this.checked?1:0;save();render()" ${x.d?'checked':''}><span class="f1 ${x.d?'done':''}">${x.p?'<span class="bdg wn" style="margin-inline-end:5px">مهم</span>':''}${esc(x.t)}</span><button class="x" onclick="pushUndo('tx');W().days[${tdIdx}].t.splice(${i},1);save();render();showToast('حذف شد',true)">✕</button></div>`).join('')||'<div class="mu" style="margin-bottom:6px">برای امروز هنوز کاری ثبت نشده است.</div>'}</div>
+      <div class="row" style="margin-top:8px"><input type="text" id="ovFastTask" placeholder="افزودن سریع کار برای امروز (Enter)..." onkeydown="if(event.key==='Enter'){event.preventDefault();addFastTodayTask()}"><button class="p" onclick="addFastTodayTask()">افزودن</button></div>`;
+    hero.insertAdjacentElement('afterend',card);
+  }
+  window.addFastTodayTask=function(){
+    const inp=$('ovFastTask'),v=(inp?.value||'').trim();if(!v)return;
+    const tdIdx=(new Date().getDay()+1)%7;
+    W().days[tdIdx].t.push({t:v,d:0,p:v.includes('!')||v.includes('مهم')?1:0});
+    save();render();
+    setTimeout(()=>$('ovFastTask')?.focus(),20);
+  };
+
+  // ==================== ۸. اصلاح باگ نمودار جریان نقدی (polyline) و حفظ فوکوس کیبورد ====================
+  const prevRender=window.render;
+  window.render=function(){
+    const activeId=document.activeElement?.id;
+    prevRender();
+    document.querySelectorAll('polyline[points*="L"]').forEach(pl=>{
+      pl.setAttribute('points',pl.getAttribute('points').replace(/L/g,''));
+    });
+    injectTodayCardInOverview();
+    fixNumericInputs();
+    q('nav button.on')?.scrollIntoView({block:'nearest',inline:'center'});
+    q('.days button.on')?.scrollIntoView({block:'nearest',inline:'center'});
+    if(['tn','gn','hn','ovFastTask'].includes(activeId)){
+      setTimeout(()=>$(activeId)?.focus(),10);
+    }
+  };
+
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){
+      document.querySelectorAll('.mdl-bg.on').forEach(m=>{if(m.id!=='lckScreen')m.classList.remove('on')});
+      $('zenScr')?.classList.remove('on');
+      $('moreMenu')?.classList.remove('on');
+    }
+  });
+
+  render();
+})();
+</script>
 </body>
 <meta name="theme-color" content="#141824">
 <meta name="apple-mobile-web-app-capable" content="yes">
