@@ -4499,6 +4499,189 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
   render();
 })();
 </script>
+<!-- ==================== نمودار دوطرفه درآمد (بالا) و هزینه (پایین) + محور Y کاملاً جدا در چپ + خط میانگین ظریف ==================== -->
+<script>
+(function(){
+  const LRM='\u200E';
+
+  function fmtFaUnit(n,signChar=''){
+    const abs=Math.abs(Number(n)||0);
+    if(abs===0)return '۰';
+    const pf=signChar?LRM+signChar:'';
+    if(abs>=1e9)return pf+fa(+(abs/1e9).toFixed(1))+'B';
+    if(abs>=1e6)return pf+fa(+(abs/1e6).toFixed(1))+' م';
+    if(abs>=1e3)return pf+fa(Math.round(abs/1e3))+' هـ';
+    return pf+fa(abs);
+  }
+
+  function fmtSignedMo(n){
+    const val=Number(n)||0;
+    const sign=val>0?LRM+'+':val<0?LRM+'−':'';
+    return sign+mo(Math.abs(val));
+  }
+
+  function smoothPath(pts){
+    if(!pts.length)return '';
+    if(pts.length===1)return `M${pts[0][0]},${pts[0][1]}`;
+    let d=`M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
+    for(let i=0;i<pts.length-1;i++){
+      const p0=pts[i],p1=pts[i+1],cpx=(p0[0]+p1[0])/2;
+      d+=` C${cpx.toFixed(1)},${p0[1].toFixed(1)} ${cpx.toFixed(1)},${p1[1].toFixed(1)} ${p1[0].toFixed(1)},${p1[1].toFixed(1)}`;
+    }
+    return d;
+  }
+
+  function deltaBadgeLtr(cur,prev,inv=false){
+    if(!prev||prev<=0)return `<span class="k-dl eq">دوره نخست</span>`;
+    const pct=Math.round(((cur-prev)/prev)*100);
+    if(pct===0)return `<span class="k-dl eq">▬ ۰٪ نسبت به ماه قبل</span>`;
+    const ok=inv?(pct<0):(pct>0);
+    return `<span class="k-dl ${ok?'up':'dn'}">${pct>0?LRM+'+'+fa(pct):LRM+'−'+fa(Math.abs(pct))}٪ ${pct>0?'▲':'▼'}</span>`;
+  }
+
+  window.bDb=function(c){
+    const {M,P,n,cd,gl,bal,sr}=c,ex=M.ex,inc=M.inc;
+    const dI=Array.from({length:n},(_,i)=>sm_(inc.filter(t=>t.d==i+1).map(t=>t.a)));
+    const dE=Array.from({length:n},(_,i)=>sm_(ex.filter(t=>t.d==i+1).map(t=>t.a)));
+
+    // ==================== نمودار ۱: دوطرفه حول محور افقی (درآمد بالای محور، هزینه پایین محور) ====================
+    const mxInc=Math.max(1000,...dI),mxExp=Math.max(1000,...dE),mxAll=Math.max(mxInc,mxExp);
+    const scaleH=(val,maxV,halfH)=>val<=0?0:Math.max(4,Math.pow(val/maxV,0.58)*halfH);
+
+    const W1=740,H1=245,padL1=70,padR1=16,zeroY1=110,halfH=80;
+    const plotW1=W1-padL1-padR1,colW=plotW1/n;
+    const avgDailyExp=cd>0?M.E/cd:0,avgExpY=zeroY1+scaleH(avgDailyExp,mxAll,halfH);
+
+    let dailySvg=`<defs>
+      <linearGradient id="gIncUp" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#16a34a" stop-opacity="0.7"/></linearGradient>
+      <linearGradient id="gExpDn" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff4d6d" stop-opacity="0.7"/><stop offset="100%" stop-color="#e11d48"/></linearGradient>
+    </defs>
+    <!-- خط عمودی جداکننده محور Y در سمت چپ -->
+    <line x1="${padL1}" x2="${padL1}" y1="18" y2="${H1-28}" stroke="var(--bd2)" stroke-width="1"/>`;
+
+    // خطوط تراز بالا (درآمد +) و پایین (هزینه −) با اعداد کاملاً در سمت چپِ خط محور
+    [
+      {y:zeroY1-halfH, txt:fmtFaUnit(mxAll,'+'), col:'var(--ok)'},
+      {y:zeroY1-halfH*0.5, txt:fmtFaUnit(Math.pow(0.5,1/0.58)*mxAll,'+'), col:'var(--mu)'},
+      {y:zeroY1, txt:'۰', col:'var(--tx)'},
+      {y:zeroY1+halfH*0.5, txt:fmtFaUnit(Math.pow(0.5,1/0.58)*mxAll,'−'), col:'var(--mu)'},
+      {y:zeroY1+halfH, txt:fmtFaUnit(mxAll,'−'), col:'var(--er)'}
+    ].forEach(r=>{
+      const isZero=(r.y===zeroY1);
+      dailySvg+=`<line x1="${padL1}" x2="${W1-padR1}" y1="${r.y.toFixed(1)}" y2="${r.y.toFixed(1)}" stroke="${isZero?'var(--mu)':'var(--bd2)'}" stroke-width="${isZero?'1.3':'1'}" ${isZero?'opacity="0.65"':'stroke-dasharray="3,3"'}/>
+      <text x="${padL1-8}" y="${(r.y+3.5).toFixed(1)}" text-anchor="end" font-size="9.5" font-weight="${isZero?'700':'500'}" fill="${r.col}">${r.txt}</text>`;
+    });
+
+    // خط میانگین خرج روزانه (بسیار ظریف و مینیمال در نیمه پایین)
+    if(avgDailyExp>0){
+      dailySvg+=`<line x1="${padL1}" x2="${W1-padR1}" y1="${avgExpY.toFixed(1)}" y2="${avgExpY.toFixed(1)}" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,3" opacity="0.7"/>
+      <text x="${W1-padR1-4}" y="${(avgExpY-4).toFixed(1)}" text-anchor="end" font-size="8.8" font-weight="400" fill="#f59e0b" opacity="0.85">میانگین خرج: ${fmtFaUnit(avgDailyExp,'−')}</text>`;
+    }
+
+    // رسم میله‌ها: درآمد رو به بالا (سبز) و هزینه رو به پایین (قرمز)
+    for(let i=0;i<n;i++){
+      const dayNum=i+1,vI=dI[i],vE=dE[i],x=padL1+i*colW,cx=x+colW/2;
+      const hI=scaleH(vI,mxAll,halfH),hE=scaleH(vE,mxAll,halfH),bw=Math.min(11,Math.max(5,colW-6));
+      const dayItems=M.tx.filter(t=>t.d===dayNum).map(t=>`${isIn(t.c)?'🟢':'🔴'} ${catL(t.c)}: ${fmtSignedMo(isIn(t.c)?t.a:-t.a)} ت`).slice(0,5).join('\n');
+      const tipTxt=`📅 ${fa(dayNum)} ${PM[hs.m-1]} ${fy(hs.y)}\n🟢 درآمد: ${LRM}+${mo(vI)} تومان\n🔴 هزینه: ${LRM}−${mo(vE)} تومان${dayItems?'\n──────────\n'+dayItems:''}`;
+
+      dailySvg+=`<g class="ch-bar-grp" data-tip="${esc(tipTxt)}">
+        <rect class="bg-hl" x="${x.toFixed(1)}" y="18" width="${colW.toFixed(1)}" height="${H1-46}" rx="5" fill="var(--ac)" opacity="0"/>
+        ${vI>0?`<rect x="${(cx-bw/2).toFixed(1)}" y="${(zeroY1-hI).toFixed(1)}" width="${bw.toFixed(1)}" height="${hI.toFixed(1)}" rx="3" fill="url(#gIncUp)"/>`:''}
+        ${vE>0?`<rect x="${(cx-bw/2).toFixed(1)}" y="${zeroY1.toFixed(1)}" width="${bw.toFixed(1)}" height="${hE.toFixed(1)}" rx="3" fill="url(#gExpDn)"/>`:''}
+        ${vI>=mxAll*0.18?`<text x="${cx.toFixed(1)}" y="${(zeroY1-hI-5).toFixed(1)}" text-anchor="middle" font-size="8.5" font-weight="600" fill="#22c55e">${fmtFaUnit(vI,'+')}</text>`:''}
+        ${vE>=mxAll*0.15?`<text x="${cx.toFixed(1)}" y="${(zeroY1+hE+11).toFixed(1)}" text-anchor="middle" font-size="8.5" font-weight="600" fill="#ff4d6d">${fmtFaUnit(vE,'−')}</text>`:''}
+        <text x="${cx.toFixed(1)}" y="${H1-10}" text-anchor="middle" font-size="${dayNum===cd?'10.5':'9.2'}" font-weight="${dayNum===cd?'800':'500'}" fill="${dayNum===cd?'var(--ac)':'var(--mu)'}">${fa(dayNum)}</text>
+      </g>`;
+    }
+
+    // ==================== نمودار ۲: روند موجودی انباشته ماه (محور Y جدا در چپ + منحنی نرم) ====================
+    let running=0;
+    const cumArr=dI.map((v,i)=>{running+=(v-dE[i]);return running});
+    const minC=Math.min(0,...cumArr),maxC=Math.max(1000,gl||0,...cumArr),spanC=Math.max(1000,maxC-minC);
+    const W2=740,H2=230,padL2=70,padR2=18,padT2=24,padB2=32,chH2=H2-padT2-padB2,plotW2=W2-padL2-padR2;
+    const yOf=val=>padT2+((maxC-val)/spanC)*chH2;
+    const xOf=i=>padL2+8+i*((plotW2-16)/Math.max(1,n-1));
+    const zeroY2=yOf(0),cfColor=bal>=0?'#22c55e':'#ff4d6d';
+
+    const pts2=cumArr.map((v,i)=>[xOf(i),yOf(v)]);
+    const curveD=smoothPath(pts2);
+    const areaD=`${curveD} L${xOf(n-1).toFixed(1)},${zeroY2.toFixed(1)} L${xOf(0).toFixed(1)},${zeroY2.toFixed(1)} Z`;
+
+    let cashflowSvg=`<defs>
+      <linearGradient id="gAreaCf" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${cfColor}" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="${cfColor}" stop-opacity="0.02"/>
+      </linearGradient>
+    </defs>
+    <line x1="${padL2}" x2="${padL2}" y1="${padT2-6}" y2="${H2-padB2}" stroke="var(--bd2)" stroke-width="1"/>`;
+
+    [minC, minC+spanC*0.33, minC+spanC*0.66, maxC].forEach(val=>{
+      const y=yOf(val),sChar=val>0?'+':val<0?'−':'';
+      cashflowSvg+=`<line x1="${padL2}" x2="${W2-padR2}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--bd2)" stroke-width="1" stroke-dasharray="3,3"/>
+      <text x="${padL2-8}" y="${(y+3.5).toFixed(1)}" text-anchor="end" font-size="9.5" fill="var(--mu)">${fmtFaUnit(val,sChar)}</text>`;
+    });
+
+    cashflowSvg+=`<line x1="${padL2}" x2="${W2-padR2}" y1="${zeroY2.toFixed(1)}" y2="${zeroY2.toFixed(1)}" stroke="var(--mu)" stroke-width="1.2" opacity="0.55"/>`;
+    if(gl>0){
+      const gy=yOf(gl);
+      cashflowSvg+=`<line x1="${padL2}" x2="${W2-padR2}" y1="${gy.toFixed(1)}" y2="${gy.toFixed(1)}" stroke="#22c55e" stroke-width="1" stroke-dasharray="4,4" opacity="0.75"/>
+      <text x="${W2-padR2-4}" y="${Math.max(14,gy-5).toFixed(1)}" text-anchor="end" font-size="8.8" fill="#22c55e" opacity="0.9">هدف پس‌انداز: ${fmtFaUnit(gl,'+')}</text>`;
+    }
+
+    cashflowSvg+=`<path d="${areaD}" fill="url(#gAreaCf)"/>
+      <path d="${curveD}" fill="none" stroke="${cfColor}" stroke-width="2.6" stroke-linecap="round"/>`;
+
+    cumArr.forEach((v,i)=>{
+      const dayNum=i+1,x=xOf(i),y=yOf(v),changed=(dI[i]>0||dE[i]>0);
+      const tipC=`📅 تا پایان روز ${fa(dayNum)} ${PM[hs.m-1]}\nموجودی خالص انباشته: ${fmtSignedMo(v)} تومان\n(درآمد آن روز: ${LRM}+${mo(dI[i])} | هزینه: ${LRM}−${mo(dE[i])})`;
+      if(changed||dayNum===1||dayNum===cd||dayNum===n){
+        cashflowSvg+=`<circle class="ch-dot" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${changed?4:2.8}" fill="${v>=0?'#22c55e':'#ff4d6d'}" stroke="#0f172a" stroke-width="1.8" data-tip="${esc(tipC)}"/>`;
+      }
+      if(dayNum===1||dayNum%3===0||dayNum===n){
+        cashflowSvg+=`<text x="${x.toFixed(1)}" y="${H2-10}" text-anchor="middle" font-size="9.2" font-weight="${dayNum===cd?'800':'500'}" fill="${dayNum===cd?'var(--ac)':'var(--mu)'}">روز ${fa(dayNum)}</text>`;
+      }
+      if(dayNum===cd){
+        cashflowSvg+=`<text x="${clamp(x,padL2+30,W2-padR2-30).toFixed(1)}" y="${Math.max(16,y-9).toFixed(1)}" text-anchor="middle" font-size="9.2" font-weight="700" fill="${v>=0?'#22c55e':'#ff4d6d'}">${fmtFaUnit(v,v>=0?'+':'−')}</text>`;
+      }
+    });
+
+    const gls=GXs.map(g=>({l:g[1],c:g[2],v:gs(ex,g[0])})).sort((a,b)=>b.v-a.v);
+    const cls=Object.entries(ex.reduce((o,t)=>(o[t.c]=(o[t.c]||0)+t.a,o),{})).sort((a,b)=>b[1]-a[1]).slice(0,6);
+
+    return `<div class="td-dash">
+      <div class="td-kpi"><div class="k-top"><span>درآمد ${PM[hs.m-1]}</span>${deltaBadgeLtr(M.I,P.I,false)}</div><div class="k-num" style="color:var(--ok)">${LRM}+${mo(M.I)}<small>تومان</small></div></div>
+      <div class="td-kpi"><div class="k-top"><span>هزینه ${PM[hs.m-1]}</span>${deltaBadgeLtr(M.E,P.E,true)}</div><div class="k-num" style="color:var(--er)">${LRM}−${mo(M.E)}<small>تومان</small></div></div>
+      <div class="td-kpi"><div class="k-top"><span>تراز خالص (پس‌انداز: ${fa(sr)}٪)</span>${deltaBadgeLtr(bal,P.I-P.E,false)}</div><div class="k-num" style="color:${bal>=0?'var(--ok)':'var(--er)'}">${fmtSignedMo(bal)}<small>تومان</small></div></div>
+    </div>
+
+    <div class="cd">
+      <div class="row sb fw" style="margin-bottom:4px">
+        <h2 style="margin:0">مقایسه روزانه درآمد (بالای محور) و هزینه (پایین محور) — ${PM[hs.m-1]}</h2>
+        <div class="lg" style="margin:0"><span><b style="background:#22c55e"></b>درآمد (بالای خط صفر)</span><span><b style="background:#ff4d6d"></b>هزینه (پایین خط صفر)</span></div>
+      </div>
+      <div class="mu">موس یا انگشت خود را روی هر روز ببرید تا ریزِ تراکنش‌های همان روز را ببینید.</div>
+      <div class="wide fin-svg-wrap"><svg viewBox="0 0 ${W1} ${H1}" width="100%" style="min-width:580px;direction:ltr">${dailySvg}</svg></div>
+    </div>
+
+    <div class="cd">
+      <div class="row sb fw" style="margin-bottom:4px">
+        <h2 style="margin:0">روند موجودی انباشته ماه (از روز اول تا آخر ماه)</h2>
+        <span class="bdg ${bal>=0?'ok':'wn'}">${bal>=0?'تراز مثبت (سبز)':'تراز منفی (قرمز)'}</span>
+      </div>
+      <div class="mu">منحنی موجودی خالص انباشته در طول ماه (روی نقاط دایره‌ای لمس کنید).</div>
+      <div class="wide fin-svg-wrap"><svg viewBox="0 0 ${W2} ${H2}" width="100%" style="min-width:560px;direction:ltr">${cashflowSvg}</svg></div>
+    </div>
+
+    <div class="g2">
+      <div class="cd"><h2>سهم سرفصل‌های هزینه در ${PM[hs.m-1]}</h2>${M.E?gls.filter(x=>x.v>0).slice(0,6).map(x=>hbar(x.l,x.v,gls[0].v,'var(--er)')).join(''):`<div class="mu">هنوز هزینه‌ای ثبت نشده است.</div>`}</div>
+      <div class="cd"><h2>بزرگ‌ترین هزینه‌های ماه</h2>${cls.length?cls.map(x=>hbar(catL(x[0]),x[1],cls[0][1],'var(--er)')).join(''):`<div class="mu">—</div>`}</div>
+    </div>`;
+  };
+
+  render();
+})();
+</script>
 </body>
 <meta name="theme-color" content="#141824">
 <meta name="apple-mobile-web-app-capable" content="yes">
