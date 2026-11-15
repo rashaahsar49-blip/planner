@@ -4682,6 +4682,56 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
   render();
 })();
 </script>
+<!-- ==================== قفل قطعی علامت + و − در سمت چپ تمام اعداد (بخش دارایی‌ها و کل برنامه) ==================== -->
+<style>
+.ltr-num{
+  direction:ltr!important;
+  unicode-bidi:bidi-override!important;
+  display:inline-block!important;
+  font-variant-numeric:tabular-nums;
+}
+</style>
+
+<script>
+(function(){
+  function fixAllSignedNumbers(root){
+    if(!root)return;
+    const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null,false);
+    const nodes=[];
+    let n;
+    while((n=walker.nextNode())){
+      const p=n.parentElement;
+      if(!p||['SCRIPT','STYLE','TEXTAREA','INPUT'].includes(p.tagName)||p.closest('svg')||p.classList.contains('ltr-num'))continue;
+      if(/[+\-−]\s*[۰-۹0-9]/.test(n.nodeValue))nodes.push(n);
+    }
+    nodes.forEach(textNode=>{
+      const clean=textNode.nodeValue.replace(/\u200E/g,'');
+      const frag=document.createDocumentFragment();
+      const parts=clean.split(/([+\-−]\s*[۰-۹0-9][۰-۹0-9,٫.٪%]*)/g);
+      parts.forEach(part=>{
+        if(!part)return;
+        if(/^[+\-−]\s*[۰-۹0-9]/.test(part)){
+          const sp=document.createElement('span');
+          sp.className='ltr-num';
+          sp.textContent=part.replace(/\s+/g,'');
+          frag.appendChild(sp);
+        }else{
+          frag.appendChild(document.createTextNode(part));
+        }
+      });
+      textNode.parentNode.replaceChild(frag,textNode);
+    });
+  }
+
+  const prevR=window.render;
+  window.render=function(){
+    prevR();
+    fixAllSignedNumbers($('main'));
+  };
+
+  fixAllSignedNumbers($('main'));
+})();
+</script>
 </body>
 <meta name="theme-color" content="#141824">
 <meta name="apple-mobile-web-app-capable" content="yes">
