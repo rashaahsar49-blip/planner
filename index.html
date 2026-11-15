@@ -4682,32 +4682,18 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
   render();
 })();
 </script>
-<!-- ==================== نمودار دوطرفه و حرفه‌ای گزارش یکساله مالی + اصلاح علامت + و − در بخش دارایی‌ها ==================== -->
-<style>
-. sgn-ltr{direction:ltr;display:inline-block;unicode-bidi:isolate;font-variant-numeric:tabular-nums}
-</style>
-
+<!-- ==================== نمودار دوطرفه و حرفه‌ای گزارش یکساله مالی (۱۲ ماهه) ==================== -->
 <script>
 (function(){
-  const LRM='\u200E';
-
-  function fmtFaUnit(n,signChar=''){
+  function fmtUnit(n){
     const abs=Math.abs(Number(n)||0);
     if(abs===0)return '۰';
-    const pf=signChar?LRM+signChar:'';
-    if(abs>=1e9)return pf+fa(+(abs/1e9).toFixed(1))+'B';
-    if(abs>=1e6)return pf+fa(+(abs/1e6).toFixed(1))+' م';
-    if(abs>=1e3)return pf+fa(Math.round(abs/1e3))+' هـ';
-    return pf+fa(abs);
+    if(abs>=1e9)return fa(+(abs/1e9).toFixed(1))+'B';
+    if(abs>=1e6)return fa(+(abs/1e6).toFixed(1))+' م';
+    if(abs>=1e3)return fa(Math.round(abs/1e3))+' هـ';
+    return fa(abs);
   }
 
-  function ltrMo(n,forcePlus=false){
-    const val=Number(n)||0;
-    const s=val>0?(forcePlus?'+':''):val<0?'−':'';
-    return `<span class="sgn-ltr">${s}${mo(Math.abs(val))}</span>`;
-  }
-
-  // ۱. بازطراحی کامل نمودار و جدول «گزارش یکساله مالی» (دوطرفه: درآمد بالا، هزینه پایین)
   window.bRp=function(){
     const yr=hs.y;
     const ms=Array.from({length:12},(_,i)=>Object.assign({y:yr,m:i+1},mdat(yr,i+1)));
@@ -4727,63 +4713,59 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
       <linearGradient id="yrIncUp" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#16a34a" stop-opacity="0.72"/></linearGradient>
       <linearGradient id="yrExpDn" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff4d6d" stop-opacity="0.72"/><stop offset="100%" stop-color="#e11d48"/></linearGradient>
     </defs>
-    <!-- خط عمودی جداکننده محور Y در سمت چپ -->
     <line x1="${padL}" x2="${padL}" y1="18" y2="${H-28}" stroke="var(--bd2)" stroke-width="1"/>`;
 
-    // خطوط افقی و اعداد محور Y در ستون چپ (کاملاً جدا از ماه اول)
     [
-      {y:zeroY-halfH, txt:fmtFaUnit(mxAll,'+'), col:'var(--ok)'},
-      {y:zeroY-halfH*0.5, txt:fmtFaUnit(Math.pow(0.5,1/0.58)*mxAll,'+'), col:'var(--mu)'},
+      {y:zeroY-halfH, txt:fmtUnit(mxAll), col:'var(--ok)'},
+      {y:zeroY-halfH*0.5, txt:fmtUnit(Math.pow(0.5,1/0.58)*mxAll), col:'var(--mu)'},
       {y:zeroY, txt:'۰', col:'var(--tx)'},
-      {y:zeroY+halfH*0.5, txt:fmtFaUnit(Math.pow(0.5,1/0.58)*mxAll,'−'), col:'var(--mu)'},
-      {y:zeroY+halfH, txt:fmtFaUnit(mxAll,'−'), col:'var(--er)'}
+      {y:zeroY+halfH*0.5, txt:fmtUnit(Math.pow(0.5,1/0.58)*mxAll), col:'var(--mu)'},
+      {y:zeroY+halfH, txt:fmtUnit(mxAll), col:'var(--er)'}
     ].forEach(r=>{
       const isZ=(r.y===zeroY);
       svg+=`<line x1="${padL}" x2="${W-padR}" y1="${r.y.toFixed(1)}" y2="${r.y.toFixed(1)}" stroke="${isZ?'var(--mu)':'var(--bd2)'}" stroke-width="${isZ?'1.3':'1'}" ${isZ?'opacity="0.65"':'stroke-dasharray="3,3"'}/>
       <text x="${padL-8}" y="${(r.y+3.5).toFixed(1)}" text-anchor="end" font-size="9.5" font-weight="${isZ?'700':'500'}" fill="${r.col}">${r.txt}</text>`;
     });
 
-    // خط ظریف میانگین هزینه ماهانه در نیمه پایین
     if(avgE>0){
       svg+=`<line x1="${padL}" x2="${W-padR}" y1="${avgExpY.toFixed(1)}" y2="${avgExpY.toFixed(1)}" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,3" opacity="0.7"/>
-      <text x="${W-padR-4}" y="${(avgExpY-4).toFixed(1)}" text-anchor="end" font-size="8.8" font-weight="400" fill="#f59e0b" opacity="0.85">میانگین خرج ماهانه: ${fmtFaUnit(avgE,'−')}</text>`;
+      <text x="${W-padR-4}" y="${(avgExpY-4).toFixed(1)}" text-anchor="end" font-size="8.8" font-weight="400" fill="#f59e0b" opacity="0.85">میانگین خرج ماهانه: ${fmtUnit(avgE)}</text>`;
     }
 
-    // رسم ۱۲ ماه سال (درآمد بالای خط صفر، هزینه پایین خط صفر)
     ms.forEach((x,i)=>{
       const bx=padL+i*colW,cx=bx+colW/2,bw=22;
       const hI=scaleH(x.I,mxAll,halfH),hE=scaleH(x.E,mxAll,halfH),net=x.I-x.E,sr=x.I?Math.round(100*net/x.I):0;
-      const tipM=`📅 ${PM[i]} ${fy(yr)}\n🟢 درآمد: ${LRM}+${mo(x.I)} تومان\n🔴 هزینه: ${LRM}−${mo(x.E)} تومان\nتراز خالص: ${net>=0?LRM+'+':LRM+'−'}${mo(Math.abs(net))} تومان\nنرخ پس‌انداز: ${fa(sr)}٪`;
+      const tipM=`📅 ${PM[i]} ${fy(yr)}\n🟢 درآمد: ${mo(x.I)} تومان\n🔴 هزینه: ${mo(x.E)} تومان\nتراز خالص: ${mo(net)} تومان\nنرخ پس‌انداز: ${fa(sr)}٪`;
 
       svg+=`<g class="ch-bar-grp" data-tip="${esc(tipM)}">
         <rect class="bg-hl" x="${bx.toFixed(1)}" y="18" width="${colW.toFixed(1)}" height="${H-46}" rx="6" fill="var(--ac)" opacity="0"/>
         ${x.I>0?`<rect x="${(cx-bw/2).toFixed(1)}" y="${(zeroY-hI).toFixed(1)}" width="${bw}" height="${hI.toFixed(1)}" rx="4" fill="url(#yrIncUp)"/>`:''}
         ${x.E>0?`<rect x="${(cx-bw/2).toFixed(1)}" y="${zeroY.toFixed(1)}" width="${bw}" height="${hE.toFixed(1)}" rx="4" fill="url(#yrExpDn)"/>`:''}
-        ${x.I>0?`<text x="${cx.toFixed(1)}" y="${(zeroY-hI-5).toFixed(1)}" text-anchor="middle" font-size="8.8" font-weight="600" fill="#22c55e">${fmtFaUnit(x.I,'+')}</text>`:''}
-        ${x.E>0?`<text x="${cx.toFixed(1)}" y="${(zeroY+hE+11).toFixed(1)}" text-anchor="middle" font-size="8.8" font-weight="600" fill="#ff4d6d">${fmtFaUnit(x.E,'−')}</text>`:''}
+        ${x.I>0?`<text x="${cx.toFixed(1)}" y="${(zeroY-hI-5).toFixed(1)}" text-anchor="middle" font-size="8.8" font-weight="600" fill="#22c55e">${fmtUnit(x.I)}</text>`:''}
+        ${x.E>0?`<text x="${cx.toFixed(1)}" y="${(zeroY+hE+11).toFixed(1)}" text-anchor="middle" font-size="8.8" font-weight="600" fill="#ff4d6d">${fmtUnit(x.E)}</text>`:''}
         <text x="${cx.toFixed(1)}" y="${H-9}" text-anchor="middle" font-size="10" font-weight="${hs.m===i+1?'800':'500'}" fill="${hs.m===i+1?'var(--ac)':'var(--tx)'}">${PM[i]}</text>
       </g>`;
     });
 
     const rowsHtml=ms.map((x,i)=>[
       `<b>${PM[i]}</b>`,
-      `<span style="color:var(--ok);font-weight:700">${ltrMo(x.I,true)}</span>`,
-      `<span style="color:var(--er);font-weight:700">${ltrMo(-x.E,false)}</span>`,
-      `<b style="color:${x.I-x.E>=0?'var(--ok)':'var(--er)'}">${ltrMo(x.I-x.E,true)}</b>`,
-      x.I?`<span class="sgn-ltr">${fa(Math.round(100*(x.I-x.E)/x.I))}٪</span>`:'—'
+      `<span style="color:var(--ok);font-weight:700">${mo(x.I)}</span>`,
+      `<span style="color:var(--er);font-weight:700">${mo(x.E)}</span>`,
+      `<b style="color:${x.I-x.E>=0?'var(--ok)':'var(--er)'}">${mo(x.I-x.E)}</b>`,
+      x.I?fa(Math.round(100*(x.I-x.E)/x.I))+'٪':'—'
     ]);
     rowsHtml.push([
       `<b>جمع کل سال ${fy(yr)}</b>`,
-      `<b style="color:var(--ok)">${ltrMo(totYrI,true)}</b>`,
-      `<b style="color:var(--er)">${ltrMo(-totYrE,false)}</b>`,
-      `<b style="color:${totYrNet>=0?'var(--ok)':'var(--er)'}">${ltrMo(totYrNet,true)}</b>`,
-      `<b><span class="sgn-ltr">${fa(yrSr)}٪</span></b>`
+      `<b style="color:var(--ok)">${mo(totYrI)}</b>`,
+      `<b style="color:var(--er)">${mo(totYrE)}</b>`,
+      `<b style="color:${totYrNet>=0?'var(--ok)':'var(--er)'}">${mo(totYrNet)}</b>`,
+      `<b>${fa(yrSr)}٪</b>`
     ]);
 
     return `<div class="td-dash">
-      <div class="td-kpi"><div class="k-top"><span>کل درآمد سال ${fy(yr)}</span></div><div class="k-num" style="color:var(--ok)">${ltrMo(totYrI,true)}<small>تومان</small></div></div>
-      <div class="td-kpi"><div class="k-top"><span>کل هزینه سال ${fy(yr)}</span></div><div class="k-num" style="color:var(--er)">${ltrMo(-totYrE,false)}<small>تومان</small></div></div>
-      <div class="td-kpi"><div class="k-top"><span>پس‌انداز خالص سال (${fa(yrSr)}٪)</span></div><div class="k-num" style="color:${totYrNet>=0?'var(--ok)':'var(--er)'}">${ltrMo(totYrNet,true)}<small>تومان</small></div></div>
+      <div class="td-kpi"><div class="k-top"><span>کل درآمد سال ${fy(yr)}</span></div><div class="k-num" style="color:var(--ok)">${mo(totYrI)}<small>تومان</small></div></div>
+      <div class="td-kpi"><div class="k-top"><span>کل هزینه سال ${fy(yr)}</span></div><div class="k-num" style="color:var(--er)">${mo(totYrE)}<small>تومان</small></div></div>
+      <div class="td-kpi"><div class="k-top"><span>پس‌انداز خالص سال (${fa(yrSr)}٪)</span></div><div class="k-num" style="color:${totYrNet>=0?'var(--ok)':'var(--er)'}">${mo(totYrNet)}<small>تومان</small></div></div>
     </div>
     <div class="cd">
       <div class="row sb fw" style="margin-bottom:4px">
@@ -4794,19 +4776,6 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
       <div class="wide fin-svg-wrap"><svg viewBox="0 0 ${W} ${H}" width="100%" style="min-width:580px;direction:ltr">${svg}</svg></div>
       <div style="margin-top:12px">${tbl(['ماه','درآمد (سبز)','هزینه (قرمز)','تراز خالص','نرخ پس‌انداز'],rowsHtml)}</div>
     </div>`;
-  };
-
-  // ۲. اصلاح تمیز علامت + و − در تب «دارایی‌ها» و کارت‌های مالی (بدون دست زدن به سایر بخش‌ها)
-  const prevR=window.render;
-  window.render=function(){
-    prevR();
-    if(tab==='bg'){
-      // اصلاح علامت + و − در جدول سود/زیان دارایی‌ها و کارت‌های KPI مالی
-      document.querySelectorAll('#main .td-kpi .k-num, #main table td:nth-child(6), #main #tl b').forEach(el=>{
-        if(el.querySelector('.sgn-ltr'))return;
-        el.innerHTML=el.innerHTML.replace(/([+\-−])\s*([۰-۹0-9][۰-۹0-9,٫.]*(?:\s*٪)?)/g,'<span class="sgn-ltr">$1$2</span>');
-      });
-    }
   };
 
   render();
