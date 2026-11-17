@@ -5017,6 +5017,292 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
   render();
 })();
 </script>
+<!-- ==================== داشبورد گرافیکی یک‌نگاه با ۶ چارت مدرن (حلقه‌های اپل، موجی، دونات مالی، رادار و ستونی) ==================== -->
+<style>
+.exec-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:16px}
+@media(max-width:780px){.exec-grid{grid-template-columns:1fr}}
+.exec-cd{
+  background:var(--sf);border:1px solid var(--bd);border-radius:24px;padding:18px;
+  box-shadow:var(--sh);display:flex;flex-direction:column;justify-content:space-between;gap:12px;
+  position:relative;overflow:hidden;transition:transform .18s ease,border-color .18s ease
+}
+.exec-cd:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--ac) 45%,var(--bd))}
+.exec-hdr{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--bd2);padding-bottom:10px}
+.exec-hdr h3{margin:0;font-size:15px;font-weight:800;display:flex;align-items:center;gap:8px;color:var(--tx)}
+.exec-hdr button{font-size:11.5px;padding:4px 10px;border-radius:9px}
+.ch-split{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.mini-hm{display:grid;grid-template-columns:repeat(14,1fr);gap:3px;width:100%;margin-top:6px}
+.mini-hm i{height:12px;border-radius:3px;background:var(--ac2);display:block}
+</style>
+
+<script>
+(function(){
+  // تابع کمکی رسم منحنی نرم موجی (Cubic Bezier)
+  function bezierPath(pts){
+    if(!pts.length)return '';
+    let d=`M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
+    for(let i=0;i<pts.length-1;i++){
+      const p0=pts[i],p1=pts[i+1],cx=(p0[0]+p1[0])/2;
+      d+=` C${cx.toFixed(1)},${p0[1].toFixed(1)} ${cx.toFixed(1)},${p1[1].toFixed(1)} ${p1[0].toFixed(1)},${p1[1].toFixed(1)}`;
+    }
+    return d;
+  }
+
+  function renderGraphicalOverview(){
+    const w=W(),tdIdx=(new Date().getDay()+1)%7,td=w.days[tdIdx],now=new Date(),hr=now.getHours();
+    const np=pp(now),mk=np.y+'-'+np.m,n=ML(np.y,np.m);
+
+    // ۱. محاسبات کارت ۱ (حلقه‌های سه‌گانه امروز)
+    const tdDone=td.t.filter(x=>x.d).length,tdTot=td.t.length,tdPct=dayPct(td);
+    const pr=td.pr||[0,0,0],prToday=pr.filter(Boolean).length,prTodayPct=Math.round(100*prToday/3);
+    const sMinToday=Math.round(dayMin(td)),sGoalToday=td.plan||2,sTodayPct=Math.min(100,Math.round(100*sMinToday/(sGoalToday*60)));
+    const curBlk=td.b[hr]||{t:'',c:(hr>=8&&hr<=18)?'work':'rest'};
+    const pt=getPrayTimes(now,S.city||0);
+
+    // SVG حلقه‌های سه‌گانه فعالیت امروز (Apple Watch Activity Rings)
+    const c1=2*Math.PI*42,c2=2*Math.PI*31,c3=2*Math.PI*20;
+    const ringsSvg=`<svg viewBox="0 0 100 100" width="108" height="108" style="flex:none" data-tip="${esc(`امروز (${DN[tdIdx]})\n🔵 کارها: ${fa(tdPct)}٪\n🟢 نمازها: ${fa(prToday)} از ۳\n🟣 مطالعه: ${fa(sMinToday)} دقیقه`)}">
+      <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(37,99,235,0.14)" stroke-width="8"/>
+      <circle cx="50" cy="50" r="31" fill="none" stroke="rgba(22,163,74,0.14)" stroke-width="8"/>
+      <circle cx="50" cy="50" r="20" fill="none" stroke="rgba(14,165,233,0.14)" stroke-width="8"/>
+      <circle cx="50" cy="50" r="42" fill="none" stroke="#2563eb" stroke-width="8" stroke-linecap="round" stroke-dasharray="${(c1*tdPct/100).toFixed(1)} ${c1}" transform="rotate(-90 50 50)"/>
+      <circle cx="50" cy="50" r="31" fill="none" stroke="#16a34a" stroke-width="8" stroke-linecap="round" stroke-dasharray="${(c2*prTodayPct/100).toFixed(1)} ${c2}" transform="rotate(-90 50 50)"/>
+      <circle cx="50" cy="50" r="20" fill="none" stroke="#06b6d4" stroke-width="8" stroke-linecap="round" stroke-dasharray="${(c3*sTodayPct/100).toFixed(1)} ${c3}" transform="rotate(-90 50 50)"/>
+      <text x="50" y="54" text-anchor="middle" font-size="12" font-weight="900" fill="var(--tx)">${fa(Math.round((tdPct+prTodayPct+sTodayPct)/3))}٪</text>
+    </svg>`;
+
+    // ۲. محاسبات و چارت کارت ۲ (نمودار ستونی اکولایزر ۷ روز هفته)
+    const wkPct=weekPct(),goalsDone=w.goals.filter(g=>g.d).length,goalsTot=w.goals.length;
+    const wkBarsSvg=`<svg viewBox="0 0 280 110" width="100%" height="105" style="direction:ltr">
+      <defs><linearGradient id="wkBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#2563eb"/></linearGradient></defs>
+      ${w.days.map((d,i)=>{
+        const p=dayPct(d),h=Math.max(6,p*0.68),x=12+i*38,isT=(i===tdIdx);
+        return `<g style="cursor:pointer" onclick="di=${i};tab='day';render()" data-tip="${esc(`${DN[i]} (${pd(dd(i))})\nپیشرفت کارها: ${fa(p)}٪ (${fa(d.t.filter(t=>t.d).length)}/${fa(d.t.length)})`)}">
+          <rect x="${x}" y="18" width="24" height="68" rx="6" fill="var(--ac2)"/>
+          <rect x="${x}" y="${86-h}" width="24" height="${h}" rx="6" fill="${p===100?'#16a34a':isT?'url(#wkBg)':'#3b82f6'}" opacity="${isT?1:0.75}"/>
+          <text x="${x+12}" y="${82-h}" text-anchor="middle" font-size="8.5" font-weight="700" fill="var(--tx)">${fa(p)}٪</text>
+          <text x="${x+12}" y="102" text-anchor="middle" font-size="9" font-weight="${isT?'800':'500'}" fill="${isT?'var(--ac)':'var(--mu)'}">${DN[i].slice(0,2)}</text>
+        </g>`;
+      }).join('')}
+    </svg>`;
+
+    // ۳. محاسبات و چارت کارت ۳ (نمودار موجی Sparkline روند مطالعه ۷ روز هفته)
+    const wkMins=w.days.map(d=>dayMin(d)),wkStudyHr=+(sm_(wkMins)/60).toFixed(1);
+    const wkPlanHr=w.days.reduce((a,d)=>a+(d.hol?0:(d.plan||0)),0)||10;
+    const wkStudyPct=Math.min(100,Math.round(100*wkStudyHr/wkPlanHr));
+    const mxM=Math.max(60,...wkMins);
+    const sPts=wkMins.map((m,i)=>[18+i*40, 82-(m/mxM)*62]);
+    const sCurve=bezierPath(sPts);
+    const studySparkSvg=`<svg viewBox="0 0 280 105" width="100%" height="100" style="direction:ltr">
+      <defs><linearGradient id="stSpk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#818cf8" stop-opacity="0.45"/><stop offset="100%" stop-color="#818cf8" stop-opacity="0.0"/></linearGradient></defs>
+      <line x1="12" x2="268" y1="45" y2="45" stroke="var(--wn)" stroke-width="1" stroke-dasharray="4,3" opacity="0.7"/>
+      <path d="${sCurve} L258,84 L18,84 Z" fill="url(#stSpk)"/>
+      <path d="${sCurve}" fill="none" stroke="#6366f1" stroke-width="2.8" stroke-linecap="round"/>
+      ${sPts.map((pt,i)=>`<g data-tip="${esc(`مطالعه ${DN[i]}: ${fa(wkMins[i])} دقیقه (${fa(+(wkMins[i]/60).toFixed(1))} ساعت)`)}">
+        <circle cx="${pt[0]}" cy="${pt[1]}" r="${i===tdIdx?4.5:3}" fill="${wkMins[i]>0?'#16a34a':'#6366f1'}" stroke="var(--sf)" stroke-width="1.5"/>
+        <text x="${pt[0]}" y="99" text-anchor="middle" font-size="8.5" fill="var(--mu)">${DN[i].slice(0,2)}</text>
+      </g>`).join('')}
+    </svg>`;
+
+    // ۴. محاسبات و چارت کارت ۴ (دونات عادت‌ها + نوار حرارتی ۱۴ روز اخیر)
+    const H=HD(),lg=H.log[mk]||{},L=H.list||[];
+    let hTotTicks=0,hBestStreak=0,hTodayDone=0;
+    L.forEach(h=>{
+      const arr=lg[h.id]||[];hTotTicks+=arr.length;
+      if(arr.includes(np.d))hTodayDone++;
+      let cur=0,bst=0;for(let d=1;d<=n;d++){if(arr.includes(d)){cur++;if(cur>bst)bst=cur}else cur=0}
+      if(bst>hBestStreak)hBestStreak=bst;
+    });
+    const hMonthPct=L.length?Math.round(100*hTotTicks/(L.length*n)):0;
+    const strip14=Array.from({length:14},(_,k)=>{
+      const dNum=Math.max(1,np.d-13+k);
+      let cnt=0;L.forEach(h=>{if((lg[h.id]||[]).includes(dNum))cnt++});
+      const r=L.length?cnt/L.length:0;
+      const col=r>=0.75?'#16a34a':r>=0.4?'#22c55e':r>0?'#86efac':'var(--ac2)';
+      return `<i style="background:${col}" data-tip="${esc(`${fa(dNum)} ${PM[np.m-1]}: ${fa(cnt)} از ${fa(L.length)} عادت`)}"></i>`;
+    }).join('');
+    const hbDonutSvg=`<svg viewBox="0 0 88 88" width="84" height="84" style="flex:none">
+      <circle cx="44" cy="44" r="35" fill="none" stroke="var(--ac2)" stroke-width="8"/>
+      <circle cx="44" cy="44" r="35" fill="none" stroke="#16a34a" stroke-width="8" stroke-linecap="round" stroke-dasharray="${(2*Math.PI*35*hMonthPct/100).toFixed(1)} 220" transform="rotate(-90 44 44)"/>
+      <text x="44" y="48" text-anchor="middle" font-size="14" font-weight="900" fill="var(--tx)">${fa(hMonthPct)}٪</text>
+    </svg>`;
+
+    // ۵. محاسبات و چارت کارت ۵ (نمودار دونات دو رنگ دخل‌وخرج مالی)
+    const B=BD(),M=mdat(np.y,np.m),mkt=MKT();
+    const totAsset=sm_((B.assets||[]).map(a=>(a.q||0)*(a.p||0)));
+    const unpaidInst=(B.inst||[]).filter(i=>!(i.paid&&i.paid[mk]));
+    const unpaidInstSum=sm_(unpaidInst.map(i=>insAm(i,mk)));
+    const sr=M.I>0?Math.max(0,Math.round(100*(M.I-M.E)/M.I)):0;
+    const expShare=M.I>0?Math.min(100,Math.round(100*M.E/M.I)):(M.E>0?100:0);
+    const hide=localStorage.getItem('wp26_hide_mo')==='1',fMo=v=>hide?'••••••':mo(v);
+    const finC=2*Math.PI*35;
+    const finDonutSvg=`<svg viewBox="0 0 88 88" width="86" height="86" style="flex:none" data-tip="${esc(`درآمد: ${fMo(M.I)} ت\nهزینه: ${fMo(M.E)} ت (${fa(expShare)}٪)\nپس‌انداز: ${fa(sr)}٪`)}">
+      <circle cx="44" cy="44" r="35" fill="none" stroke="#16a34a" stroke-width="8.5" opacity="0.85"/>
+      <circle cx="44" cy="44" r="35" fill="none" stroke="#e11d48" stroke-width="8.5" stroke-linecap="round" stroke-dasharray="${(finC*expShare/100).toFixed(1)} ${finC}" transform="rotate(-90 44 44)"/>
+      <text x="44" y="43" text-anchor="middle" font-size="11" font-weight="800" fill="var(--tx)">${fa(sr)}٪</text>
+      <text x="44" y="55" text-anchor="middle" font-size="8" fill="var(--mu)">پس‌انداز</text>
+    </svg>`;
+
+    // ۶. محاسبات و چارت کارت ۶ (نمودار رادار ۶ضلعی توازن زندگی)
+    const prWeekCnt=w.days.reduce((a,d)=>a+(d.pr?d.pr.filter(Boolean).length:0),0),prWeekPct=Math.round(100*prWeekCnt/21);
+    const slpArr=w.days.filter(d=>d.sleep>0).map(d=>d.sleep),avgSlp=slpArr.length?+(sm_(slpArr)/slpArr.length).toFixed(1):7;
+    const slpScore=Math.min(100,Math.round(avgSlp/8*100));
+    const dim6=[wkPct, wkStudyPct, prWeekPct, slpScore, hMonthPct, Math.min(100,sr*3||60)];
+    const overallScore=Math.round(sm_(dim6)/6);
+    const rPts=vals=>vals.map((v,i)=>{
+      const a=(-Math.PI/2)+(i*Math.PI/3),r=Math.max(6,v*0.36);
+      return `${(48+r*Math.cos(a)).toFixed(1)},${(48+r*Math.sin(a)).toFixed(1)}`;
+    }).join(' ');
+    const radarMiniSvg=`<svg viewBox="0 0 96 96" width="92" height="92" style="flex:none" data-tip="${esc(`رادار توازن زندگی (${fa(overallScore)} از ۱۰۰)\nکارها: ${fa(wkPct)}٪ | مطالعه: ${fa(wkStudyPct)}٪\nنماز: ${fa(prWeekPct)}٪ | عادت‌ها: ${fa(hMonthPct)}٪`)}">
+      <polygon points="${rPts([100,100,100,100,100,100])}" fill="none" stroke="var(--bd2)" stroke-width="1"/>
+      <polygon points="${rPts([50,50,50,50,50,50])}" fill="none" stroke="var(--bd2)" stroke-width="1" stroke-dasharray="2,2"/>
+      <polygon points="${rPts(dim6)}" fill="rgba(37,99,235,0.25)" stroke="var(--ac)" stroke-width="2"/>
+      <text x="48" y="52" text-anchor="middle" font-size="12" font-weight="900" fill="var(--tx)">${fa(overallScore)}</text>
+    </svg>`;
+
+    return `
+    <!-- هدر فرماندهی بالای صفحه اول -->
+    <div class="cd hero-top" style="margin-bottom:16px">
+      <div class="f1" style="min-width:210px">
+        <div class="mu" style="font-weight:600">اتاق فرمان هوشمند · گزارش گرافیکی کل تب‌ها</div>
+        <div class="big-date">${window.exactTodayStr?exactTodayStr(now):pfull(now)}</div>
+      </div>
+      <div class="row" style="gap:10px;flex-wrap:wrap">
+        <div class="mkt-pill" data-a="editMkt" data-k="g18"><span>طلا ۱۸:</span><b style="color:var(--ac)">${fa(mkt.g18)}</b><small class="mu">ت</small></div>
+        <div class="mkt-pill" data-a="editMkt" data-k="usdt"><span>تتر:</span><b style="color:var(--ok)">${fa(mkt.usdt)}</b><small class="mu">ت</small></div>
+        <div class="big-clock" id="liveClock" style="font-size:30px">۰۰:۰۰:۰۰</div>
+      </div>
+    </div>
+
+    <div class="exec-grid">
+
+      <!-- کارت ۱: حلقه‌های فعالیت امروز -->
+      <div class="exec-cd">
+        <div class="exec-hdr">
+          <h3>📋 ۱. امروز من (${DN[tdIdx]})</h3>
+          <button class="p" onclick="di=${tdIdx};tab='day';render()">برنامه امروز ←</button>
+        </div>
+        <div class="ch-split">
+          ${ringsSvg}
+          <div class="f1" style="min-width:150px;font-size:12.5px;line-height:1.8">
+            <div><span style="color:#2563eb">●</span> <b>کارهای امروز:</b> ${fa(tdDone)} از ${fa(tdTot)} (${fa(tdPct)}٪)</div>
+            <div><span style="color:#16a34a">●</span> <b>نمازهای امروز:</b> ${fa(prToday)} از ۳ نوبت</div>
+            <div><span style="color:#06b6d4">●</span> <b>تمرکز امروز:</b> ${fa(sMinToday)} دقیقه · <span class="bdg">${CT[curBlk.c]}</span></div>
+          </div>
+        </div>
+        <div class="row" style="gap:4px;margin:0">
+          ${['صبح ('+pt.sobh+')','ظهر ('+pt.zohr+')','مغرب ('+pt.maghreb+')'].map((nm,i)=>`<button class="pr-btn f1 ${pr[i]?'on':''}" data-a="prTog" data-d="${tdIdx}" data-p="${i}" style="font-size:11px;padding:4px">${nm} ${pr[i]?'✓':''}</button>`).join('')}
+        </div>
+      </div>
+
+      <!-- کارت ۲: نمودار ستونی ۷ روز هفته -->
+      <div class="exec-cd">
+        <div class="exec-hdr">
+          <h3>🗓️ ۲. راندمان ۷ روز هفته و تقویم</h3>
+          <button class="p" onclick="tab='cal';render()">تقویم ماه (${PM[np.m-1]}) ←</button>
+        </div>
+        ${wkBarsSvg}
+        <div class="row sb mu" style="margin:0">
+          <span>🎯 اهداف هفته: <b>${fa(goalsDone)}/${fa(goalsTot)}</b></span>
+          <span>💳 اقساط مانده ماه: <b style="color:var(--er)">${fa(unpaidInst.length)} مورد</b></span>
+        </div>
+      </div>
+
+      <!-- کارت ۳: نمودار موجی روند مطالعه هفته -->
+      <div class="exec-cd">
+        <div class="exec-hdr">
+          <h3>⏱️ ۳. منحنی مطالعه و تمرکز هفته</h3>
+          <div class="row" style="margin:0"><button onclick="tab='st';render()">آمار</button><button class="p" onclick="tab='tm';render()">تایمر ←</button></div>
+        </div>
+        ${studySparkSvg}
+        <div class="row sb mu" style="margin:0">
+          <span>مجموع این هفته: <b style="color:var(--ok)">${fa(wkStudyHr)} ساعت</b> از ${fa(wkPlanHr)}h (${fa(wkStudyPct)}٪)</span>
+          <span>امروز: <b>${fa(sMinToday)} دقیقه</b></span>
+        </div>
+      </div>
+
+      <!-- کارت ۴: دونات عادت‌ها + نوار حرارتی ۱۴ روز اخیر -->
+      <div class="exec-cd">
+        <div class="exec-hdr">
+          <h3>🔁 ۴. عادت‌ها و یادگیری</h3>
+          <div class="row" style="margin:0"><button onclick="tab='lrn';render()">کتاب‌ها</button><button class="p" onclick="tab='hb';render()">عادت‌ها ←</button></div>
+        </div>
+        <div class="ch-split">
+          ${hbDonutSvg}
+          <div class="f1" style="min-width:150px">
+            <div style="font-size:13px"><b>عادت‌های امروز:</b> ${fa(hTodayDone)} از ${fa(L.length)} انجام شده</div>
+            <div class="mu" style="margin:2px 0 6px">🔥 بهترین رکورد ماه: <b>${fa(hBestStreak)} روز متوالی</b></div>
+            <div class="mu" style="font-size:11px">تراکم ۱۴ روز اخیر:</div>
+            <div class="mini-hm">${strip14}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- کارت ۵: دونات تراز مالی و دارایی -->
+      <div class="exec-cd">
+        <div class="exec-hdr">
+          <h3>💰 ۵. نبض مالی و دارایی (${PM[np.m-1]})</h3>
+          <button class="p" onclick="tab='bg';render()">مدیریت مالی ←</button>
+        </div>
+        <div class="ch-split">
+          ${finDonutSvg}
+          <div class="f1" style="min-width:155px;font-size:12.5px;line-height:1.75">
+            <div>🟢 <b>درآمد ماه:</b> <span style="color:var(--ok);font-weight:700">${fMo(M.I)} ت</span></div>
+            <div>🔴 <b>هزینه ماه:</b> <span style="color:var(--er);font-weight:700">${fMo(M.E)} ت</span></div>
+            <div>💎 <b>ارزش دارایی‌ها:</b> <b>${fMo(totAsset)} ت</b></div>
+            ${unpaidInstSum>0?`<div style="font-size:11.5px;color:var(--er)">🏦 اقساط مانده: ${fMo(unpaidInstSum)} ت</div>`:''}
+          </div>
+        </div>
+      </div>
+
+      <!-- کارت ۶: رادار ۶ضلعی توازن زندگی و هوش مصنوعی -->
+      <div class="exec-cd">
+        <div class="exec-hdr">
+          <h3>📊 ۶. رادار توازن و تحلیل عملکرد</h3>
+          <button class="p" onclick="tab='ai';render()">گزارش تحلیلی ←</button>
+        </div>
+        <div class="ch-split">
+          ${radarMiniSvg}
+          <div class="f1" style="min-width:155px;font-size:12.5px;line-height:1.75">
+            <div><b>امتیاز کل توازن:</b> <span style="color:var(--ac);font-weight:800">${fa(overallScore)} از ۱۰۰</span></div>
+            <div>🕌 <b>نمازهای هفته:</b> ${fa(prWeekPct)}٪ (${fa(prWeekCnt)}/۲۱)</div>
+            <div>😴 <b>میانگین خواب:</b> ${fa(avgSlp)} ساعت</div>
+            <div class="mu" style="font-size:11.5px">وضعیت: <b>${overallScore>=75?'عالی و پایدار':'در مسیر رشد'}</b></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- بخش بازشو برای ثبت سریع کار امروز یا ویرایش اولویت‌های هفته -->
+    <details class="cd" style="cursor:pointer">
+      <summary style="font-weight:800;font-size:14px;outline:none">⚡ ثبت سریع کار امروز، اولویت‌های هفته و یادداشت (کلیک کنید)</summary>
+      <div class="g2" style="margin-top:12px">
+        <div>
+          <h2>✅ کارهای امروز (${DN[tdIdx]})</h2>
+          ${td.t.map((x,i)=>`<div class="row"><input type="checkbox" onchange="W().days[${tdIdx}].t[${i}].d=this.checked?1:0;save();render()" ${x.d?'checked':''}><span class="f1 ${x.d?'done':''}">${esc(x.t)}</span></div>`).join('')}
+          <div class="row"><input type="text" id="ovQuickT" placeholder="کار جدید برای امروز..."><button class="p" onclick="const v=$('ovQuickT').value.trim();if(v){W().days[${tdIdx}].t.push({t:v,d:0,p:0});save();render()}">افزودن</button></div>
+        </div>
+        <div>
+          <h2>🎯 ۳ اولویت اصلی هفته</h2>
+          ${w.pri.map((x,i)=>`<div class="row"><b class="mu">${fa(i+1)}</b><input type="text" data-f="pri" data-i="${i}" value="${esc(x)}" placeholder="اولویت کلیدی هفته..."></div>`).join('')}
+        </div>
+      </div>
+    </details>`;
+  }
+
+  window.vOv=renderGraphicalOverview;
+  const prevR=window.render;
+  window.render=function(){
+    prevR();
+    if(tab==='ov'){
+      $('main').innerHTML=renderGraphicalOverview();
+    }
+  };
+
+  render();
+})();
+</script>
 </body>
 <meta name="theme-color" content="#141824">
 <meta name="apple-mobile-web-app-capable" content="yes">
