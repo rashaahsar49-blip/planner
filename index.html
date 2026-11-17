@@ -4781,6 +4781,242 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
   render();
 })();
 </script>
+<!-- ==================== داشبورد جامع یک‌نگاه در صفحه اول (خلاصه زنده تمام تب‌ها در یک صفحه) ==================== -->
+<style>
+.exec-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:14px}
+@media(max-width:740px){.exec-grid{grid-template-columns:1fr}}
+.exec-cd{background:var(--sf);border:1px solid var(--bd);border-radius:22px;padding:18px;box-shadow:var(--sh);display:flex;flex-direction:column;justify-content:space-between;gap:12px;transition:transform .16s ease,border-color .16s ease}
+.exec-cd:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--ac) 40%,var(--bd))}
+.exec-hdr{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--bd2);padding-bottom:10px}
+.exec-hdr h3{margin:0;font-size:15px;font-weight:800;display:flex;align-items:center;gap:8px;color:var(--tx)}
+.exec-hdr button{font-size:11.5px;padding:4px 10px;border-radius:9px}
+.exec-stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.exec-stat-box{background:var(--sf2);border:1px solid var(--bd2);border-radius:13px;padding:8px 6px}
+.exec-stat-box b{display:block;font-size:16.5px;font-weight:800;font-variant-numeric:tabular-nums}
+.exec-stat-box small{font-size:10.5px;color:var(--mu)}
+</style>
+
+<script>
+(function(){
+  function renderExecutiveOverview(){
+    const w=W(),tdIdx=(new Date().getDay()+1)%7,td=w.days[tdIdx],now=new Date(),hr=now.getHours();
+    const np=pp(now),mk=np.y+'-'+np.m,n=ML(np.y,np.m);
+
+    // ۱. داده‌های تب برنامه روزانه (امروز)
+    const tdDone=td.t.filter(x=>x.d).length,tdTot=td.t.length,tdPct=dayPct(td);
+    const curBlk=td.b[hr]||{t:'',c:(hr>=8&&hr<=18)?'work':'rest'};
+    const pr=td.pr||[0,0,0],prToday=pr.filter(Boolean).length;
+    const pt=getPrayTimes(now,S.city||0);
+
+    // ۲. داده‌های تب هفته و تقویم ماه
+    const wkPct=weekPct(),goalsDone=w.goals.filter(g=>g.d).length,goalsTot=w.goals.length;
+    const cds=S.cds||[],upcomingEv=cds.filter(c=>Math.round((new Date(c.dt)-now)/864e5)>=-1)[0];
+
+    // ۳. داده‌های تب تایمر و آمار مطالعه
+    const sMinToday=Math.round(dayMin(td)),sGoalToday=td.plan||2;
+    const wkStudyMin=w.days.reduce((a,d)=>a+dayMin(d),0),wkStudyHr=+(wkStudyMin/60).toFixed(1);
+    const wkPlanHr=w.days.reduce((a,d)=>a+(d.hol?0:(d.plan||0)),0)||10;
+    const wkStudyPct=Math.min(100,Math.round(100*wkStudyHr/wkPlanHr));
+
+    // ۴. داده‌های تب عادت‌ها و یادگیری (کتاب و دوره)
+    const H=HD(),lg=H.log[mk]||{},L=H.list||[];
+    let hTotTicks=0,hBestStreak=0,hTodayDone=0;
+    L.forEach(h=>{
+      const arr=lg[h.id]||[];hTotTicks+=arr.length;
+      if(arr.includes(np.d))hTodayDone++;
+      let cur=0,bst=0;for(let d=1;d<=n;d++){if(arr.includes(d)){cur++;if(cur>bst)bst=cur}else cur=0}
+      if(bst>hBestStreak)hBestStreak=bst;
+    });
+    const hMonthPct=L.length?Math.round(100*hTotTicks/(L.length*n)):0;
+    const lrnList=S.lrn||[];
+    const lrnAvg=lrnList.length?Math.round(sm_(lrnList.map(x=>100*(x.cur||0)/Math.max(1,x.tot||100)))/lrnList.length):0;
+
+    // ۵. داده‌های تب مالی و دارایی
+    const B=BD(),M=mdat(np.y,np.m),mkt=MKT();
+    const totAsset=sm_((B.assets||[]).map(a=>(a.q||0)*(a.p||0)));
+    const unpaidInst=(B.inst||[]).filter(i=>!(i.paid&&i.paid[mk]));
+    const unpaidInstSum=sm_(unpaidInst.map(i=>insAm(i,mk)));
+    const sr=M.I>0?Math.round(100*(M.I-M.E)/M.I):0;
+    const hide=localStorage.getItem('wp26_hide_mo')==='1',fMo=v=>hide?'••••••':mo(v);
+
+    // ۶. داده‌های تب تحلیل عملکرد
+    const prWeekCnt=w.days.reduce((a,d)=>a+(d.pr?d.pr.filter(Boolean).length:0),0),prWeekPct=Math.round(100*prWeekCnt/21);
+    const slpArr=w.days.filter(d=>d.sleep>0).map(d=>d.sleep),avgSlp=slpArr.length?+(sm_(slpArr)/slpArr.length).toFixed(1):0;
+    const overallScore=Math.round((wkPct+wkStudyPct+prWeekPct+hMonthPct)/4);
+
+    return `
+    <!-- هدر فرماندهی بالای صفحه اول -->
+    <div class="cd hero-top" style="margin-bottom:14px">
+      <div class="f1" style="min-width:210px">
+        <div class="mu" style="font-weight:600">داشبورد جامع یک‌نگاه · امروز</div>
+        <div class="big-date">${window.exactTodayStr?exactTodayStr(now):pfull(now)}</div>
+      </div>
+      <div class="row" style="gap:10px;flex-wrap:wrap">
+        <div class="mkt-pill" data-a="editMkt" data-k="g18"><span>طلا ۱۸:</span><b style="color:var(--ac)">${fa(mkt.g18)}</b><small class="mu">ت</small></div>
+        <div class="mkt-pill" data-a="editMkt" data-k="usdt"><span>تتر:</span><b style="color:var(--ok)">${fa(mkt.usdt)}</b><small class="mu">ت</small></div>
+        <div class="big-clock" id="liveClock" style="font-size:30px">۰۰:۰۰:۰۰</div>
+      </div>
+    </div>
+
+    <!-- شبکه ۶ کارت خلاصه از تمام تب‌های برنامه -->
+    <div class="exec-grid">
+
+      <!-- کارت ۱: خلاصه تب «برنامه روزانه (امروز)» -->
+      <div class="exec-cd">
+        <div>
+          <div class="exec-hdr">
+            <h3>📋 ۱. امروز من (${DN[tdIdx]})</h3>
+            <button class="p" onclick="di=${tdIdx};tab='day';render()">ورود به برنامه امروز ←</button>
+          </div>
+          <div class="exec-stat-row" style="margin:12px 0">
+            <div class="exec-stat-box"><b>${fa(tdDone)}/${fa(tdTot)}</b><small>کارهای امروز (${fa(tdPct)}٪)</small></div>
+            <div class="exec-stat-box"><b style="color:var(--ac)">${CT[curBlk.c]}</b><small>ساعت جاری (${fa(hr)}:۰۰)</small></div>
+            <div class="exec-stat-box"><b style="color:var(--ok)">${fa(prToday)}/۳</b><small>نمازهای امروز</small></div>
+          </div>
+          <div class="row" style="gap:4px;margin-bottom:8px">
+            ${['صبح ('+pt.sobh+')','ظهر ('+pt.zohr+')','مغرب ('+pt.maghreb+')'].map((nm,i)=>`<button class="pr-btn f1 ${pr[i]?'on':''}" data-a="prTog" data-d="${tdIdx}" data-p="${i}" style="font-size:11px;padding:4px">${nm} ${pr[i]?'✓':''}</button>`).join('')}
+          </div>
+          <div style="font-size:12.5px">
+            ${td.t.slice(0,3).map((x,i)=>`<div class="row" style="margin-bottom:4px"><input type="checkbox" onchange="W().days[${tdIdx}].t[${i}].d=this.checked?1:0;save();render()" ${x.d?'checked':''}><span class="f1 ${x.d?'done':''}">${x.p?'🔥 ':''}${esc(x.t)}</span></div>`).join('')||'<div class="mu">کاری برای امروز ثبت نشده است.</div>'}
+          </div>
+        </div>
+        <div class="row" style="margin:0"><input type="text" id="ovQuickT" placeholder="افزودن سریع کار برای امروز..." onkeydown="if(event.key==='Enter'){const v=this.value.trim();if(v){W().days[${tdIdx}].t.push({t:v,d:0,p:0});save();render()}}"><button onclick="const v=$('ovQuickT').value.trim();if(v){W().days[${tdIdx}].t.push({t:v,d:0,p:0});save();render()}">+ ثبت</button></div>
+      </div>
+
+      <!-- کارت ۲: خلاصه تب «هفته و تقویم ماهانه» -->
+      <div class="exec-cd">
+        <div>
+          <div class="exec-hdr">
+            <h3>🗓️ ۲. نمای هفته و تقویم ماه</h3>
+            <button onclick="tab='cal';render()">تقویم ماهانه ←</button>
+          </div>
+          <div class="exec-stat-row" style="margin:12px 0">
+            <div class="exec-stat-box"><b>${fa(wkPct)}٪</b><small>پیشرفت کل هفته</small></div>
+            <div class="exec-stat-box"><b>${fa(goalsDone)}/${fa(goalsTot)}</b><small>اهداف هفته</small></div>
+            <div class="exec-stat-box"><b style="color:var(--wn)">${fa(unpaidInst.length)} مورد</b><small>قسط مانده ماه</small></div>
+          </div>
+          <div style="margin-bottom:8px">
+            <div class="mu" style="margin-bottom:4px">اولویت‌های اصلی این هفته:</div>
+            ${w.pri.filter(Boolean).length?w.pri.filter(Boolean).map((p,i)=>`<div style="font-size:12.5px"><b>${fa(i+1)}.</b> ${esc(p)}</div>`).join(''):'<div class="mu">اولویتی برای این هفته نوشته نشده است.</div>'}
+          </div>
+        </div>
+        <div class="bdg" style="padding:7px 10px;display:block;text-align:center">
+          ${upcomingEv?`⏳ رویداد پیش‌رو: <b>${esc(upcomingEv.t)}</b>`:`📅 امروز: ${fa(np.d)} ${PM[np.m-1]} (${fa(n-np.d)} روز تا پایان ماه)`}
+        </div>
+      </div>
+
+      <!-- کارت ۳: خلاصه تب «تایمر تمرکز و آمار مطالعه» -->
+      <div class="exec-cd">
+        <div>
+          <div class="exec-hdr">
+            <h3>⏱️ ۳. تمرکز و آمار مطالعه</h3>
+            <div class="row" style="margin:0"><button onclick="tab='st';render()">آمار مطالعه</button><button class="p" onclick="tab='tm';render()">تایمر ←</button></div>
+          </div>
+          <div class="exec-stat-row" style="margin:12px 0">
+            <div class="exec-stat-box"><b style="color:var(--ok)">${fa(sMinToday)} د</b><small>مطالعه امروز (هدف: ${fa(sGoalToday)}h)</small></div>
+            <div class="exec-stat-box"><b>${fa(wkStudyHr)}h</b><small>جمع مطالعه هفته</small></div>
+            <div class="exec-stat-box"><b>${fa(wkStudyPct)}٪</b><small>تحقق هدف هفته</small></div>
+          </div>
+          ${bar(wkStudyPct)}
+        </div>
+        <div class="mu" style="display:flex;justify-content:space-between;align-items:center">
+          <span>آخرین پارت: <b>${esc(td.ses[td.ses.length-1]?.s||'ثبت نشده')}</b></span>
+          <span>هدف هفته: ${fa(wkPlanHr)} ساعت</span>
+        </div>
+      </div>
+
+      <!-- کارت ۴: خلاصه تب «عادت‌ها و یادگیری (کتاب/دوره)» -->
+      <div class="exec-cd">
+        <div>
+          <div class="exec-hdr">
+            <h3>🔁 ۴. عادت‌ها و یادگیری</h3>
+            <div class="row" style="margin:0"><button onclick="tab='lrn';render()">کتاب و دوره</button><button class="p" onclick="tab='hb';render()">جدول عادت‌ها ←</button></div>
+          </div>
+          <div class="exec-stat-row" style="margin:12px 0">
+            <div class="exec-stat-box"><b style="color:var(--ok)">${fa(hMonthPct)}٪</b><small>استمرار عادت ماه</small></div>
+            <div class="exec-stat-box"><b>${fa(hTodayDone)}/${fa(L.length)}</b><small>عادت انجام‌شده امروز</small></div>
+            <div class="exec-stat-box"><b style="color:var(--wn)">🔥 ${fa(hBestStreak)}</b><small>بهترین رکورد ماه</small></div>
+          </div>
+          ${bar(hMonthPct)}
+        </div>
+        <div class="mu" style="display:flex;justify-content:space-between;align-items:center">
+          <span>📚 پیشرفت کتاب‌ها و دوره‌ها: <b>${fa(lrnAvg)}٪</b></span>
+          <span>${fa(hTotTicks)} تیک در ${PM[np.m-1]}</span>
+        </div>
+      </div>
+
+      <!-- کارت ۵: خلاصه تب «مالی، بودجه و دارایی» -->
+      <div class="exec-cd">
+        <div>
+          <div class="exec-hdr">
+            <h3>💰 ۵. وضعیت مالی و دارایی (${PM[np.m-1]})</h3>
+            <button class="p" onclick="tab='bg';render()">مدیریت مالی ←</button>
+          </div>
+          <div class="exec-stat-row" style="margin:12px 0">
+            <div class="exec-stat-box"><b style="color:var(--ok)">${fMo(M.I)}</b><small>درآمد ماه (تومان)</small></div>
+            <div class="exec-stat-box"><b style="color:var(--er)">${fMo(M.E)}</b><small>هزینه ماه (تومان)</small></div>
+            <div class="exec-stat-box"><b style="color:${M.I-M.E>=0?'var(--ok)':'var(--er)'}">${fMo(M.I-M.E)}</b><small>تراز ماه (${fa(sr)}٪ پس‌انداز)</small></div>
+          </div>
+        </div>
+        <div class="row sb" style="margin:0;padding:8px 11px;background:var(--sf2);border-radius:12px;font-size:12px">
+          <span>💎 ارزش سبد دارایی: <b style="color:var(--ok)">${fMo(totAsset)} ت</b></span>
+          <span>🏦 اقساط مانده ماه: <b style="color:var(--er)">${fMo(unpaidInstSum)} ت</b></span>
+        </div>
+      </div>
+
+      <!-- کارت ۶: خلاصه تب «تحلیل هوشمند عملکرد» -->
+      <div class="exec-cd">
+        <div>
+          <div class="exec-hdr">
+            <h3>📊 ۶. تحلیل عملکرد و هوش مصنوعی</h3>
+            <button class="p" onclick="tab='ai';render()">گزارش تحلیلی کامل ←</button>
+          </div>
+          <div class="exec-stat-row" style="margin:12px 0">
+            <div class="exec-stat-box"><b style="color:var(--ac)">${fa(overallScore)}/۱۰۰</b><small>امتیاز کل عملکرد</small></div>
+            <div class="exec-stat-box"><b>${fa(prWeekPct)}٪</b><small>نمازهای هفته (${fa(prWeekCnt)}/۲۱)</small></div>
+            <div class="exec-stat-box"><b>${avgSlp?fa(avgSlp)+'h':'—'}</b><small>میانگین خواب هفته</small></div>
+          </div>
+          ${bar(overallScore)}
+        </div>
+        <div class="mu">💡 وضعیت کلی: <b>${overallScore>=75?'عالی و رو به رشد':overallScore>=50?'متعادل (نیازمند ثبات بیشتر)':'نیازمند تمرکز روی ۳ اولویت اصلی'}</b></div>
+      </div>
+
+    </div>
+
+    <!-- بخش تاشو (جمع‌شده در پایین صفحه اول) برای ویرایش اهداف هفته، اولویت‌ها و یادداشت هفته -->
+    <details class="cd" style="cursor:pointer">
+      <summary style="font-weight:800;font-size:14.5px;outline:none">⚙️ ویرایش اولویت‌های هفته، اهداف هفته، روزشمار و یادداشت هفته (کلیک کنید)</summary>
+      <div class="g2" style="margin-top:14px">
+        <div>
+          <h2>🎯 اولویت‌های اصلی هفته</h2>
+          ${w.pri.map((x,i)=>`<div class="row"><b class="mu" style="width:16px">${fa(i+1)}</b><input type="text" data-f="pri" data-i="${i}" value="${esc(x)}" placeholder="اولویت کلیدی هفته..."></div>`).join('')}
+        </div>
+        <div>
+          <h2>🏁 اهداف این هفته</h2>
+          ${w.goals.map((g,i)=>`<div class="row"><input type="checkbox" data-a="gd" data-i="${i}" ${g.d?'checked':''}><span class="f1 ${g.d?'done':''}">${esc(g.t)}</span><button class="x" data-a="gx" data-i="${i}">✕</button></div>`).join('')}
+          <div class="row"><input type="text" id="gn" placeholder="هدف جدید..."><button class="p" data-a="ga">ثبت</button></div>
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <h2>📝 یادداشت هفته</h2>
+        <textarea data-f="wn" placeholder="نکات مهم این هفته...">${esc(w.notes)}</textarea>
+      </div>
+    </details>`;
+  }
+
+  // جایگزینی صفحه اول (ov) با داشبورد جامع ۶ کارتی
+  window.vOv=renderExecutiveOverview;
+  const prevR=window.render;
+  window.render=function(){
+    prevR();
+    if(tab==='ov'){
+      $('main').innerHTML=renderExecutiveOverview();
+    }
+  };
+
+  render();
+})();
+</script>
 </body>
 <meta name="theme-color" content="#141824">
 <meta name="apple-mobile-web-app-capable" content="yes">
