@@ -455,6 +455,73 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
 .ch-split{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .mini-hm{display:grid;grid-template-columns:repeat(14,1fr);gap:3px;width:100%;margin-top:6px}
 .mini-hm i{height:12px;border-radius:3px;background:var(--ac2);display:block}
+body[data-sec="cal"] #pv,body[data-sec="cal"] #wl,body[data-sec="cal"] #nx,body[data-sec="cal"] #td,
+body[data-sec="hb"] #pv,body[data-sec="hb"] #wl,body[data-sec="hb"] #nx,body[data-sec="hb"] #td,
+body[data-sec="bg"] #pv,body[data-sec="bg"] #wl,body[data-sec="bg"] #nx,body[data-sec="bg"] #td,
+body[data-sec="lrn"] #pv,body[data-sec="lrn"] #wl,body[data-sec="lrn"] #nx,body[data-sec="lrn"] #td{display:none!important}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--tx) 18%,transparent);border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:color-mix(in srgb,var(--ac) 55%,transparent)}
+*{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--tx) 18%,transparent) transparent}
+@keyframes tabFadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+#main > *{animation:tabFadeIn .22s ease-out}
+@media(max-width:640px){
+  nav#nav{position:static!important;margin-bottom:12px!important}
+  header{margin-bottom:10px!important}
+  .cd{padding:14px!important;border-radius:18px!important}
+  .exec-cd{padding:15px!important;border-radius:20px!important}
+}
+.pal-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:4px}
+.pal-grid button{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:11px;background:var(--sf2);border:1px solid var(--bd2);font-size:12.5px}
+.pal-grid button.on{border-color:var(--ac);background:var(--ac2);font-weight:700}
+.pal-grid button i{width:16px;height:16px;border-radius:50%;display:inline-block;flex:none}
+:root[data-palette="emerald"]{--ac:#059669!important;--ac2:rgba(5,150,105,0.10)!important;--bd2:rgba(5,150,105,0.13)!important;--bg:#e6f4ef!important}
+:root[data-theme="dark"][data-palette="emerald"]{--ac:#34d399!important;--ac2:rgba(52,211,153,0.12)!important;--bd2:rgba(52,211,153,0.16)!important;--bg:#06130f!important}
+:root[data-palette="emerald"] button.p,:root[data-palette="emerald"] nav button.on,:root[data-palette="emerald"] .days button.on,:root[data-palette="emerald"] #agFab{background:linear-gradient(135deg,#047857 0%,#059669 55%,#0d9488 100%)!important;box-shadow:0 8px 20px -4px rgba(5,150,105,0.4)!important}
+:root[data-palette="emerald"] .brand-mark,:root[data-palette="emerald"] .bar i,:root[data-palette="emerald"] .cd h2::before{background:linear-gradient(135deg,#059669,#14b8a6)!important}
+:root[data-palette="violet"]{--ac:#7c3aed!important;--ac2:rgba(124,58,237,0.10)!important;--bd2:rgba(124,58,237,0.13)!important;--bg:#f0eaf8!important}
+:root[data-theme="dark"][data-palette="violet"]{--ac:#a78bfa!important;--ac2:rgba(167,139,250,0.13)!important;--bd2:rgba(167,139,250,0.17)!important;--bg:#0d0919!important}
+:root[data-palette="violet"] button.p,:root[data-palette="violet"] nav button.on,:root[data-palette="violet"] .days button.on,:root[data-palette="violet"] #agFab{background:linear-gradient(135deg,#6d28d9 0%,#7c3aed 55%,#db2777 100%)!important;box-shadow:0 8px 20px -4px rgba(124,58,237,0.42)!important}
+:root[data-palette="violet"] .brand-mark,:root[data-palette="violet"] .bar i,:root[data-palette="violet"] .cd h2::before{background:linear-gradient(135deg,#7c3aed,#ec4899)!important}
+:root[data-palette="slate"]{--ac:#334155!important;--ac2:rgba(51,65,85,0.09)!important;--bd2:rgba(51,65,85,0.12)!important;--bg:#eaedf1!important}
+:root[data-theme="dark"][data-palette="slate"]{--ac:#cbd5e1!important;--act:#0f172a!important;--ac2:rgba(203,213,225,0.11)!important;--bd2:rgba(203,213,225,0.15)!important;--bg:#0b0e14!important}
+:root[data-palette="slate"] button.p,:root[data-palette="slate"] nav button.on,:root[data-palette="slate"] .days button.on,:root[data-palette="slate"] #agFab{background:linear-gradient(135deg,#1e293b 0%,#334155 55%,#475569 100%)!important;color:#fff!important;box-shadow:0 8px 18px -4px rgba(15,23,42,0.35)!important}
+:root[data-palette="slate"] .brand-mark,:root[data-palette="slate"] .bar i,:root[data-palette="slate"] .cd h2::before{background:linear-gradient(135deg,#334155,#64748b)!important}
+.drag-row{transition:transform .12s,background .12s,border-color .12s;border-radius:10px;padding:3px 4px;border:1px solid transparent}
+.drag-row.dragging{opacity:.42;background:var(--ac2)}
+.drag-row.drag-over{border-top:2.5px solid var(--ac)!important;background:color-mix(in srgb,var(--ac) 8%,transparent)}
+.drag-hdl{cursor:grab;color:var(--mu);font-size:13px;padding:0 4px;user-select:none;opacity:.65;flex:none}
+.drag-hdl:hover{opacity:1;color:var(--ac)}
+.drag-hdl:active{cursor:grabbing}
+.snap-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+@page{size:A4 portrait;margin:12mm}
+@media print{
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#000!important;box-shadow:none!important;text-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  body{background:#fff!important;background-image:none!important;font-size:11.5pt!important;line-height:1.5!important}
+  .w{display:block!important;max-width:100%!important;width:100%!important;padding:0!important;margin:0!important}
+  header{border:0!important;border-bottom:2px solid #000!important;border-radius:0!important;padding:0 0 8px!important;margin-bottom:12px!important;background:transparent!important}
+  header .wk,nav,#mobNav,#agFab,#toastBar,.bg-shapes,#svgTip,.mdl-bg,.cd-tools,.mic-btn,.x,button,.ai-nav,.drag-hdl,.snap-bar{display:none!important}
+  .cd,.exec-cd,.td-kpi,.cmp-card,.rx-box,.hb-hero-cd,.hb-item-cd,.acc-card,.nw-banner{background:#fff!important;border:1px solid #333!important;border-radius:8px!important;padding:10px 12px!important;margin-bottom:10px!important;break-inside:avoid!important;page-break-inside:avoid!important}
+  .g2,.exec-grid,.td-dash{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important}
+  input,select,textarea{background:#fff!important;border:1px solid #888!important;color:#000!important;padding:3px 6px!important}
+  .bar{border:1px solid #000!important;background:#fff!important;height:8px!important}
+  .bar i{background:#222!important}
+  .bdg,.tag-pill,.k-dl,.delta{background:#fff!important;border:1px solid #444!important;color:#000!important}
+  .brand-mark,.cd h2::before{background:#000!important}
+  svg rect,svg path,svg circle,svg polygon{filter:grayscale(100%)!important}
+}
+.nw-sw{display:inline-flex;gap:4px;background:rgba(0,0,0,.22);padding:3px;border-radius:10px;margin-top:6px}
+.nw-sw button{background:transparent;color:rgba(255,255,255,.82);padding:3px 9px;font-size:11.5px;border-radius:8px;min-height:auto}
+.nw-sw button.on{background:#fff;color:#0f172a;font-weight:700}
+.rec-pill{display:inline-flex;align-items:center;gap:3px;background:var(--sf2);border:1px solid var(--bd2);border-radius:11px;padding:2px 4px}
+.rec-pill button{padding:3px 7px;background:transparent;font-size:12px}
+.rec-pill button:hover{background:var(--ac2)}
+.alloc-wrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap;justify-content:center}
+.alloc-leg{flex:1;min-width:200px;display:flex;flex-direction:column;gap:7px}
+.alloc-row{display:flex;align-items:center;gap:8px;font-size:12.5px}
+.alloc-dot{width:11px;height:11px;border-radius:4px;flex:none}
+.calc-res{background:var(--sf2);border:1px solid var(--bd2);border-radius:14px;padding:12px 14px;margin-top:10px;font-size:13px;line-height:1.8}
 </style>
 </head>
 <body>
@@ -632,6 +699,14 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
       <button class="f1" onclick="setFontScale('16px')">بزرگ</button>
     </div>
     <hr style="border:0;border-top:1px solid var(--bd2);margin:10px 0">
+    <div class="mu" style="margin-bottom:6px">پالت رنگی (Theme Preset):</div>
+    <div class="pal-grid" id="palGrid">
+      <button type="button" data-pal="sapphire" onclick="setPalette('sapphire')"><i style="background:linear-gradient(135deg,#2563eb,#06b6d4)"></i>آبی یاقوتی</button>
+      <button type="button" data-pal="emerald" onclick="setPalette('emerald')"><i style="background:linear-gradient(135deg,#059669,#14b8a6)"></i>سبز زمردی</button>
+      <button type="button" data-pal="violet" onclick="setPalette('violet')"><i style="background:linear-gradient(135deg,#7c3aed,#ec4899)"></i>بنفش نئونی</button>
+      <button type="button" data-pal="slate" onclick="setPalette('slate')"><i style="background:linear-gradient(135deg,#334155,#64748b)"></i>خاکستری مینیمال</button>
+    </div>
+    <hr style="border:0;border-top:1px solid var(--bd2);margin:10px 0">
     <div class="mu" style="margin-bottom:6px">میانبرهای سریع کیبورد (در دسکتاپ):</div>
     <div style="font-size:13px;line-height:1.9">
       <div class="row sb"><span>پالت فرمان و جستجوی سراسری</span><span class="bdg">Ctrl + K</span></div>
@@ -640,6 +715,19 @@ svg [data-tip]:hover, .yh-cell[data-tip]:hover{opacity:.82}
       <div class="row sb"><span>باز کردن دستیار هوشمند</span><span class="bdg">Alt + A</span></div>
       <div class="row sb"><span>نمایش همین راهنما</span><span class="bdg">?</span></div>
     </div>
+  </div>
+</div>
+<div class="mdl-bg" id="txEditMdl">
+  <div class="cd mdl" style="background:var(--sf)">
+    <div class="row sb"><h2 style="margin:0">✎ ویرایش تراکنش</h2><button class="x" onclick="$('txEditMdl').classList.remove('on')">✕</button></div>
+    <input type="hidden" id="edTxId">
+    <div class="row"><label class="mu" style="width:72px">روز ماه:</label><input type="number" id="edTxDay" min="1" max="31"></div>
+    <div class="row"><label class="mu" style="width:72px">حساب:</label><select id="edTxAcc"></select></div>
+    <div class="row"><label class="mu" style="width:72px">سرفصل:</label><select id="edTxCat"></select></div>
+    <div class="row"><label class="mu" style="width:72px">مبلغ (ت):</label><input type="number" id="edTxAm" min="1" oninput="$('edTxWords').textContent=numWords(this.value)"></div>
+    <div id="edTxWords" class="mu" style="margin:-3px 0 6px;font-weight:600"></div>
+    <div class="row"><label class="mu" style="width:72px">توضیح:</label><input type="text" id="edTxNote" placeholder="توضیحات و #تگ..."></div>
+    <div class="row" style="margin-top:10px;margin-bottom:0"><button class="p f1" id="edTxSaveBtn">ذخیره تغییرات</button></div>
   </div>
 </div>
 <canvas id="cnfCanvas" style="position:fixed;inset:0;pointer-events:none;z-index:99;display:none"></canvas>
@@ -747,6 +835,7 @@ const save=()=>{try{localStorage.setItem('wp26',JSON.stringify(S))}catch(e){};sc
 const sat=d=>{d=new Date(d);d.setHours(12,0,0,0);d.setDate(d.getDate()-((d.getDay()+1)%7));return d};
 let ws=sat(new Date),tab='ov',di=((new Date().getDay()+1)%7);
 const key=()=>ws.toISOString().slice(0,10);
+window.notifyMsg=function(m){if(window.showToast)showToast(String(m||''));else alert(m)};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 // ==================== ماژول امنیتی: SHA-256 (آفلاین) + رمزنگاری AES-256-GCM + ایزوله‌سازی کلید API ====================
 function sha256Hex(str){
@@ -955,7 +1044,7 @@ function parseBankSms(){
   const txt=toEnDigits(raw),isInc=/(واریز|افزایش|بستانکار|نشست)/.test(txt)&&!/(برداشت|خرید|کاهش|بدهکار)/.test(txt);let am=0,isR=true;
   const m=txt.match(/(?:مبلغ|برداشت|واریز|خرید|افزایش|کاهش)\s*[:\-]?\s*([\d,]+)\s*(ریال|تومان|تومن)?/)||txt.match(/([\d,]{4,})\s*(ریال|تومان|تومن)/)||txt.match(/([\d,]{5,})/);
   if(m){am=parseInt(m[1].replace(/,/g,''),10)||0;if(m[2]&&(m[2].includes('تومان')||m[2].includes('تومن')))isR=false;if(isR&&am>=1000)am=Math.round(am/10)}
-  if(am>0){const bam=$('bam'),bcat=$('bcat'),bnt=$('bnt'),w=$('bamWords');if(bam)bam.value=am;if(w)w.textContent=numWords(am);if(bcat)bcat.value=isInc?'sal':'sup';if(bnt)bnt.value=(raw.trim().split(/\n+/)[0]||'پیامک بانکی').slice(0,45)}else alert('مبلغی در پیامک پیدا نشد.');
+  if(am>0){const bam=$('bam'),bcat=$('bcat'),bnt=$('bnt'),w=$('bamWords');if(bam)bam.value=am;if(w)w.textContent=numWords(am);if(bcat)bcat.value=isInc?'sal':'sup';if(bnt)bnt.value=(raw.trim().split(/\n+/)[0]||'پیامک بانکی').slice(0,45)}else notifyMsg('مبلغی در پیامک پیدا نشد.');
 }
 document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b||b.dataset.a[0]!='b')return;const a=b.dataset.a,B=BD(),k=hs.y+'-'+hs.m;
 if(a=='ba'){const am=+$('bam').value,d=Math.min(ML(hs.y,hs.m),Math.max(1,+$('bdy').value||1));if(!(am>0))return;(B.tx[k]=B.tx[k]||[]).push({id:'t'+Date.now(),d,c:$('bcat').value,a:am,n:$('bnt').value.trim()})}
@@ -976,8 +1065,8 @@ else if(f=='asq'){const as=B.assets.find(x=>x.id==t.dataset.id);if(as){as.q=Math
 else if(f=='asp'){const as=B.assets.find(x=>x.id==t.dataset.id);if(as){as.p=Math.max(0,+t.value||0);if(as.id==='g18')MKT().g18=as.p;if(as.id==='usdt')MKT().usdt=as.p;save()}}});
 document.addEventListener('change',e=>{const f=e.target.dataset.f;if(f=='bl'||f=='bg'||f=='asq'||f=='asp'||f=='insam')rr()});
 const GR_RAW=[
-['food','خوراک و روزمره','#f59e0b','ex','sup:سوپرمارکت|rest:رستوران|cafe:کافه|snk:میوه و تنقلات|fdo:سفارش آنلاین|food:سایر خوراک'],
-['trans','حمل‌ونقل','#3b82f6','ex','taxi:تاکسی و اسنپ|bus:مترو و اتوبوس|fuel:بنزین|park:پارکینگ|csv:تعمیر خودرو|trans:سایر رفت‌وآمد'],
+['food','خوراک و روزمره','#f59e0b','ex','sup:سوپرمارکت|brd:نان|frt:میوه و سبزیجات|snk:تنقلات|rest:رستوران|cafe:کافه|fdo:سفارش آنلاین|food:سایر خوراک'],
+['trans','حمل‌ونقل','#3b82f6','ex','taxi:اسنپ و تپسی|bus:مترو و اتوبوس|fuel:بنزین|park:پارکینگ|csv:تعمیر خودرو|trans:سایر رفت‌وآمد'],
 ['bill','مسکن و قبوض','#6366f1','ex','rent:اجاره/قسط مسکن|elec:برق|wtr:آب|gas:گاز|chg:شارژ ساختمان|bill:سایر قبوض'],
 ['net','دیجیتال و اشتراک','#0d9488','ex','inet:اینترنت خانگی|mob:شارژ و بسته|sub:اشتراک‌ها|ai:ابزار هوش مصنوعی|net:سایر دیجیتال'],
 ['shop','خرید شخصی','#ec4899','ex','clo:پوشاک|dev:الکترونیک|hm:لوازم منزل|cos:بهداشتی|gft:هدیه|shop:سایر خرید'],
@@ -1113,7 +1202,7 @@ else if(a=='editMkt'){
 }
 else if(a=='nxQuote')qIdx=(qIdx+1)%QUOTES.length;
 else if(a=='prTog'){const dI=+b.dataset.d,pI=+b.dataset.p;w.days[dI].pr=w.days[dI].pr||[0,0,0];w.days[dI].pr[pI]=w.days[dI].pr[pI]?0:1}
-else if(a=='cpPrevWk'){const pk=new Date(ws.getTime()-7*864e5).toISOString().slice(0,10);if(S[pk]&&S[pk].days){w.days.forEach((day,idx)=>{day.b=JSON.parse(JSON.stringify(S[pk].days[idx].b||{}))});alert('برنامه ساعتی از هفته قبل کپی شد.')}else alert('هفته قبل برنامه‌ای نداشت.')}
+else if(a=='cpPrevWk'){const pk=new Date(ws.getTime()-7*864e5).toISOString().slice(0,10);if(S[pk]&&S[pk].days){w.days.forEach((day,idx)=>{day.b=JSON.parse(JSON.stringify(S[pk].days[idx].b||{}))});notifyMsg('برنامه ساعتی از هفته قبل کپی شد.')}else notifyMsg('هفته قبل برنامه‌ای نداشت.')}
 else if(a=='ga'){const v=$('gn').value.trim();if(v)w.goals.push({t:v,d:0})}
 else if(a=='gd')w.goals[i].d=b.checked?1:0;else if(a=='gx')w.goals.splice(i,1);
 else if(a=='cdAdd'){const t=$('cdTitle').value.trim(),jy=+$('cdY').value,jm=+$('cdM').value,jd=+$('cdD').value;if(t)CDs().push({t,dt:j2d(jy,jm,jd).toISOString().slice(0,10)})}
@@ -1128,8 +1217,8 @@ else if(a=='sx')d.ses.splice(i,1);else if(a=='mood')d.mood=d.mood==+b.dataset.v?
 else if(a=='tg'){if(T.run)stopT();else{T.run=true;reqWake(true);T.id=setInterval(tick,1000)}upTm();return}
 else if(a=='tl')logS();
 else if(a=='noise'){toggleNoise();return}
-else if(a=='rev'){const s=($('sj')?.value||T.subj||'مبحث مطالعه').trim();addSpacedReview(s);alert(`«${s}» در چرخه مرور ۱، ۳، ۷ و ۳۰ روز آینده ثبت شد.`)}
-else if(a=='revItem'){const s=d.ses[i]?.s||'مبحث مطالعه';addSpacedReview(s);alert(`«${s}» در چرخه مرور ثبت شد.`)}
+else if(a=='rev'){const s=($('sj')?.value||T.subj||'مبحث مطالعه').trim();addSpacedReview(s);notifyMsg(`«${s}» در چرخه مرور ۱، ۳، ۷ و ۳۰ روز آینده ثبت شد.`)}
+else if(a=='revItem'){const s=d.ses[i]?.s||'مبحث مطالعه';addSpacedReview(s);notifyMsg(`«${s}» در چرخه مرور ثبت شد.`)}
 else if(a=='sndTest'){playBell();return}
 else if(a=='tr'){stopT();T.el=0;T.ph='w';T.left=T.work*60}
 save();render()});
@@ -1175,7 +1264,7 @@ $('td').onclick=()=>{ws=sat(new Date);di=((new Date().getDay()+1)%7);render()};
 const setTh=t=>{document.documentElement.dataset.theme=t;S.th=t;save();$('th').textContent=t=='dark'?'روشن':'تیره'};
 $('th').onclick=()=>setTh(S.th=='dark'?'light':'dark');
 $('ntfBtn').onclick=async()=>{
-  if(!('Notification' in window))return alert('پشتیبانی نمی‌شود.');
+  if(!('Notification' in window))return notifyMsg('پشتیبانی نمی‌شود.');
   if((await Notification.requestPermission())==='granted'){sendNotif('اعلان‌ها فعال شد','یادآورها فعال شد.');$('ntfBtn').classList.add('p')}
 };
 if('Notification' in window&&Notification.permission==='granted')$('ntfBtn').classList.add('p');
@@ -1183,7 +1272,7 @@ const pwMdl=$('pwMdl'),lckScreen=$('lckScreen');
 if(localStorage.getItem('wp26_pin'))lckScreen.classList.add('on');
 $('lckBtn').onclick=()=>{if(verifyPin($('lckInp').value)){lckScreen.classList.remove('on');$('lckInp').value='';$('lckErr').textContent=''}else $('lckErr').textContent='رمز اشتباه است.'};
 $('pwBtn').onclick=()=>{$('pwNew').value='';$('pwNew').placeholder=localStorage.getItem('wp26_pin')?'رمز جدید (خالی بگذارید = حذف رمز فعلی)...':'رمز عبور جدید...';pwMdl.classList.add('on')};
-$('pwSave').onclick=()=>{const v=$('pwNew').value.trim();if(v)localStorage.setItem('wp26_pin',hashPin(v));else localStorage.removeItem('wp26_pin');pwMdl.classList.remove('on');alert(v?'رمز عبور به صورت هش‌شده (SHA-256) ذخیره شد.':'رمز حذف شد.')};
+$('pwSave').onclick=()=>{const v=$('pwNew').value.trim();if(v)localStorage.setItem('wp26_pin',hashPin(v));else localStorage.removeItem('wp26_pin');pwMdl.classList.remove('on');notifyMsg(v?'رمز عبور به صورت هش‌شده (SHA-256) ذخیره شد.':'رمز حذف شد.')};
 $('pwLockNow').onclick=()=>{pwMdl.classList.remove('on');lckScreen.classList.add('on')};
 setTh(S.th||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
 booting=false;setTimeout(fetchLiveRates,300);
@@ -1207,10 +1296,10 @@ $('syBtn').onclick=()=>{const {u,r,t}=getGh();$('ghU').value=u;$('ghR').value=r;
 $('sySave').onclick=async()=>{localStorage.setItem('wp26_gh_u',$('ghU').value.trim());localStorage.setItem('wp26_gh_r',$('ghR').value.trim());localStorage.setItem('wp26_gh_t',$('ghT').value.trim());if($('encKeyInp'))setEncPass($('encKeyInp').value.trim());if(getGh().t)await pullCloud(false);else setSyStatus('ok','ذخیره شد',getEncPass()?'رمزنگاری AES-256 برای بکاپ‌ها فعال شد 🔒':'تنظیمات ذخیره شد')};
 $('syPush').onclick=async()=>{if($('encKeyInp'))setEncPass($('encKeyInp').value.trim());await pushCloud()};
 $('syPull').onclick=async()=>{if($('encKeyInp'))setEncPass($('encKeyInp').value.trim());await pullCloud(false)};
-$('cpBtn').onclick=async()=>{try{if($('encKeyInp'))setEncPass($('encKeyInp').value.trim());const pl=await exportPayloadStr(false);await navigator.clipboard.writeText(btoa(unescape(encodeURIComponent(pl))));setSyStatus('ok','کپی شد',getEncPass()?'کد رمزنگاری‌شده در کلیپ‌بورد کپی شد 🔒':'در کلیپ‌بورد کپی شد')}catch(e){alert('خطا در کپی')}};
-$('psBtn').onclick=async()=>{try{const c=prompt('کد کپی‌شده را اینجا وارد کنید:');if(!c)return;const rawStr=decodeURIComponent(escape(atob(c.trim())));S=await importPayloadStr(rawStr);save();render();syMdl.classList.remove('on');alert('اطلاعات بازیابی شد.')}catch(e){alert(e&&e.message?e.message:'کد نامعتبر است.')}};
+$('cpBtn').onclick=async()=>{try{if($('encKeyInp'))setEncPass($('encKeyInp').value.trim());const pl=await exportPayloadStr(false);await navigator.clipboard.writeText(btoa(unescape(encodeURIComponent(pl))));setSyStatus('ok','کپی شد',getEncPass()?'کد رمزنگاری‌شده در کلیپ‌بورد کپی شد 🔒':'در کلیپ‌بورد کپی شد')}catch(e){notifyMsg('خطا در کپی')}};
+$('psBtn').onclick=async()=>{try{const c=prompt('کد کپی‌شده را اینجا وارد کنید:');if(!c)return;const rawStr=decodeURIComponent(escape(atob(c.trim())));S=await importPayloadStr(rawStr);save();render();syMdl.classList.remove('on');notifyMsg('اطلاعات بازیابی شد.')}catch(e){notifyMsg(e&&e.message?e.message:'کد نامعتبر است.')}};
 $('exBtn').onclick=async()=>{if($('encKeyInp'))setEncPass($('encKeyInp').value.trim());const pl=await exportPayloadStr(true),b=new Blob([pl],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`planner-wp26-${getEncPass()?'enc-':''}${new Date().toISOString().slice(0,10)}.json`;a.click()};
-$('imInp').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=async ev=>{try{S=await importPayloadStr(ev.target.result);save();render();syMdl.classList.remove('on');alert('بارگذاری انجام شد.')}catch(err){alert(err&&err.message?err.message:'فایل نامعتبر است.')}};rd.readAsText(f)};
+$('imInp').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=async ev=>{try{S=await importPayloadStr(ev.target.result);save();render();syMdl.classList.remove('on');notifyMsg('بارگذاری انجام شد.')}catch(err){notifyMsg(err&&err.message?err.message:'فایل نامعتبر است.')}};rd.readAsText(f)};
 if(getGh().t)pullCloud(true);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&getGh().t)pullCloud(true)});
 (function(){
@@ -1497,7 +1586,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
     const tdIdx=(new Date().getDay()+1)%7,w=W();
     if(tdIdx<6)w.days[tdIdx+1].t.push({t:v,d:0,p:1});
     else{const nk=new Date(ws.getTime()+7*864e5).toISOString().slice(0,10);if(!S[nk])S[nk]={goals:[],pri:['','',''],notes:'',days:DN.map(()=>({b:{},t:[],n:'',plan:0,ses:[],hol:0,pr:[0,0,0]}))};S[nk].days[0].t.push({t:v,d:0,p:1})}
-    inp.value='';save();render();alert('با اولویت بالا برای فردا ثبت شد ✓');
+    inp.value='';save();render();notifyMsg('با اولویت بالا برای فردا ثبت شد ✓');
   };
   // ==================== ۵. اتاق تمرکز (Zen Mode) + صدای باران و موج ۱۴Hz ====================
   let rainCtx=null,rainNode=null,binCtx=null,binOsc1=null,binOsc2=null;
@@ -1538,10 +1627,10 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
   $('zenTgBtn').onclick=()=>{q('[data-a="tg"]')?.click();upZenUI()};
   setInterval(()=>{if($('zenScr').classList.contains('on'))upZenUI()},500);
   // ==================== ۶. تایپ صوتی فارسی (Speech-to-Text) ====================
-  function attachVoiceButtons(){
+  window.attachVoiceButtons=function attachVoiceButtons(){
     const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
     if(!SR)return;
-    document.querySelectorAll('#gn,#tn,#hn,#bnt,#cdTitle,#wlTitle,#lrnTitle,#dtNote,textarea').forEach(inp=>{
+    document.querySelectorAll('#gn,#tn,#hn,#bnt,#cdTitle,#wlTitle,#lrnTitle,#dtNote,#ovQuickT,textarea').forEach(inp=>{
       if(inp.dataset.hasMic)return;
       inp.dataset.hasMic='1';
       const btn=document.createElement('button');
@@ -1618,7 +1707,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
       const x=DBTS()[i];if(!x)return;
       const txt=`🧾 رسید حساب شخصی\n👤 طرف حساب: ${x.person}\n📌 نوع: ${x.tp==='talab'?'طلب من':'بدهی من'}\n💰 مبلغ: ${mo(x.a)} تومان\n📝 توضیح: ${x.note||'—'}\nوضعیت: ${x.done?'تسویه شده ✅':'در انتظار تسویه ⏳'}`;
       if(window.sendTgText)window.sendTgText(txt);
-      navigator.clipboard?.writeText(txt);alert('متن رسید کپی شد (و در صورت اتصال، به تلگرام ارسال شد).');
+      navigator.clipboard?.writeText(txt);notifyMsg('متن رسید کپی شد (و در صورت اتصال، به تلگرام ارسال شد).');
     }else if(a==='dtDel'){DBTS().splice(i,1);save();render()}
   });
 })();
@@ -2113,7 +2202,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
   // ۱. میکروفون اختصاصی داخل کادر متنی ایجنت
   $('agMicBtn').onclick=()=>{
     const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-    if(!SR)return alert('مرورگر شما از تایپ صوتی پشتیبانی نمی‌کند.');
+    if(!SR)return notifyMsg('مرورگر شما از تایپ صوتی پشتیبانی نمی‌کند.');
     const rec=new SR();rec.lang='fa-IR';rec.interimResults=false;
     $('agMicBtn').classList.add('rec');
     rec.onresult=ev=>{
@@ -2388,9 +2477,12 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
     else if(/(تومن|تومان|هزار|میلیون|هزینه|خرج|درآمد|واریز|خرید)/.test(txt)&&extractMoney(txt)>0){
       const am=extractMoney(txt),isInc=/(درآمد|واریز|حقوق|سود|فروش)/.test(txt)&&!/(هزینه|خرج|خرید)/.test(txt);
       let cat=isInc?'sal':'sup';
-      if(/رستوران|فست|غذا|شام|ناهار/.test(txt))cat='rest';
+      if(/نان|نون/.test(txt))cat='brd';
+      else if(/میوه|سبزی/.test(txt))cat='frt';
+      else if(/تنقلات|چیپس|بستنی|شکلات|آجیل/.test(txt))cat='snk';
+      else if(/رستوران|فست|غذا|شام|ناهار/.test(txt))cat='rest';
       else if(/کافه|قهوه/.test(txt))cat='cafe';
-      else if(/اسنپ|تاکسی|بنزین|مترو/.test(txt))cat='taxi';
+      else if(/اسنپ|تپسی|تاکسی|بنزین|مترو/.test(txt))cat='taxi';
       else if(/اجاره|قبض|برق|اینترنت/.test(txt))cat='bill';
       else if(/لباس|پوشاک/.test(txt))cat='clo';
       else if(/دارو|دکتر|باشگاه/.test(txt))cat='doc';
@@ -2609,7 +2701,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
     }
   };
   // ==================== ۶. پذیرش اعداد فارسی در تمام فیلدهای عددی موبایل ====================
-  function fixNumericInputs(){
+  window.fixNumericInputs=function fixNumericInputs(){
     document.querySelectorAll('input[type="number"]').forEach(inp=>{
       if(inp.dataset.faFixed)return;
       inp.dataset.faFixed='1';
@@ -3006,9 +3098,36 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 })();
 (function(){
   let hideMoney=localStorage.getItem('wp26_hide_mo')==='1';
-  let wSub='db',bAccFilter='';
+  let nwUnit=localStorage.getItem('wp26_nw_unit')||'toman'; // 'toman' | 'gold' | 'usdt'
+  let wSub='db',bAccFilter='',calcTab='conv';
   const getInsAm=(i,k)=>(i.amts&&i.amts[k]!=null)?i.amts[k]:(i.a||0);
   const pmo=n=>hideMoney?'••••••':mo(n);
+
+  function fmtNwVal(tomanVal){
+    if(hideMoney)return '••••••';
+    const v=Number(tomanVal)||0,mkt=MKT();
+    if(nwUnit==='gold'){
+      const g=mkt.g18>0?(v/mkt.g18):0;
+      return `${v<0?'−':''}${fa(Math.abs(+(g.toFixed(2))))} گرم طلا ۱۸`;
+    }
+    if(nwUnit==='usdt'){
+      const u=mkt.usdt>0?(v/mkt.usdt):0;
+      return `${v<0?'−':''}${fa(Math.abs(Math.round(u)))} تتر`;
+    }
+    return `${v<0?'−':''}${mo(Math.abs(v))} تومان`;
+  }
+
+  function syncCustomCats(B){
+    const list=B.customCats||[];
+    list.forEach(c=>{
+      if(!CC[c.id]){
+        const targetGrp=GR.find(g=>g[0]===(c.t==='in'?'oi':'oth'));
+        if(targetGrp&&!targetGrp[4].some(x=>x[0]===c.id))targetGrp[4].push([c.id,c.l]);
+        CC[c.id]={l:c.l,g:c.t==='in'?'oi':'oth',t:c.t};
+      }
+    });
+  }
+
   function ensureWealthDB(){
     const B=BD();
     if(!B.accs||!B.accs.length){
@@ -3027,9 +3146,13 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
     if(!B.debts)B.debts=[];
     if(!B.sGoals)B.sGoals=[{id:'sg1',t:'صندوق ذخیره اضطراری',target:50000000,saved:0,mTarget:5000000}];
     if(!B.catRules)B.catRules={};
+    if(!B.customCats)B.customCats=[];
+    syncCustomCats(B);
     (B.assets||[]).forEach(a=>{if(a.buyP===undefined)a.buyP=a.p||0});
     return B;
   }
+  ensureWealthDB();
+
   function getAccountBalances(){
     const B=ensureWealthDB(),bals={};
     B.accs.forEach(a=>bals[a.id]=Number(a.init)||0);
@@ -3048,6 +3171,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
     });
     return bals;
   }
+
   function calcNetWorth(){
     const B=ensureWealthDB(),bals=getAccountBalances();
     const cashSum=sm_(Object.values(bals));
@@ -3062,8 +3186,56 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
     }));
     const totalAssets=cashSum+assetSum+talabSum+chkInSum;
     const totalLiabilities=bedehiSum+chkOutSum+remInstSum;
-    return {netWorth:totalAssets-totalLiabilities,totalAssets,totalLiabilities};
+    return {netWorth:totalAssets-totalLiabilities,totalAssets,totalLiabilities,cashSum};
   }
+
+  // تشخیص تاریخ شمسی در متن سررسید چک (مثل «۲۵ آبان» یا «1405/08/25») برای هشدار ۳ روز آینده
+  function parsePersianDueDate(dtStr){
+    if(!dtStr)return null;
+    const en=toEnDigits(String(dtStr)).trim(),np=pp(new Date());
+    const mSlash=en.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+    if(mSlash)return j2d(+mSlash[1],+mSlash[2],+mSlash[3]);
+    for(let i=0;i<12;i++){
+      if(en.includes(PM[i])){
+        const md=en.match(/(\d{1,2})/);
+        if(md){
+          const y=(i+1<np.m&&np.m-i>6)?np.y+1:np.y;
+          return j2d(y,i+1,clamp(+md[1],1,31));
+        }
+      }
+    }
+    return null;
+  }
+
+  function getUpcomingDueAlerts(B,k){
+    const alerts=[],now=new Date();now.setHours(0,0,0,0);
+    const np=pp(now),curK=np.y+'-'+np.m;
+    // اقساط پرداخت‌نشده این ماه با سررسید تا ۳ روز آینده (یا عقب‌افتاده)
+    (B.inst||[]).forEach(ins=>{
+      if(ins.paid&&ins.paid[curK])return;
+      const diff=Number(ins.d)-np.d;
+      if(diff<=3&&diff>=-7){
+        const am=getInsAm(ins,curK);
+        const when=diff<0?`${fa(Math.abs(diff))} روز گذشته (معوق)`:diff===0?'امروز':`${fa(diff)} روز دیگر`;
+        alerts.push(`🏦 سررسید قسط «${esc(ins.t)}»: <b>${pmo(am)} ت</b> — ${when}`);
+      }
+    });
+    // چک‌های صیادی در جریان با سررسید تا ۳ روز آینده
+    (B.chks||[]).forEach(ck=>{
+      if(ck.st!=='pending')return;
+      const dt=parsePersianDueDate(ck.dt);
+      if(dt){
+        dt.setHours(0,0,0,0);
+        const diff=Math.round((dt-now)/864e5);
+        if(diff<=3&&diff>=-7){
+          const when=diff<0?`${fa(Math.abs(diff))} روز گذشته`:diff===0?'امروز':`${fa(diff)} روز دیگر`;
+          alerts.push(`🧾 سررسید ${ck.tp==='in'?'چک دریافتی':'چک پرداختی'} «${esc(ck.person)}»: <b>${pmo(ck.a)} ت</b> — ${when}`);
+        }
+      }
+    });
+    return alerts;
+  }
+
   function renderWealthTab(){
     const B=ensureWealthDB(),k=hs.y+'-'+hs.m,M=mdat(hs.y,hs.m),pm=pvM(hs.y,hs.m),P=mdat(pm.y,pm.m);
     const np=pp(new Date()),c={B,k,M,P,n:M.n,cd:curD(),bu:B.bud[k]||{},gl:B.goal[k]||0,bal:M.I-M.E,sr:M.I?Math.round(100*(M.I-M.E)/M.I):0};
@@ -3071,10 +3243,10 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
       ['db','📊 داشبورد و پیش‌بینی'],
       ['tx','🧾 تراکنش و انتقال'],
       ['pl','🎯 بودجه و اهداف'],
-      ['as','💎 دارایی (سود/زیان)'],
+      ['as','💎 دارایی و محاسبه‌گر'],
       ['ch','🏦 اقساط و چک صیادی'],
-      ['dt','🤝 طلب و بدهی'],
-      ['rp','📑 گزارش ۶ ماهه']
+      ['dt','🤝 طلب، بدهی و دنگ'],
+      ['rp','📑 گزارش یکساله']
     ];
     const headerHtml=`<div class="cd"><div class="row sb fw" style="margin-bottom:8px">
       <button data-a="hm" data-v="-1">› ماه قبل</button>
@@ -3092,6 +3264,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
     const viewFn={db:wDb,tx:wTx,pl:wPl,as:wAs,ch:wChksAndInst,dt:wDebts,rp:window.bRp}[wSub]||wDb;
     return headerHtml+viewFn(c);
   }
+
   function wDb(c){
     const {B,k,M,n,cd}=c,nw=calcNetWorth(),bals=getAccountBalances();
     const daysLeft=Math.max(0,n-(cd||1)),avgDaily=cd>0?M.E/cd:0;
@@ -3099,6 +3272,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
     const projEndExp=Math.round(M.E+(avgDaily*daysLeft)+unpaidInst);
     const projEndBal=M.I-projEndExp;
     const safeDailyAllowance=daysLeft>0&&M.I>M.E?Math.max(0,Math.round((M.I-M.E-unpaidInst)/daysLeft)):0;
+    const dueAlerts=getUpcomingDueAlerts(B,k);
     const alerts=[];
     GXs.forEach(g=>{
       const lim=c.bu[g[0]]||0;if(!lim)return;
@@ -3110,16 +3284,23 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
       <div class="row sb" style="margin:0"><small>${esc(a.n)}</small><button class="x" data-a="bAccEdit" data-id="${a.id}" title="ویرایش موجودی اولیه">✎</button></div>
       <b style="color:${(bals[a.id]||0)>=0?'var(--tx)':'var(--er)'}">${pmo(bals[a.id]||0)} <span style="font-size:11px;font-weight:400;color:var(--mu)">تومان</span></b>
     </div>`).join('')+`<div class="acc-card" style="display:flex;align-items:center;justify-content:center;cursor:pointer;border-style:dashed" data-a="bAccAdd"><b>+ افزودن کارت/حساب</b></div>`;
+
     return `<div class="nw-banner">
       <div>
-        <div style="font-size:12.5px;opacity:.9;font-weight:600">💎 ارزش خالص کل ثروت شما (Net Worth: موجودی و دارایی منهای کل بدهی و اقساط)</div>
-        <div class="nw-val">${pmo(nw.netWorth)} <span style="font-size:14px;font-weight:500">تومان</span></div>
+        <div style="font-size:12.5px;opacity:.92;font-weight:600">💎 ارزش خالص کل ثروت شما (Net Worth — ضد تورم)</div>
+        <div class="nw-val">${fmtNwVal(nw.netWorth)}</div>
+        <div class="nw-sw">
+          <button class="${nwUnit==='toman'?'on':''}" data-a="bNwUnit" data-v="toman">تومان</button>
+          <button class="${nwUnit==='gold'?'on':''}" data-a="bNwUnit" data-v="gold">گرم طلا ۱۸</button>
+          <button class="${nwUnit==='usdt'?'on':''}" data-a="bNwUnit" data-v="usdt">تتر (USDT)</button>
+        </div>
       </div>
-      <div style="font-size:12px;line-height:1.7;background:rgba(0,0,0,.22);padding:10px 14px;border-radius:14px">
-        <div>🟢 جمع دارایی و موجودی: <b>${pmo(nw.totalAssets)} ت</b></div>
-        <div>🔴 تعهدات، اقساط مانده و بدهی: <b>${pmo(nw.totalLiabilities)} ت</b></div>
+      <div style="font-size:12px;line-height:1.8;background:rgba(0,0,0,.22);padding:10px 14px;border-radius:14px">
+        <div>🟢 جمع دارایی و موجودی: <b>${fmtNwVal(nw.totalAssets)}</b></div>
+        <div>🔴 تعهدات، اقساط مانده و بدهی: <b>${fmtNwVal(nw.totalLiabilities)}</b></div>
       </div>
     </div>
+    ${dueAlerts.length?`<div class="cd" style="border-inline-start:4px solid var(--er);padding:12px 16px"><div style="font-weight:800;font-size:13.5px;color:var(--er);margin-bottom:6px">⏰ هشدار سررسیدهای ۳ روز آینده و معوق</div>${dueAlerts.map(a=>`<div style="font-size:13px;margin-bottom:3px">• ${a}</div>`).join('')}</div>`:''}
     <div class="acc-grid">${accCards}</div>
     ${alerts.join('')}
     <div class="cd next">
@@ -3138,6 +3319,31 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
       </div>
     </div>`+(window.bDb?window.bDb(c):'');
   }
+
+  // استخراج ۳ تراکنش پرتکرار از کل تاریخچه تراکنش‌های ثبت‌شده
+  let _topRecCache=[];
+  function getTopRepeatedTxs(B,limit=3){
+    const map={};
+    Object.entries(B.tx||{}).forEach(([mk,arr])=>{
+      (arr||[]).forEach((t,idx)=>{
+        if(!t||!t.c||!(t.a>0))return;
+        const note=(t.n||'').trim();
+        const gk=t.c+'|'+(note?note.toLowerCase():'');
+        const ord=mk+'_'+String(t.d||0).padStart(2,'0')+'_'+String(idx).padStart(4,'0');
+        if(!map[gk])map[gk]={c:t.c,n:note,a:t.a,acc:t.acc||'acc_main',cnt:0,lastOrd:''};
+        map[gk].cnt++;
+        if(ord>=map[gk].lastOrd){
+          map[gk].lastOrd=ord;
+          map[gk].a=t.a;
+          map[gk].acc=t.acc||'acc_main';
+        }
+      });
+    });
+    const list=Object.values(map).sort((a,b)=>b.cnt-a.cnt||(b.lastOrd>a.lastOrd?1:-1));
+    _topRecCache=list.slice(0,limit);
+    return _topRecCache;
+  }
+
   function wTx(c){
     const {B,k,M,n,cd}=c;
     const accOpts=B.accs.map(a=>`<option value="${a.id}">${esc(a.n)}</option>`).join('');
@@ -3173,11 +3379,35 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
       </div>
     </div>
     <div class="cd">
-      <h2>🔁 تراکنش‌های تکرارشونده ماهانه (ثبت با ۱ کلیک)</h2>
-      <div class="ctr" style="justify-content:flex-start">${(B.recs||[]).map((rc,i)=>`<button data-a="bRecApply" data-i="${i}">+ ${esc(rc.t)} (${rc.a?pmo(rc.a)+' ت':'تنظیم مبلغ'})</button>`).join('')}<button data-a="bRecNew" style="border-style:dashed">+ تعریف تکرارشونده جدید</button></div>
+      <h2>🔁 تراکنش‌های تکرارشونده (پیشنهاد هوشمند از پرتکرارها + موارد دستی)</h2>
+      <div class="mu" style="margin-bottom:6px">⚡ ۳ تراکنش پرتکرار شما (انتخاب خودکار از تاریخچه برای ثبت با ۱ کلیک):</div>
+      <div class="ctr" style="justify-content:flex-start;gap:7px;margin-bottom:10px">
+        ${(()=>{
+          const top3=getTopRepeatedTxs(B,3);
+          if(!top3.length)return '<span class="mu">هنوز تراکنشی ثبت نشده است؛ پس از ثبت تراکنش‌ها، ۳ مورد پرتکرارتر اینجا نمایش داده می‌شوند.</span>';
+          return top3.map((x,i)=>{
+            const lbl=x.n?`${catL(x.c)} — ${x.n}`:catL(x.c);
+            const ii=isIn(x.c);
+            return `<button class="p" data-a="bTopRecApply" data-i="${i}" style="font-size:12px" title="ثبت فوری در امروز (${fa(x.cnt)} بار تکرار)">+ ${esc(lbl)} (${pmo(x.a)} ت · ${fa(x.cnt)}×)</button>`;
+          }).join('');
+        })()}
+      </div>
+      <hr style="border:0;border-top:1px solid var(--bd2);margin:8px 0">
+      <div class="mu" style="margin-bottom:6px">📌 تکرارشونده‌های دستی ماهانه:</div>
+      <div class="ctr" style="justify-content:flex-start;gap:7px">
+        ${(B.recs||[]).map((rc,i)=>`<span class="rec-pill">
+          <button data-a="bRecApply" data-i="${i}" title="ثبت فوری در تراکنش‌های این ماه">+ ${esc(rc.t)} (${rc.a?pmo(rc.a)+' ت':'تنظیم'})</button>
+          <button data-a="bRecEdit" data-i="${i}" title="ویرایش" style="color:var(--mu)">✎</button>
+          <button data-a="bRecDel" data-i="${i}" title="حذف" style="color:var(--er)">✕</button>
+        </span>`).join('')}
+        <button data-a="bRecNew" style="border-style:dashed">+ تعریف تکرارشونده جدید</button>
+      </div>
     </div>
     <div class="cd">
-      <h2>➕ ثبت دقیق تراکنش (همراه با انتخاب کارت و تگ #)</h2>
+      <div class="row sb fw" style="margin-bottom:8px">
+        <h2 style="margin:0">➕ ثبت دقیق تراکنش (همراه با انتخاب کارت و تگ #)</h2>
+        <button data-a="bAddCustomCat" style="font-size:11.5px">+ افزودن سرفصل دلخواه</button>
+      </div>
       <div class="row fw">
         <input type="number" id="bdy" min="1" max="${n}" value="${cd||1}" style="width:62px" title="روز ماه">
         <select id="bAccSel" style="width:155px">${accOpts}</select>
@@ -3199,6 +3429,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
       <div id="tl">${renderRichTxList()}</div>
     </div>`;
   }
+
   window.renderRichTxList=function(){
     const B=ensureWealthDB(),k=hs.y+'-'+hs.m;
     let tx=(B.tx[k]||[]).slice().sort((a,b)=>b.d-a.d||(a.id<b.id?1:-1));
@@ -3209,7 +3440,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
     return tx.map(t=>{
       const ii=isIn(t.c),accName=B.accs.find(a=>a.id===(t.acc||'acc_main'))?.n||'کارت اصلی';
       const noteHtml=esc(t.n||'').replace(/#([\w\u0600-\u06FF]+)/g,'<span class="tag-pill">#$1</span>');
-      return `<div class="row"><span class="mu" style="width:28px">${fa(t.d)}</span><span class="bdg" style="font-size:10px">${esc(accName)}</span><span class="f1">${catL(t.c)}${noteHtml?' — '+noteHtml:''}</span><b style="color:${ii?'var(--ok)':'var(--er)'}">${ii?'+':'−'}${pmo(t.a)}</b><button class="x" data-a="bx" data-id="${t.id}">✕</button></div>`;
+      return `<div class="row"><span class="mu" style="width:28px">${fa(t.d)}</span><span class="bdg" style="font-size:10px">${esc(accName)}</span><span class="f1">${catL(t.c)}${noteHtml?' — '+noteHtml:''}</span><b style="color:${ii?'var(--ok)':'var(--er)'}">${ii?'+':'−'}${pmo(t.a)}</b><button class="x" data-a="bTxEdit" data-id="${t.id}" title="ویرایش تراکنش">✎</button><button class="x" data-a="bx" data-id="${t.id}" title="حذف">✕</button></div>`;
     }).join('');
   };
   window.filterTxList=function(){bAccFilter=$('bFltAcc')?.value||'';const tl=$('tl');if(tl)tl.innerHTML=renderRichTxList()};
@@ -3217,6 +3448,98 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
     const B=ensureWealthDB(),rules=B.catRules||{},sel=$('bcat');if(!sel||!val)return;
     for(const w of val.trim().split(/\s+/)){if(rules[w]){sel.value=rules[w];return}}
   };
+
+  function buildAssetAllocationSvg(B){
+    const bals=getAccountBalances(),cashPos=Math.max(0,sm_(Object.values(bals)));
+    const cols=['#2563eb','#16a34a','#f59e0b','#8b5cf6','#06b6d4','#ec4899','#14b8a6','#64748b'];
+    const items=[];
+    if(cashPos>0)items.push({n:'نقدینگی کارت‌ها و حساب‌ها',v:cashPos});
+    (B.assets||[]).forEach(a=>{const v=(a.q||0)*(a.p||0);if(v>0)items.push({n:a.n,v})});
+    const tot=sm_(items.map(x=>x.v));
+    if(!tot)return '<div class="mu">برای نمایش نمودار ترکیب سبد، مقدار دارایی‌ها یا موجودی حساب‌ها را وارد کنید.</div>';
+    items.sort((a,b)=>b.v-a.v);
+    const R=46,C=2*Math.PI*R;let offset=0,slices='',leg='';
+    items.forEach((it,idx)=>{
+      const col=cols[idx%cols.length],pct=it.v/tot,dash=pct*C,pctTxt=Math.round(pct*1000)/10;
+      const tip=`${it.n}\nسهم از کل سبد: ${fa(pctTxt)}٪\nارزش: ${pmo(it.v)} تومان`;
+      slices+=`<circle cx="60" cy="60" r="${R}" fill="none" stroke="${col}" stroke-width="16" stroke-dasharray="${dash.toFixed(2)} ${(C-dash).toFixed(2)}" stroke-dashoffset="${(-offset).toFixed(2)}" transform="rotate(-90 60 60)" data-tip="${esc(tip)}"/>`;
+      offset+=dash;
+      leg+=`<div class="alloc-row"><i class="alloc-dot" style="background:${col}"></i><span class="f1">${esc(it.n)}</span><b>${fa(pctTxt)}٪</b><span class="mu" style="min-width:95px;text-align:end">${pmo(it.v)} ت</span></div>`;
+    });
+    return `<div class="alloc-wrap">
+      <svg viewBox="0 0 120 120" width="142" height="142" style="flex:none">
+        ${slices}
+        <text x="60" y="57" text-anchor="middle" font-size="11" font-weight="800" fill="var(--tx)">${fa(items.length)} بخش</text>
+        <text x="60" y="71" text-anchor="middle" font-size="8.5" fill="var(--mu)">تنوع سبد</text>
+      </svg>
+      <div class="alloc-leg">${leg}</div>
+    </div>`;
+  }
+
+  function buildMiniCalcCard(){
+    const mkt=MKT();
+    let body='';
+    if(calcTab==='conv'){
+      body=`<div class="row fw">
+        <div class="f1" style="min-width:130px"><small class="mu">مبلغ به تومان:</small><input type="number" id="mcTom" placeholder="مثلاً 10000000" oninput="runFinCalc('tom')"></div>
+        <div class="f1" style="min-width:120px"><small class="mu">طلای ۱۸ عیار (گرم):</small><input type="number" step="0.01" id="mcGld" placeholder="گرم" oninput="runFinCalc('gld')"></div>
+        <div class="f1" style="min-width:120px"><small class="mu">تتر / دلار:</small><input type="number" step="0.1" id="mcUsd" placeholder="تتر" oninput="runFinCalc('usd')"></div>
+      </div>
+      <div class="mu" style="margin-top:4px">محاسبه آنی بر اساس نرخ روز: طلا ۱۸ = <b>${fa(mkt.g18)} ت</b> · تتر = <b>${fa(mkt.usdt)} ت</b></div>`;
+    }else if(calcTab==='loan'){
+      body=`<div class="row fw">
+        <div class="f1" style="min-width:130px"><small class="mu">مبلغ وام (تومان):</small><input type="number" id="lcP" value="100000000" oninput="runLoanCalc()"></div>
+        <div style="width:105px"><small class="mu">سود سالانه (٪):</small><input type="number" step="0.5" id="lcR" value="23" oninput="runLoanCalc()"></div>
+        <div style="width:105px"><small class="mu">تعداد ماه:</small><input type="number" id="lcN" value="36" oninput="runLoanCalc()"></div>
+      </div>
+      <div class="calc-res" id="lcOut"></div>`;
+    }else{
+      body=`<div class="row fw">
+        <div class="f1" style="min-width:120px"><small class="mu">سرمایه اولیه (ت):</small><input type="number" id="ccP" value="50000000" oninput="runCompCalc()"></div>
+        <div class="f1" style="min-width:120px"><small class="mu">افزودن ماهانه (ت):</small><input type="number" id="ccM" value="5000000" oninput="runCompCalc()"></div>
+        <div style="width:105px"><small class="mu">بازده ماهانه (٪):</small><input type="number" step="0.5" id="ccR" value="3" oninput="runCompCalc()"></div>
+        <div style="width:95px"><small class="mu">تعداد ماه:</small><input type="number" id="ccN" value="12" oninput="runCompCalc()"></div>
+      </div>
+      <div class="calc-res" id="ccOut"></div>`;
+    }
+    return `<div class="cd">
+      <div class="row sb fw" style="margin-bottom:10px">
+        <h2 style="margin:0">🧮 ماشین‌حساب سریع مالی</h2>
+        <div class="row" style="margin:0">
+          <button class="${calcTab==='conv'?'p':''}" data-a="bCalcTab" data-v="conv">تبدیل طلا/تتر</button>
+          <button class="${calcTab==='loan'?'p':''}" data-a="bCalcTab" data-v="loan">قسط وام</button>
+          <button class="${calcTab==='comp'?'p':''}" data-a="bCalcTab" data-v="comp">سود مرکب</button>
+        </div>
+      </div>
+      ${body}
+    </div>`;
+  }
+
+  window.runFinCalc=function(src){
+    const m=MKT(),g=m.g18||1,u=m.usdt||1;
+    let tom=0;
+    if(src==='tom'){tom=+$('mcTom').value||0;$('mcGld').value=tom?(tom/g).toFixed(2):'';$('mcUsd').value=tom?(tom/u).toFixed(1):''}
+    else if(src==='gld'){tom=(+$('mcGld').value||0)*g;$('mcTom').value=tom?Math.round(tom):'';$('mcUsd').value=tom?(tom/u).toFixed(1):''}
+    else if(src==='usd'){tom=(+$('mcUsd').value||0)*u;$('mcTom').value=tom?Math.round(tom):'';$('mcGld').value=tom?(tom/g).toFixed(2):''}
+  };
+  window.runLoanCalc=function(){
+    const out=$('lcOut');if(!out)return;
+    const P=+$('lcP')?.value||0,annR=+$('lcR')?.value||0,n=Math.max(1,+$('lcN')?.value||1);
+    const r=(annR/100)/12;
+    const pmt=r>0?(P*r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1):(P/n);
+    const tot=pmt*n,intSum=tot-P;
+    out.innerHTML=`<div>💳 قسط ماهانه: <b style="color:var(--er);font-size:15px">${mo(pmt)} تومان</b></div>
+      <div>📊 جمع کل بازپرداخت: <b>${mo(tot)} تومان</b> · کل سود وام: <b style="color:var(--wn)">${mo(intSum)} تومان</b> (${P?fa(Math.round(100*intSum/P)):0}٪ اصل وام)</div>`;
+  };
+  window.runCompCalc=function(){
+    const out=$('ccOut');if(!out)return;
+    const P=+$('ccP')?.value||0,M=+$('ccM')?.value||0,r=(+$('ccR')?.value||0)/100,n=Math.max(1,+$('ccN')?.value||1);
+    let bal=P;for(let i=0;i<n;i++)bal=(bal+M)*(1+r);
+    const contrib=P+M*n,profit=bal-contrib;
+    out.innerHTML=`<div>🚀 سرمایه نهایی پس از ${fa(n)} ماه: <b style="color:var(--ok);font-size:15px">${mo(bal)} تومان</b></div>
+      <div>💰 کل آورده شما: <b>${mo(contrib)} ت</b> · سود مرکب خالص: <b style="color:var(--ac)">+${mo(profit)} ت</b></div>`;
+  };
+
   function wAs(c){
     const {B}=c,assets=B.assets||[];
     const totVal=sm_(assets.map(a=>(a.q||0)*(a.p||0)));
@@ -3227,6 +3550,10 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
       <div class="td-kpi"><div class="k-top"><span>ارزش روز کل دارایی‌ها</span></div><div class="k-num" style="color:var(--ok)">${pmo(totVal)}<small>تومان</small></div></div>
       <div class="td-kpi"><div class="k-top"><span>بهای تمام‌شده خرید</span></div><div class="k-num">${pmo(totCost)}<small>تومان</small></div></div>
       <div class="td-kpi"><div class="k-top"><span>سود / زیان خالص سرمایه‌گذاری</span></div><div class="k-num" style="color:${totProfit>=0?'var(--ok)':'var(--er)'}">${totProfit>=0?'+':'−'}${pmo(Math.abs(totProfit))}<small>(${totProfit>=0?'▲ +':'▼ '}${fa(totProfitPct)}٪)</small></div></div>
+    </div>
+    <div class="cd">
+      <h2>🥧 نمودار ترکیب سبد دارایی و نقدینگی (Asset Allocation)</h2>
+      ${buildAssetAllocationSvg(B)}
     </div>
     <div class="cd">
       <h2>💎 سبد دارایی با محاسبه سود و زیان (قیمت خرید در برابر قیمت روز)</h2>
@@ -3252,30 +3579,56 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
         <input type="number" id="asPrc" placeholder="قیمت روز واحد" class="f1">
         <button class="p" data-a="bAsAddWithBuy">+ افزودن</button>
       </div>
-    </div>`;
+    </div>
+    ${buildMiniCalcCard()}`;
   }
+
+  window.onChkStatusChange=function(idx,newSt){
+    const B=ensureWealthDB(),ck=B.chks[idx];if(!ck)return;
+    const oldSt=ck.st;ck.st=newSt;
+    const np=pp(new Date()),curK=np.y+'-'+np.m;
+    if(newSt==='passed'&&oldSt!=='passed'&&!ck.txId){
+      const accId=ck.acc||'acc_main',accName=B.accs.find(a=>a.id===accId)?.n||'کارت اصلی';
+      if(confirm(`چک «${ck.person}» به مبلغ ${mo(ck.a)} تومان به صورت خودکار در حساب «${accName}» ثبت شود؟`)){
+        const tid='t'+Date.now();
+        ck.txId=tid;ck.txK=curK;
+        (B.tx[curK]=B.tx[curK]||[]).push({id:tid,d:np.d,c:ck.tp==='in'?'oi':'fin',a:ck.a,n:`پاس شدن چک صیادی: ${ck.person}${ck.num?' ('+ck.num+')':''}`,acc:accId});
+        if(window.showToast)showToast(`مبلغ چک در حساب «${accName}» اعمال شد ✓`);
+      }
+    }else if(newSt!=='passed'&&ck.txId){
+      const tk=ck.txK||curK;
+      if(B.tx[tk])B.tx[tk]=B.tx[tk].filter(t=>t.id!==ck.txId);
+      delete ck.txId;delete ck.txK;
+    }
+    save();render();
+  };
+
   function wChksAndInst(c){
     const {B,k}=c,chks=B.chks||[],inst=B.inst||[];
+    const accOpts=B.accs.map(a=>`<option value="${a.id}">${esc(a.n)}</option>`).join('');
     const totInst=sm_(inst.map(i=>getInsAm(i,k)||0)),paidInst=sm_(inst.filter(i=>i.paid&&i.paid[k]).map(i=>getInsAm(i,k)||0));
     return `<div class="cd">
-      <h2>🧾 مدیریت چک‌های صیادی (دریافتی و پرداختی)</h2>
-      ${chks.length?chks.map((ck,i)=>`<div class="row fw" style="padding:8px 4px;border-bottom:1px solid var(--bd2)">
-        <span class="bdg ${ck.tp==='in'?'ok':'wn'}">${ck.tp==='in'?'چک دریافتی':'چک پرداختی'}</span>
-        <span class="f1" style="min-width:160px"><b>${esc(ck.person)}</b> <small class="mu">(سررسید: ${esc(ck.dt)} ${ck.num?'· صیادی: '+esc(ck.num):''})</small></span>
-        <b style="color:${ck.tp==='in'?'var(--ok)':'var(--er)'}">${pmo(ck.a)} ت</b>
-        <select onchange="BD().chks[${i}].st=this.value;save();render()" style="width:120px;padding:4px 6px">
-          <option value="pending" ${ck.st==='pending'?'selected':''}>⏳ در جریان</option>
-          <option value="passed" ${ck.st==='passed'?'selected':''}>✅ پاس شد</option>
-          <option value="bounced" ${ck.st==='bounced'?'selected':''}>⚠️ برگشتی</option>
-        </select>
-        <button class="x" data-a="bChkDel" data-i="${i}">✕</button>
-      </div>`).join(''):'<div class="mu" style="margin-bottom:8px">چکی ثبت نشده است.</div>'}
+      <h2>🧾 مدیریت چک‌های صیادی (متصل به موجودی حساب‌ها)</h2>
+      ${chks.length?chks.map((ck,i)=>{
+        const accN=B.accs.find(a=>a.id===(ck.acc||'acc_main'))?.n||'کارت اصلی';
+        return `<div class="row fw" style="padding:8px 4px;border-bottom:1px solid var(--bd2)">
+          <span class="bdg ${ck.tp==='in'?'ok':'wn'}">${ck.tp==='in'?'چک دریافتی':'چک پرداختی'}</span>
+          <span class="f1" style="min-width:160px"><b>${esc(ck.person)}</b> <small class="mu">(سررسید: ${esc(ck.dt)} · ${esc(accN)}${ck.num?' · صیادی: '+esc(ck.num):''})</small>${ck.txId?' <span class="bdg ok" style="font-size:10px">ثبت در حساب ✓</span>':''}</span>
+          <b style="color:${ck.tp==='in'?'var(--ok)':'var(--er)'}">${pmo(ck.a)} ت</b>
+          <select onchange="onChkStatusChange(${i},this.value)" style="width:120px;padding:4px 6px">
+            <option value="pending" ${ck.st==='pending'?'selected':''}>⏳ در جریان</option>
+            <option value="passed" ${ck.st==='passed'?'selected':''}>✅ پاس شد</option>
+            <option value="bounced" ${ck.st==='bounced'?'selected':''}>⚠️ برگشتی</option>
+          </select>
+          <button class="x" data-a="bChkDel" data-i="${i}">✕</button>
+        </div>`}).join(''):'<div class="mu" style="margin-bottom:8px">چکی ثبت نشده است.</div>'}
       <div class="row fw" style="margin-top:10px">
-        <select id="chkTp" style="width:135px"><option value="out">🔴 چک پرداختی</option><option value="in">🟢 چک دریافتی</option></select>
-        <input type="text" id="chkPerson" placeholder="در وجه / صادرکننده..." class="f1" style="min-width:130px">
-        <input type="number" id="chkAm" placeholder="مبلغ چک (تومان)" class="f1" style="min-width:120px">
-        <input type="text" id="chkDate" placeholder="تاریخ سررسید (مثلاً ۲۵ آذر)" class="f1" style="min-width:130px">
-        <input type="text" id="chkNum" placeholder="شناسه صیادی" style="width:120px">
+        <select id="chkTp" style="width:130px"><option value="out">🔴 چک پرداختی</option><option value="in">🟢 چک دریافتی</option></select>
+        <select id="chkAcc" style="width:145px">${accOpts}</select>
+        <input type="text" id="chkPerson" placeholder="در وجه / صادرکننده..." class="f1" style="min-width:120px">
+        <input type="number" id="chkAm" placeholder="مبلغ چک (تومان)" class="f1" style="min-width:115px">
+        <input type="text" id="chkDate" placeholder="سررسید (مثلاً ۲۵ آذر)" class="f1" style="min-width:125px">
+        <input type="text" id="chkNum" placeholder="شناسه صیادی" style="width:110px">
         <button class="p" data-a="bChkAdd">+ ثبت چک</button>
       </div>
     </div>
@@ -3293,6 +3646,15 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
       <div class="row fw" style="margin-top:12px"><input type="text" id="inTitle" placeholder="عنوان قسط..." style="flex:2;min-width:150px"><input type="number" id="inAm" placeholder="مبلغ پایه قسط (تومان)" class="f1" style="min-width:130px"><input type="number" id="inDay" min="1" max="31" placeholder="روز سررسید" style="width:95px"><input type="number" id="inTot" min="1" placeholder="تعداد کل" style="width:95px"><button class="p" data-a="binsAdd">ثبت قسط</button></div>
     </div>`;
   }
+
+  window.previewSplitBill=function(){
+    const out=$('sbPrev');if(!out)return;
+    const am=+$('sbAm')?.value||0,names=($('sbNames')?.value||'').split(/[،,\n]+/).map(s=>s.trim()).filter(Boolean),incMe=!!$('sbMe')?.checked;
+    if(!am||!names.length){out.textContent='';return}
+    const cnt=names.length+(incMe?1:0),share=Math.round(am/cnt);
+    out.innerHTML=`سهم هر نفر (${fa(cnt)} نفر): <b style="color:var(--ok)">${mo(share)} تومان</b> — برای ${fa(names.length)} نفر (${names.map(esc).join('، ')}) در لیست طلب‌ها ثبت می‌شود.`;
+  };
+
   function wDebts(){
     const list=ensureWealthDB().debts||[];
     const talab=sm_(list.filter(x=>!x.done&&x.tp==='talab').map(x=>x.a));
@@ -3303,7 +3665,20 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
       <div class="td-kpi"><div class="k-top"><span>کل بدهی من به دیگران</span></div><div class="k-num" style="color:var(--er)">${pmo(bedehi)}<small>تومان</small></div></div>
       <div class="td-kpi"><div class="k-top"><span>تراز خالص حساب دفتری</span></div><div class="k-num" style="color:${net>=0?'var(--ok)':'var(--er)'}">${net<0?'−':'+'}${pmo(Math.abs(net))}<small>تومان</small></div></div>
     </div>
-    <div class="cd"><h2>ثبت طلب، بدهی یا دنگ جدید</h2>
+    <div class="cd next">
+      <h2>🍕 تقسیم دنگ گروهی (Split Bill — ثبت خودکار در طلب‌ها)</h2>
+      <div class="row fw">
+        <input type="text" id="sbTitle" placeholder="بابت (مثلاً: شام، سفر شمال...)" class="f1" style="min-width:130px">
+        <input type="number" id="sbAm" placeholder="مبلغ کل پرداخت‌شده (تومان)" class="f1" style="min-width:140px" oninput="previewSplitBill()">
+        <input type="text" id="sbNames" placeholder="اسامی نفرات با ویرگول (مثلاً: علی، رضا، مریم)" style="flex:2;min-width:180px" oninput="previewSplitBill()">
+      </div>
+      <div class="row sb fw" style="margin-bottom:0">
+        <label class="row" style="margin:0;cursor:pointer;font-size:12.5px"><input type="checkbox" id="sbMe" checked onchange="previewSplitBill()"> خودم هم جزو نفرات هستم (تقسیم بر نفرات + ۱)</label>
+        <button class="p" data-a="bSplitApply">+ محاسبه و ثبت در طلب‌ها</button>
+      </div>
+      <div id="sbPrev" class="mu" style="margin-top:6px"></div>
+    </div>
+    <div class="cd"><h2>ثبت طلب یا بدهی تکی</h2>
       <div class="row fw">
         <input type="text" id="dtPerson" placeholder="نام شخص / طرف حساب..." class="f1" style="min-width:130px">
         <select id="dtType" style="width:155px"><option value="talab">🟢 طلب دارم (قرض دادم)</option><option value="bedehi">🔴 بدهکارم (قرض گرفتم)</option></select>
@@ -3323,6 +3698,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
       </div>`).join(''):'<div class="mu">حساب باز یا طلب/بدهی ثبت نشده است.</div>'}
     </div>`;
   }
+
   function wPl(c){
     const {B}=c,sGoals=B.sGoals||[];
     return `<div class="cd">
@@ -3351,21 +3727,25 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
       </div>
     </div>`+(window.bPl?window.bPl(c):'');
   }
+
   window.parseFastOrSms=function(){
     const raw=($('fastTxInp')?.value||'').trim();if(!raw)return;
     const B=ensureWealthDB(),k=hs.y+'-'+hs.m,en=toEnDigits(raw);
-    if((B.tx[k]||[]).some(t=>t.rawSms&&t.rawSms===raw))return alert('⚠️ این پیامک بانکی قبلاً ثبت شده است (تراکنش تکراری).');
+    if((B.tx[k]||[]).some(t=>t.rawSms&&t.rawSms===raw))return notifyMsg('⚠️ این پیامک بانکی قبلاً ثبت شده است (تراکنش تکراری).');
     const np=pp(new Date()),d=en.includes('دیروز')?Math.max(1,np.d-1):np.d;
     let am=0;
     const mM=en.match(/(\d+(?:\.\d+)?)\s*(?:میلیون|ملیون)/),mH=en.match(/(\d+(?:\.\d+)?)\s*(?:هزار)/),mR=en.replace(/,/g,'').match(/(\d{4,11})/);
     if(mM)am=Math.round(parseFloat(mM[1])*1e6);
     else if(mH)am=Math.round(parseFloat(mH[1])*1e3);
     else if(mR){am=parseInt(mR[1],10);if(en.includes('ریال')&&am>=1000)am=Math.round(am/10)}
-    if(am<=0)return alert('مبلغی در متن تشخیص داده نشد.');
+    if(am<=0)return notifyMsg('مبلغی در متن تشخیص داده نشد.');
     let cat=/(واریز|درآمد|حقوق)/.test(en)?'sal':'sup';
-    if(/رستوران|فست|غذا|شام|ناهار/.test(en))cat='rest';
+    if(/نان|نون/.test(en))cat='brd';
+    else if(/میوه|سبزی/.test(en))cat='frt';
+    else if(/تنقلات|چیپس|بستنی|شکلات|آجیل/.test(en))cat='snk';
+    else if(/رستوران|فست|غذا|شام|ناهار/.test(en))cat='rest';
     else if(/کافه|قهوه/.test(en))cat='cafe';
-    else if(/اسنپ|تاکسی|بنزین/.test(en))cat='taxi';
+    else if(/اسنپ|تپسی|تاکسی|بنزین/.test(en))cat='taxi';
     else if(/اجاره|قبض|اینترنت/.test(en))cat='bill';
     else if(/لباس|پوشاک|خرید/.test(en))cat='clo';
     const cleanNote=raw.replace(/[\d۰-۹.,]+\s*(?:میلیون|هزار|تومان|تومن|ریال)?/g,'').replace(/دیروز|امروز/g,'').trim().slice(0,45);
@@ -3373,18 +3753,43 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
     $('fastTxInp').value='';save();render();
     if(window.showToast)showToast(`ثبت شد: ${mo(am)} ت (${catL(cat)}) ✓`);
   };
+
+  // ذخیره ویرایش تراکنش در مودال #txEditMdl
+  if($('edTxSaveBtn'))$('edTxSaveBtn').onclick=()=>{
+    const B=ensureWealthDB(),k=hs.y+'-'+hs.m,id=$('edTxId').value;
+    const tx=(B.tx[k]||[]).find(x=>x.id===id);
+    if(!tx)return;
+    const am=+$('edTxAm').value||0;if(am<=0)return notifyMsg('مبلغ معتبر وارد کنید.');
+    tx.d=clamp(+$('edTxDay').value||1,1,ML(hs.y,hs.m));
+    tx.acc=$('edTxAcc').value;
+    tx.c=$('edTxCat').value;
+    tx.a=am;
+    tx.n=$('edTxNote').value.trim();
+    $('txEditMdl').classList.remove('on');
+    save();render();
+    if(window.showToast)showToast('تراکنش ویرایش شد ✓');
+  };
+  if($('txEditMdl'))$('txEditMdl').onclick=e=>{if(e.target===$('txEditMdl'))$('txEditMdl').classList.remove('on')};
+
   // تزریق مستقیم و تضمینی به حلقه رندر اصلی برنامه
   const prevR=window.render;
   window.render=function(){
     prevR();
     if(tab==='bg'){
       $('main').innerHTML=renderWealthTab();
+      if(wSub==='as'){
+        if(calcTab==='loan')runLoanCalc();
+        else if(calcTab==='comp')runCompCalc();
+      }
     }
   };
+
   document.addEventListener('click',e=>{
     const b=e.target.closest('[data-a]');if(!b)return;
     const a=b.dataset.a,B=ensureWealthDB(),k=hs.y+'-'+hs.m;
     if(a==='wSubBtn'){wSub=b.dataset.v;render()}
+    else if(a==='bNwUnit'){nwUnit=b.dataset.v;localStorage.setItem('wp26_nw_unit',nwUnit);render()}
+    else if(a==='bCalcTab'){calcTab=b.dataset.v;render()}
     else if(a==='bTogglePrivacy'){hideMoney=!hideMoney;localStorage.setItem('wp26_hide_mo',hideMoney?'1':'0');render()}
     else if(a==='bNowM'){const t=new Date();t.setHours(12,0,0,0);const p=pp(t);hs={y:p.y,m:p.m,s:new Date(t.getTime()-(p.d-1)*864e5)};render()}
     else if(a==='bCsvExp'){
@@ -3393,6 +3798,25 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
       const csv='\uFEFF'+rows.map(r=>r.join(',')).join('\n');
       const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}),lnk=document.createElement('a');
       lnk.href=URL.createObjectURL(blob);lnk.download=`finance-${hs.y}-${hs.m}.csv`;lnk.click();
+    }
+    else if(a==='bTxEdit'){
+      const tx=(B.tx[k]||[]).find(x=>x.id===b.dataset.id);if(!tx)return;
+      $('edTxId').value=tx.id;
+      $('edTxDay').value=tx.d;
+      $('edTxAcc').innerHTML=B.accs.map(ac=>`<option value="${ac.id}" ${(tx.acc||'acc_main')===ac.id?'selected':''}>${esc(ac.n)}</option>`).join('');
+      $('edTxCat').innerHTML=GR.map(g=>`<optgroup label="${g[3]=='in'?'درآمد':'هزینه'} — ${g[1]}">${g[4].map(i=>`<option value="${i[0]}" ${tx.c===i[0]?'selected':''}>${i[1]}</option>`).join('')}</optgroup>`).join('');
+      $('edTxAm').value=tx.a;
+      $('edTxWords').textContent=numWords(tx.a);
+      $('edTxNote').value=tx.n||'';
+      $('txEditMdl').classList.add('on');
+    }
+    else if(a==='bAddCustomCat'){
+      const lbl=prompt('نام سرفصل دلخواه (مثلاً: ترید، حیوان خانگی، کمیسیون):');if(!lbl||!lbl.trim())return;
+      const isIncome=confirm('آیا این سرفصل از نوع «درآمد» است؟\n(OK = درآمد | Cancel = هزینه)');
+      const cid='cc_'+Date.now();
+      B.customCats.push({id:cid,l:lbl.trim(),t:isIncome?'in':'ex'});
+      syncCustomCats(B);save();render();
+      if(window.showToast)showToast(`سرفصل «${lbl.trim()}» اضافه شد ✓`);
     }
     else if(a==='bAccAdd'){
       const n=prompt('نام کارت یا حساب جدید (مثلاً: بانک ملت، نقد...):');if(!n)return;
@@ -3407,7 +3831,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
     else if(a==='bFastParse'){parseFastOrSms()}
     else if(a==='bTrAdd'){
       const from=$('trFrom').value,to=$('trTo').value,am=+$('trAm').value||0,note=$('trNote').value.trim();
-      if(from===to)return alert('حساب مبدا و مقصد نمی‌تواند یکی باشد.');
+      if(from===to)return notifyMsg('حساب مبدا و مقصد نمی‌تواند یکی باشد.');
       if(am<=0)return;
       (B.transfers[k]=B.transfers[k]||[]).push({id:'tr'+Date.now(),d:curD()||1,from,to,a:am,n:note});
       save();render();
@@ -3420,10 +3844,28 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
       const firstWord=nt.split(/\s+/)[0];if(firstWord&&firstWord.length>2&&!firstWord.startsWith('#'))B.catRules[firstWord]=cat;
       save();render();
     }
+    else if(a==='bTopRecApply'){
+      const item=_topRecCache[+b.dataset.i];if(!item)return;
+      (B.tx[k]=B.tx[k]||[]).push({id:'t'+Date.now(),d:curD()||1,c:item.c,a:item.a,n:item.n,acc:item.acc||'acc_main'});
+      save();render();
+      if(window.showToast)showToast(`ثبت شد: ${catL(item.c)}${item.n?' — '+item.n:''} (${mo(item.a)} ت) ✓`);
+    }
     else if(a==='bRecApply'){
       const rc=B.recs[+b.dataset.i];if(!rc)return;
       let am=rc.a;if(!am){am=+(prompt(`مبلغ «${rc.t}» در این ماه (تومان):`,'0')||0);if(am>0)rc.a=am}
       if(am>0){(B.tx[k]=B.tx[k]||[]).push({id:'t'+Date.now(),d:curD()||1,c:rc.c,a:am,n:rc.t,acc:rc.acc||'acc_main'});save();render();if(window.showToast)showToast(`«${rc.t}» ثبت شد ✓`)}
+    }
+    else if(a==='bRecEdit'){
+      const rc=B.recs[+b.dataset.i];if(!rc)return;
+      const nt=prompt('عنوان جدید تراکنش تکرارشونده:',rc.t);if(nt===null)return;
+      const na=prompt('مبلغ ماهانه (تومان):',rc.a||0);if(na===null)return;
+      rc.t=nt.trim()||rc.t;rc.a=Math.max(0,+na||0);save();render();
+      if(window.showToast)showToast('تراکنش تکرارشونده ویرایش شد ✓');
+    }
+    else if(a==='bRecDel'){
+      if(window.pushUndo)pushUndo('bRecDel');
+      B.recs.splice(+b.dataset.i,1);save();render();
+      if(window.showToast)showToast('حذف شد',true);
     }
     else if(a==='bRecNew'){
       const t=prompt('عنوان تراکنش تکرارشونده (مثلاً: اجاره، اشتراک، اینترنت):');if(!t)return;
@@ -3436,11 +3878,23 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
       B.assets.push({id:'as'+Date.now(),n,q,buyP:bp||p,p});save();render();
     }
     else if(a==='bChkAdd'){
-      const tp=$('chkTp').value,person=$('chkPerson').value.trim(),am=+$('chkAm').value||0,dt=$('chkDate').value.trim(),num=$('chkNum').value.trim();
+      const tp=$('chkTp').value,acc=$('chkAcc')?.value||'acc_main',person=$('chkPerson').value.trim(),am=+$('chkAm').value||0,dt=$('chkDate').value.trim(),num=$('chkNum').value.trim();
       if(!person||!am)return;
-      B.chks.unshift({id:'ck'+Date.now(),tp,person,a:am,dt:dt||'به‌زودی',num,st:'pending'});save();render();
+      B.chks.unshift({id:'ck'+Date.now(),tp,acc,person,a:am,dt:dt||'به‌زودی',num,st:'pending'});save();render();
     }
     else if(a==='bChkDel'){B.chks.splice(+b.dataset.i,1);save();render()}
+    else if(a==='bSplitApply'){
+      const title=($('sbTitle')?.value||'دنگ گروهی').trim(),am=+$('sbAm')?.value||0;
+      const names=($('sbNames')?.value||'').split(/[،,\n]+/).map(s=>s.trim()).filter(Boolean),incMe=!!$('sbMe')?.checked;
+      if(am<=0||!names.length)return notifyMsg('مبلغ کل و نام حداقل یک نفر را وارد کنید.');
+      const share=Math.round(am/(names.length+(incMe?1:0)));
+      const dtStr=pdy(new Date());
+      names.forEach(nm=>{
+        B.debts.unshift({id:'d'+Date.now()+Math.random(),person:nm,tp:'talab',a:share,note:`دنگ: ${title}`,dt:dtStr,done:0});
+      });
+      save();render();
+      if(window.showToast)showToast(`سهم ${fa(names.length)} نفر (نفری ${mo(share)} ت) در طلب‌ها ثبت شد ✓`);
+    }
     else if(a==='bSgAdd'){
       const t=$('sgTitle').value.trim(),target=+$('sgTarget').value||0,mTarget=+$('sgMonth').value||0;
       if(!t||!target)return;
@@ -3778,7 +4232,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
     if(tab==='hb'){
       // حذف هدر ساده قبلی بالای تب عادت‌ها و جایگزینی با مرکز مدیریت عادت‌ها + کارت‌های ۳ ستونی
       const firstCd=q('#main > .cd');
-      if(firstCd&&firstCd.textContent.includes('ردیاب عادت‌ها'))firstCd.remove();
+      if(firstCd&&(firstCd.textContent.includes('پیگیری عادت‌ها')||firstCd.textContent.includes('ردیاب عادت‌ها')))firstCd.remove();
       if(!$('hbCenterHero')){
         $('main').insertAdjacentHTML('afterbegin',buildHabitCenterHtml());
       }
@@ -4277,8 +4731,314 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
     prevR();
     if(tab==='ov'){
       $('main').innerHTML=renderGraphicalOverview();
+      if(window.upClock)upClock();
+      if(window.attachVoiceButtons)attachVoiceButtons();
+      if(window.fixNumericInputs)fixNumericInputs();
     }
   };
+  render();
+})();
+// ==================== ماژول ارتقای حرفه‌ای: پالت رنگی + Drag & Drop + قوانین طلایی + کارت تصویری PNG ====================
+(function(){
+  // ---------- ۱. مدیریت پالت‌های رنگی (Theme Presets) ----------
+  window.setPalette=function(pal){
+    const p=pal||'sapphire';
+    if(p==='sapphire')document.documentElement.removeAttribute('data-palette');
+    else document.documentElement.setAttribute('data-palette',p);
+    localStorage.setItem('wp26_pal',p);
+    document.querySelectorAll('#palGrid button').forEach(b=>b.classList.toggle('on',b.dataset.pal===p));
+  };
+  setPalette(localStorage.getItem('wp26_pal')||'sapphire');
+
+  // ---------- ۲. قوانین طلایی و چک‌لیست آمادگی روزانه ----------
+  function RULES(){
+    if(!S.rules){
+      S.rules=[
+        {id:'r1',t:'آمادگی ذهنی ۱۰۰٪ پیش از شروع کارهای کلیدی'},
+        {id:'r2',t:'پایبندی کامل به ساعات کاری برنامه‌ریزی‌شده'},
+        {id:'r3',t:'رعایت سقف ریسک و محدودیت‌های روزانه'},
+        {id:'r4',t:'ثبت و مرور عملکرد در پایان روز'}
+      ];
+    }
+    return S.rules;
+  }
+  function dayRulePct(d){
+    const rs=RULES();if(!rs.length)return 0;
+    const rc=d.rc||{};
+    return Math.round(100*rs.filter(r=>rc[r.id]).length/rs.length);
+  }
+  function weekRulePct(){
+    const rs=RULES();if(!rs.length)return 0;
+    const ds=W().days;
+    let tot=0,dn=0;
+    ds.forEach(d=>{
+      if(d.hol)return;
+      const rc=d.rc||{};
+      const checked=rs.filter(r=>rc[r.id]).length;
+      if(checked>0||(d.t&&d.t.length)||dayMin(d)>0){tot+=rs.length;dn+=checked}
+    });
+    return tot?Math.round(100*dn/tot):0;
+  }
+  function buildGoldenRulesCard(){
+    const d=W().days[di],rs=RULES(),rc=d.rc=d.rc||{},pct=dayRulePct(d);
+    return `<div class="cd" id="goldenRulesCard">
+      <div class="row sb" style="margin-bottom:8px">
+        <h2 style="margin:0">🛡️ قوانین طلایی و آمادگی امروز (${fa(pct)}٪)</h2>
+        <span class="bdg ${pct===100?'ok':pct>=50?'':'wn'}">${pct===100?'آمادگی کامل ✓':fa(rs.filter(r=>rc[r.id]).length)+' از '+fa(rs.length)}</span>
+      </div>
+      ${bar(pct)}
+      <div style="margin-top:10px">
+        ${rs.map((r,idx)=>`<div class="row">
+          <input type="checkbox" data-a="ruleTog" data-id="${r.id}" ${rc[r.id]?'checked':''}>
+          <span class="f1 ${rc[r.id]?'done':''}" style="font-size:13.5px">${esc(r.t)}</span>
+          <button class="x" data-a="ruleDel" data-i="${idx}" title="حذف قانون">✕</button>
+        </div>`).join('')||'<div class="mu" style="margin-bottom:6px">قانونی ثبت نشده است.</div>'}
+      </div>
+      <div class="row" style="margin-top:8px;margin-bottom:0">
+        <input type="text" id="newRuleInp" placeholder="افزودن قانون طلایی جدید..." onkeydown="if(event.key==='Enter'){event.preventDefault();q('[data-a=ruleAdd]')?.click()}">
+        <button class="p" data-a="ruleAdd">+ ثبت</button>
+      </div>
+    </div>`;
+  }
+
+  // ---------- ۳. مرتب‌سازی کارها و اهداف با کشیدن و رها کردن (Drag & Drop) ----------
+  let dragCtx=null;
+  function attachDragAndDrop(){
+    // الف) کارهای روزانه در تب برنامه روزانه
+    if(tab==='day'){
+      const taskChecks=document.querySelectorAll('#main [data-a="td"]');
+      taskChecks.forEach(chk=>{
+        const row=chk.closest('.row');
+        if(!row||row.dataset.dndInit)return;
+        row.dataset.dndInit='1';
+        row.classList.add('drag-row');
+        row.draggable=true;
+        row.dataset.dndType='dayTask';
+        row.dataset.dndIdx=chk.dataset.i;
+        const hdl=document.createElement('span');
+        hdl.className='drag-hdl';hdl.textContent='⋮⋮';hdl.title='بکشید و جابه‌جا کنید';
+        row.insertBefore(hdl,row.firstChild);
+      });
+    }
+    // ب) اهداف هفته در تب نمای هفته یا بخش بازشو
+    const goalChecks=document.querySelectorAll('#main [data-a="gd"]');
+    goalChecks.forEach(chk=>{
+      const row=chk.closest('.row');
+      if(!row||row.dataset.dndInit)return;
+      row.dataset.dndInit='1';
+      row.classList.add('drag-row');
+      row.draggable=true;
+      row.dataset.dndType='wkGoal';
+      row.dataset.dndIdx=chk.dataset.i;
+      const hdl=document.createElement('span');
+      hdl.className='drag-hdl';hdl.textContent='⋮⋮';hdl.title='بکشید و جابه‌جا کنید';
+      row.insertBefore(hdl,row.firstChild);
+    });
+  }
+  document.addEventListener('dragstart',e=>{
+    const row=e.target.closest('.drag-row');if(!row)return;
+    dragCtx={type:row.dataset.dndType,from:+row.dataset.dndIdx};
+    row.classList.add('dragging');
+    try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',row.dataset.dndIdx)}catch(err){}
+  });
+  document.addEventListener('dragover',e=>{
+    if(!dragCtx)return;
+    const row=e.target.closest('.drag-row');
+    if(!row||row.dataset.dndType!==dragCtx.type)return;
+    e.preventDefault();
+    document.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over'));
+    row.classList.add('drag-over');
+  });
+  document.addEventListener('dragleave',e=>{
+    const row=e.target.closest('.drag-row');
+    if(row)row.classList.remove('drag-over');
+  });
+  document.addEventListener('drop',e=>{
+    if(!dragCtx)return;
+    const row=e.target.closest('.drag-row');
+    document.querySelectorAll('.drag-over,.dragging').forEach(el=>el.classList.remove('drag-over','dragging'));
+    if(!row||row.dataset.dndType!==dragCtx.type){dragCtx=null;return}
+    e.preventDefault();
+    const to=+row.dataset.dndIdx,from=dragCtx.from;
+    if(from!==to&&!isNaN(from)&&!isNaN(to)){
+      const arr=dragCtx.type==='dayTask'?W().days[di].t:W().goals;
+      const [moved]=arr.splice(from,1);
+      arr.splice(to,0,moved);
+      save();render();
+      if(window.showToast)showToast('ترتیب اولویت به‌روزرسانی شد ✓');
+    }
+    dragCtx=null;
+  });
+  document.addEventListener('dragend',()=>{
+    document.querySelectorAll('.drag-over,.dragging').forEach(el=>el.classList.remove('drag-over','dragging'));
+    dragCtx=null;
+  });
+
+  // ---------- ۴. خروجی کارت تصویری (PNG Snapshot) از عملکرد هفته + ارسال مستقیم به تلگرام ----------
+  function buildWeeklySnapshotCanvas(){
+    const w=W(),ds=w.days;
+    const wkTaskPct=weekPct();
+    const allT=ds.flatMap(d=>d.t||[]),doneT=allT.filter(x=>x.d).length;
+    const wkMin=ds.reduce((a,d)=>a+dayMin(d),0),wkHr=+(wkMin/60).toFixed(1);
+    const prCnt=ds.reduce((a,d)=>a+(d.pr?d.pr.filter(Boolean).length:0),0),prPct=Math.round(100*prCnt/21);
+    const rulePct=weekRulePct();
+    const overall=Math.round((wkTaskPct+prPct+Math.min(100,Math.round(wkHr/12*100))+(rulePct||wkTaskPct))/4);
+
+    const cv=document.createElement('canvas');
+    cv.width=1080;cv.height=1080;
+    const ctx=cv.getContext('2d');
+    ctx.direction='rtl';
+
+    // پس‌زمینه گرادینت سرمه‌ای حرفه‌ای
+    const bg=ctx.createLinearGradient(0,0,1080,1080);
+    bg.addColorStop(0,'#060c18');bg.addColorStop(0.55,'#0f1d3a');bg.addColorStop(1,'#091e28');
+    ctx.fillStyle=bg;ctx.fillRect(0,0,1080,1080);
+
+    // هاله‌های نوری پس‌زمینه
+    const glow1=ctx.createRadialGradient(900,150,20,900,150,360);
+    glow1.addColorStop(0,'rgba(56,189,248,0.22)');glow1.addColorStop(1,'rgba(56,189,248,0)');
+    ctx.fillStyle=glow1;ctx.fillRect(0,0,1080,1080);
+    const glow2=ctx.createRadialGradient(180,920,20,180,920,380);
+    glow2.addColorStop(0,'rgba(34,197,94,0.18)');glow2.addColorStop(1,'rgba(34,197,94,0)');
+    ctx.fillStyle=glow2;ctx.fillRect(0,0,1080,1080);
+
+    // کادر شیشه‌ای اصلی
+    ctx.fillStyle='rgba(255,255,255,0.05)';
+    ctx.strokeStyle='rgba(148,163,184,0.22)';
+    ctx.lineWidth=2;
+    ctx.beginPath();ctx.roundRect(56,56,968,968,36);ctx.fill();ctx.stroke();
+
+    // هدر کارت
+    ctx.fillStyle='#f8fafc';ctx.font='900 44px Vazirmatn, sans-serif';ctx.textAlign='right';
+    ctx.fillText('گزارش عملکرد هفتگی',960,145);
+    ctx.fillStyle='#94a3b8';ctx.font='500 24px Vazirmatn, sans-serif';
+    ctx.fillText(pd(ws)+' تا '+pd(dd(6)),960,190);
+
+    // حلقه امتیاز کل (سمت چپ بالا)
+    const rcx=210,rcy=170,rr=74;
+    ctx.beginPath();ctx.arc(rcx,rcy,rr,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,0.12)';ctx.lineWidth=14;ctx.stroke();
+    ctx.beginPath();ctx.arc(rcx,rcy,rr,-Math.PI/2,-Math.PI/2+(Math.PI*2*overall/100));ctx.strokeStyle='#22c55e';ctx.lineWidth=14;ctx.lineCap='round';ctx.stroke();
+    ctx.fillStyle='#f8fafc';ctx.font='900 40px Vazirmatn, sans-serif';ctx.textAlign='center';
+    ctx.fillText(fa(overall),rcx,rcy+10);
+    ctx.fillStyle='#94a3b8';ctx.font='500 16px Vazirmatn, sans-serif';
+    ctx.fillText('امتیاز کل',rcx,rcy+36);
+
+    // ۴ کارت KPI شیشه‌ای
+    const kpis=[
+      {lbl:'انجام کارهای هفته',val:fa(wkTaskPct)+'٪',sub:fa(doneT)+' از '+fa(allT)+' کار',col:'#38bdf8'},
+      {lbl:'مطالعه و تمرکز',val:fa(wkHr)+' ساعت',sub:fa(Math.round(wkMin))+' دقیقه مفید',col:'#22c55e'},
+      {lbl:'نمازهای هفته',val:fa(prPct)+'٪',sub:fa(prCnt)+' از ۲۱ نوبت',col:'#a78bfa'},
+      {lbl:'پایبندی به قوانین طلایی',val:fa(rulePct)+'٪',sub:'چک‌لیست آمادگی روزانه',col:'#f59e0b'}
+    ];
+    kpis.forEach((k,idx)=>{
+      const col=idx%2,row=Math.floor(idx/2);
+      const x=col===0?555:110,y=280+row*165,bw=415,bh=140;
+      ctx.fillStyle='rgba(15,23,42,0.62)';ctx.strokeStyle='rgba(255,255,255,0.10)';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.roundRect(x,y,bw,bh,22);ctx.fill();ctx.stroke();
+      ctx.fillStyle='#94a3b8';ctx.font='600 20px Vazirmatn, sans-serif';ctx.textAlign='right';
+      ctx.fillText(k.lbl,x+bw-24,y+42);
+      ctx.fillStyle=k.col;ctx.font='900 40px Vazirmatn, sans-serif';
+      ctx.fillText(k.val,x+bw-24,y+92);
+      ctx.fillStyle='#cbd5e1';ctx.font='400 18px Vazirmatn, sans-serif';
+      ctx.fillText(k.sub,x+bw-24,y+122);
+    });
+
+    // نمودار میله‌ای ۷ روز هفته
+    ctx.fillStyle='rgba(15,23,42,0.55)';ctx.strokeStyle='rgba(255,255,255,0.10)';
+    ctx.beginPath();ctx.roundRect(110,630,860,290,24);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#e2e8f0';ctx.font='700 22px Vazirmatn, sans-serif';ctx.textAlign='right';
+    ctx.fillText('روند روزانه تکمیل کارها در طول هفته',940,676);
+
+    ds.forEach((d,i)=>{
+      const p=dayPct(d),bx=855-i*112,baseY=865,maxH=145,bh=Math.max(10,p/100*maxH);
+      ctx.fillStyle='rgba(255,255,255,0.08)';
+      ctx.beginPath();ctx.roundRect(bx,baseY-maxH,52,maxH,12);ctx.fill();
+      ctx.fillStyle=p>=80?'#22c55e':'#38bdf8';
+      ctx.beginPath();ctx.roundRect(bx,baseY-bh,52,bh,12);ctx.fill();
+      ctx.fillStyle='#f8fafc';ctx.font='700 18px Vazirmatn, sans-serif';ctx.textAlign='center';
+      ctx.fillText(fa(p)+'٪',bx+26,baseY-bh-10);
+      ctx.fillStyle='#94a3b8';ctx.font='500 17px Vazirmatn, sans-serif';
+      ctx.fillText(DN[i],bx+26,baseY+28);
+    });
+
+    // فوتر کارت
+    ctx.fillStyle='#64748b';ctx.font='500 18px Vazirmatn, sans-serif';ctx.textAlign='center';
+    ctx.fillText('ساخته‌شده توسط پلنر شخصی من · '+pdy(new Date()),540,985);
+    return cv;
+  }
+
+  window.downloadWeeklyPng=function(){
+    const cv=buildWeeklySnapshotCanvas();
+    const a=document.createElement('a');
+    a.href=cv.toDataURL('image/png');
+    a.download=`weekly-report-${key()}.png`;
+    a.click();
+    if(window.showToast)showToast('کارت تصویری عملکرد هفته ذخیره شد 📸');
+  };
+
+  window.sendWeeklyPngToTg=async function(){
+    const tok=localStorage.getItem('wp26_tg_tok')||'',cid=localStorage.getItem('wp26_tg_cid')||'',prx=localStorage.getItem('wp26_tg_prx')||'';
+    if(!tok||!cid)return notifyMsg('ابتدا از منوی ⋯ ربات تلگرام را متصل کنید.');
+    const cv=buildWeeklySnapshotCanvas();
+    if(window.showToast)showToast('در حال ارسال کارت تصویری به تلگرام...');
+    cv.toBlob(async blob=>{
+      try{
+        const fd=new FormData();
+        fd.append('chat_id',cid);
+        fd.append('photo',blob,`weekly-${key()}.png`);
+        fd.append('caption',`📊 گزارش تصویری عملکرد هفته (${pd(ws)} تا ${pd(dd(6))})`);
+        const base=(prx?prx.replace(/\/$/,''):'https://api.telegram.org');
+        const r=await fetch(`${base}/bot${tok}/sendPhoto`,{method:'POST',body:fd});
+        notifyMsg(r.ok?'کارت تصویری با موفقیت به تلگرام ارسال شد ✓':'خطا در ارسال تصویر به تلگرام');
+      }catch(e){notifyMsg('خطا در اتصال به تلگرام')}
+    },'image/png');
+  };
+
+  // ---------- ۵. اتصال یکپارچه به render و رویدادها ----------
+  const prevR=window.render;
+  window.render=function(){
+    prevR();
+    // تزریق کارت قوانین طلایی در تب برنامه روزانه
+    if(tab==='day'&&!$('goldenRulesCard')){
+      const g2=q('#main .g2');
+      if(g2&&g2.children[1])g2.children[1].insertAdjacentHTML('afterbegin',buildGoldenRulesCard());
+    }
+    // تزریق دکمه‌های کارت تصویری PNG و کارت پایبندی قوانین طلایی در تب تحلیل عملکرد
+    if(tab==='ai'){
+      const nav=q('#main .ai-nav');
+      if(nav&&!$('snapActionBar')){
+        nav.insertAdjacentHTML('afterend',`<div class="snap-bar" id="snapActionBar">
+          <span class="mu">🛡️ پایبندی به قوانین طلایی این هفته: <b style="color:var(--ok)">${fa(weekRulePct())}٪</b></span>
+          <div class="row" style="margin:0">
+            <button class="p" onclick="downloadWeeklyPng()">📸 ذخیره کارت تصویری هفته (PNG)</button>
+            <button onclick="sendWeeklyPngToTg()">✈️ ارسال تصویر به تلگرام</button>
+          </div>
+        </div>`);
+      }
+    }
+    attachDragAndDrop();
+  };
+
+  document.addEventListener('click',e=>{
+    const b=e.target.closest('[data-a]');if(!b)return;
+    const a=b.dataset.a;
+    if(a==='ruleTog'){
+      const d=W().days[di];d.rc=d.rc||{};
+      d.rc[b.dataset.id]=b.checked?1:0;
+      save();render();
+    }else if(a==='ruleAdd'){
+      const inp=$('newRuleInp'),v=(inp?.value||'').trim();
+      if(!v)return;
+      RULES().push({id:'r'+Date.now(),t:v});
+      save();render();
+    }else if(a==='ruleDel'){
+      if(window.pushUndo)pushUndo('ruleDel');
+      RULES().splice(+b.dataset.i,1);
+      save();render();
+      if(window.showToast)showToast('قانون حذف شد',true);
+    }
+  });
+
   render();
 })();
 // ساخت خودکار آیکون 512x512 شیشه‌ای و مانیفست اپلیکیشن (بدون نیاز به آپلود عکس)
