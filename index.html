@@ -522,6 +522,10 @@ body[data-sec="lrn"] #pv,body[data-sec="lrn"] #wl,body[data-sec="lrn"] #nx,body[
 .alloc-row{display:flex;align-items:center;gap:8px;font-size:12.5px}
 .alloc-dot{width:11px;height:11px;border-radius:4px;flex:none}
 .calc-res{background:var(--sf2);border:1px solid var(--bd2);border-radius:14px;padding:12px 14px;margin-top:10px;font-size:13px;line-height:1.8}
+.bud-auto-tag{font-size:10px;padding:1px 6px;border-radius:6px;background:color-mix(in srgb,var(--ac) 13%,transparent);color:var(--ac);font-weight:700;white-space:nowrap}
+.bar{position:relative}
+.bar > i{transition:width .75s cubic-bezier(.22,1,.36,1)!important}
+@media(prefers-reduced-motion:reduce){.bar > i{transition:none!important}}
 </style>
 </head>
 <body>
@@ -768,6 +772,7 @@ function MKT(){
   if(S.mkt.coin===undefined)S.mkt.coin=52000000;
   if(S.mkt.hcoin===undefined)S.mkt.hcoin=27000000;
   if(S.mkt.qcoin===undefined)S.mkt.qcoin=17000000;
+  ['coin','hcoin','qcoin'].forEach(k=>{if(S.mkt[k]>0&&S.mkt[k]<1000000)S.mkt[k]=Math.round(S.mkt[k]*1000)});
   if(S.mkt.btc===undefined)S.mkt.btc=0;
   if(!S.mktCfg)S.mktCfg={prov:'brs',url:'',unit:'toman',pathG:'',pathU:'',pathC:'',pathH:'',pathQ:''};
   if(S.mktCfg.key){setMktKey(S.mktCfg.key);delete S.mktCfg.key;try{localStorage.setItem('wp26',JSON.stringify(S))}catch(e){}}
@@ -790,7 +795,9 @@ function scanJsonRates(data){
     if(!o||typeof o!=='object')return;
     if(Array.isArray(o)){o.forEach(x=>walk(x,kn));return}
     const lb=String(o.name||o.title||o.symbol||o.slug||o.item||kn||'').toLowerCase();
-    const val=cleanNum(o.price??o.value??o.rate??o.lastTradePrice??o.last??o.buy??o.p);
+    let val=cleanNum(o.price??o.value??o.rate??o.lastTradePrice??o.last??o.buy??o.p);
+    const uStr=String(o.unit||'').toLowerCase();
+    if(val>0&&(uStr.includes('هزار')||uStr.includes('thousand')))val*=1000;
     matchKey(lb,val);
     Object.entries(o).forEach(([k,v])=>{
       if(typeof v==='object'&&v!==null)walk(v,k);
@@ -798,6 +805,21 @@ function scanJsonRates(data){
     });
   }
   walk(data);return {g18,usdt,coin,hcoin,qcoin,oz};
+}
+function syncAssetsFromMkt(B){
+  if(!B||!B.assets)return;
+  const m=MKT();
+  B.assets.forEach(a=>{
+    const id=a.id||'',nm=String(a.n||'').toLowerCase();
+    let pr=0;
+    if(id==='g18'||nm.includes('۱۸')||nm.includes('18'))pr=m.g18;
+    else if(id==='usdt'||nm.includes('تتر')||nm.includes('usdt')||nm.includes('دلار'))pr=m.usdt;
+    else if(id==='hcoin'||nm.includes('نیم سکه')||nm.includes('نیم‌سکه'))pr=m.hcoin;
+    else if(id==='qcoin'||nm.includes('ربع سکه')||nm.includes('ربع‌سکه'))pr=m.qcoin;
+    else if(id==='coin'||(!nm.includes('نیم')&&!nm.includes('ربع')&&!nm.includes('گرمی')&&(nm.includes('امامی')||nm.includes('تمام سکه')||nm.includes('سکه تمام'))))pr=m.coin;
+    else if(id==='btc'||nm.includes('بیت‌کوین')||nm.includes('بیت کوین')||nm.includes('btc'))pr=m.btc;
+    if(pr>0)a.p=pr;
+  });
 }
 async function fetchLiveRates(){
   const m=MKT(),cfg=S.mktCfg,btn=$('mktRefBtn'),msg=$('apiTestMsg');
@@ -821,9 +843,10 @@ async function fetchLiveRates(){
         if(sc.oz>0)m.oz=Math.round(sc.oz);
         if(gv>0){m.g18=Math.round(gv/div);got=true}
         if(uv>0){m.usdt=Math.round(uv/div);got=true}
-        if(cv>0){m.coin=Math.round(cv/div);got=true}
-        if(hv>0){m.hcoin=Math.round(hv/div);got=true}
-        if(qv>0){m.qcoin=Math.round(qv/div);got=true}
+        const normCoin=v=>{const x=Math.round(v/div);return (x>0&&x<1000000)?Math.round(v*1000):x};
+        if(cv>0){m.coin=normCoin(cv);got=true}
+        if(hv>0){m.hcoin=normCoin(hv);got=true}
+        if(qv>0){m.qcoin=normCoin(qv);got=true}
       }
     }
     if(!got||cfg.prov==='free'){
@@ -836,9 +859,7 @@ async function fetchLiveRates(){
     if(rb&&rb.ok){const db=await rb.json();if(db&&db.price&&m.usdt>0)m.btc=Math.round(+db.price*m.usdt)}
   }catch(e){}
   m.ts=new Date().toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'});
-  const B=BD();
-  const syncMap={g18:m.g18,usdt:m.usdt,coin:m.coin,hcoin:m.hcoin,qcoin:m.qcoin,btc:m.btc};
-  Object.entries(syncMap).forEach(([id,pr])=>{const a=B.assets.find(x=>x.id===id);if(a&&pr>0)a.p=pr});
+  syncAssetsFromMkt(BD());
   save();render();
   if(msg)msg.textContent=got?`دریافت شد: طلا ${fa(m.g18)} | تتر ${fa(m.usdt)} | امامی ${fa(m.coin)}`:'عدم دریافت (کلید API یا اتصال را بررسی کنید).';
 }
@@ -1081,11 +1102,11 @@ else if(a=='basDel'){B.assets=B.assets.filter(x=>x.id!=b.dataset.id)}else return
 document.addEventListener('input',e=>{const t=e.target,f=t.dataset.f,B=BD(),k=hs.y+'-'+hs.m;
 if(t.id==='bam'){const w=$('bamWords');if(w)w.textContent=numWords(t.value)}
 if(t.id==='inAm'){const w=$('inAmWords');if(w)w.textContent=numWords(t.value)}
-if(f=='bl'){(B.bud[k]=B.bud[k]||{})[t.dataset.c]=Math.max(0,+t.value||0);save()}
+if(f=='bl'){(B.bud[k]=B.bud[k]||{})[t.dataset.c]=Math.max(0,+t.value||0);(B.budManual=B.budManual||{})[k]=B.budManual[k]||{};B.budManual[k][t.dataset.c]=1;save()}
 else if(f=='bg'){B.goal[k]=Math.max(0,+t.value||0);const w=$('bgWords');if(w)w.textContent=numWords(t.value);save()}
 else if(f=='insam'){const ins=B.inst.find(x=>x.id==t.dataset.id);if(ins){const nv=Math.max(0,+t.value||0);(ins.amts=ins.amts||{})[k]=nv;const tx=(B.tx[k]||[]).find(x=>x.insId===ins.id||x.id===(ins.paid&&ins.paid[k]));if(tx)tx.a=nv;save()}}
 else if(f=='asq'){const as=B.assets.find(x=>x.id==t.dataset.id);if(as){as.q=Math.max(0,+t.value||0);save()}}
-else if(f=='asp'){const as=B.assets.find(x=>x.id==t.dataset.id);if(as){as.p=Math.max(0,+t.value||0);if(as.id==='g18')MKT().g18=as.p;if(as.id==='usdt')MKT().usdt=as.p;save()}}});
+else if(f=='asp'){const as=B.assets.find(x=>x.id==t.dataset.id);if(as){as.p=Math.max(0,+t.value||0);if(['g18','usdt','coin','hcoin','qcoin','btc'].includes(as.id))MKT()[as.id]=as.p;save()}}});
 document.addEventListener('change',e=>{const f=e.target.dataset.f;if(f=='bl'||f=='bg'||f=='asq'||f=='asp'||f=='insam')rr()});
 const GR_RAW=[
 ['food','خوراک و روزمره','#f59e0b','ex','sup:سوپرمارکت|brd:نان|frt:میوه و سبزیجات|snk:تنقلات|rest:رستوران|cafe:کافه|fdo:سفارش آنلاین|food:سایر خوراک'],
@@ -1133,14 +1154,18 @@ function bTx(c){const n=c.n,cd=c.cd,opts=GR.map(g=>`<optgroup label='${g[3]=='in
 return `<div class='cd'><h2>استخراج خودکار از پیامک بانکی</h2><div class='row'><input type='text' id='smsBox' placeholder='متن پیامک بانک را اینجا جای‌گذاری کنید...'><button data-a='bsms'>استخراج اطلاعات</button></div></div>
 <div class='cd'><h2>ثبت تراکنش جدید</h2><div class='row fw'><input type='number' id='bdy' min='1' max='${n}' value='${cd||1}' style='width:68px'><select id='bcat' class='f1' style='min-width:185px'>${opts}</select><input type='number' id='bam' min='1' placeholder='مبلغ (تومان)' class='f1' style='min-width:120px'><input type='text' id='bnt' placeholder='توضیحات...' class='f1' style='min-width:120px'><button class='p' data-a='ba'>ثبت</button></div><div id='bamWords' class='mu' style='font-weight:600;color:var(--tx)'></div></div>
 <div class='cd'><h2>فهرست تراکنش‌های ${PM[hs.m-1]} (${fa(c.M.tx.length)})</h2><div class='row'><select data-f='bfg'><option value=''>همه سرفصل‌ها</option>${GR.map(g=>`<option value='${g[0]}' ${bfg==g[0]?'selected':''}>${g[1]}</option>`).join('')}</select><input type='text' data-f='bq' value='${esc(bq)}' placeholder='جستجو...'></div><div id='tl'>${bList()}</div></div>`}
-function bPl(c){const{M,bu,gl,bal}=c,ex=M.ex,tl=Object.values(bu).reduce((a,b)=>a+b,0),nd=['food','trans','bill','net','health','fin','edu','work'],nv=sm_(nd.map(g=>gs(ex,g))),wv=M.E-nv,p3=v=>M.I?Math.round(100*v/M.I):0,gp=gl?clamp(Math.round(100*bal/gl)):0;
+function bPl(c){const{M,bu,gl,bal,budAuto={},isFutureBud=false}=c,ex=M.ex,tl=Object.values(bu).reduce((a,b)=>a+b,0),nd=['food','trans','bill','net','health','fin','edu','work'],nv=sm_(nd.map(g=>gs(ex,g))),wv=M.E-nv,p3=v=>M.I?Math.round(100*v/M.I):0,gp=gl?clamp(Math.round(100*bal/gl)):0;
 const rows=GXs.map(g=>{const v=gs(ex,g[0]),lm=bu[g[0]]||0,p=lm?Math.round(100*v/lm):0,col=!lm?'var(--mu)':p>=100?'var(--er)':p>=80?'var(--wn)':'var(--ok)';
-return `<div style='margin-bottom:10px'><div class='row' style='margin:0'><span class='f1' style='font-weight:500'>${g[1]}</span><span class='mu'>${mo(v)}</span><input type='number' min='0' data-f='bl' data-c='${g[0]}' value='${lm||''}' placeholder='سقف بودجه' style='width:115px;padding:4px 8px'></div><div class='bar' style='margin-top:4px'><i style='width:${Math.min(100,p)}%;background:${col}'></i></div></div>`}).join('');
+const autoTag=budAuto[g[0]]?`<span class='bud-auto-tag' title='محاسبه‌شده از هزینه واقعی ماه قبل'>خودکار از ماه قبل</span>`:'';
+return `<div style='margin-bottom:10px'><div class='row' style='margin:0'><span class='f1' style='font-weight:500'>${g[1]} ${autoTag}</span><span class='mu'>${mo(v)}</span><input type='number' min='0' data-f='bl' data-c='${g[0]}' value='${lm||''}' placeholder='سقف بودجه' style='width:115px;padding:4px 8px'></div><div class='bar' style='margin-top:4px'><i style='width:${Math.min(100,p)}%;background:${col}'></i></div></div>`}).join('');
 const r3=(l,a,t)=>`<div style='margin-bottom:10px'><div class='row' style='margin:0'><span class='f1'>${l}</span><b>${fa(a)}٪</b><span class='mu'>هدف ${fa(t)}٪</span></div><div class='bar' style='margin-top:4px'><i style='width:${clamp(a)}%;background:${a>t&&t!=20?'var(--er)':'var(--ok)'}'></i></div></div>`;
+const budHint=isFutureBud
+  ? `<div class='row sb fw' style='margin-bottom:10px'><span class='mu' style='color:var(--ok)'>✨ سقف هر سرفصل به صورت خودکار بر اساس هزینه واقعی ماه قبل تنظیم شده است (در صورت ویرایش، عدد دستی شما ذخیره می‌شود).</span><button data-a='bBudResetAuto' style='font-size:11.5px'>↺ بازنشانی از ماه قبل</button></div>`
+  : `<div class='mu' style='margin-bottom:10px'>🔒 برای این ماه، مقادیر دستی خودتان حفظ می‌شود؛ از اول ماه بعد، سقف هر سرفصل خودکار بر اساس هزینه ماه قبل قرار می‌گیرد.</div>`;
 return `<div class='g2'><div class='cd'><h2>هدف پس‌انداز ماهانه</h2><div class='row'><input type='number' min='0' data-f='bg' value='${gl||''}' placeholder='مبلغ هدف (تومان)'></div><div id='bgWords' class='mu'>${numWords(gl)}</div>${gl?`<div class='bar'><i style='width:${gp}%;background:var(--ok)'></i></div><div class='mu' style='margin-top:4px'>${fa(gp)}٪ محقق شده</div>`:''}</div>
 <div class='cd'><h2>مصرف بودجه کل</h2>${tl?`<div class='bar'><i style='width:${clamp(Math.round(100*M.E/tl))}%;background:${M.E>tl?'var(--er)':'var(--ok)'}'></i></div><div class='mu' style='margin-top:6px'>${mo(M.E)} از ${mo(tl)} تومان</div>`:`<div class='mu'>سقف سرفصل‌ها را در پایین وارد کنید.</div>`}</div></div>
 <div class='cd'><h2>تراز قانون ۵۰/۳۰/۲۰</h2>${M.I?r3('نیازهای ضروری',p3(nv),50)+r3('خواسته‌ها',p3(wv),30)+r3('پس‌انداز',p3(Math.max(0,bal)),20):`<div class='mu'>پس از ثبت درآمد محاسبه می‌شود.</div>`}</div>
-<div class='cd'><h2>سقف بودجه هر سرفصل</h2>${rows}</div>`}
+<div class='cd'><h2>سقف بودجه هر سرفصل</h2>${budHint}${rows}</div>`}
 function bAs(c){
   const {B,k}=c,assets=B.assets||[],inst=B.inst||[];
   const totAssetVal=sm_(assets.map(a=>(a.q||0)*(a.p||0))),totInst=sm_(inst.map(i=>insAm(i,k)||0)),paidInst=sm_(inst.filter(i=>i.paid&&i.paid[k]).map(i=>insAm(i,k)||0));
@@ -1224,7 +1249,7 @@ else if(a=='mktCfgOpen'){openMktCfg();return}
 else if(a=='editMkt'){
   const k=b.dataset.k,m=MKT(),lbls={g18:'هر گرم طلای ۱۸ عیار',usdt:'تتر / دلار',coin:'سکه تمام امامی',hcoin:'نیم سکه',qcoin:'ربع سکه',btc:'بیت‌کوین'};
   const v=prompt(`نرخ روز ${lbls[k]||k} (تومان):`,m[k]||0);
-  if(v!==null&&+v>0){m[k]=+v;const as=BD().assets.find(x=>x.id===k);if(as)as.p=+v;m.ts=new Date().toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'});save();render()}
+  if(v!==null&&+v>0){m[k]=+v;syncAssetsFromMkt(BD());m.ts=new Date().toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'});save();render()}
   return;
 }
 else if(a=='nxQuote')qIdx=(qIdx+1)%QUOTES.length;
@@ -3184,7 +3209,10 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
     if(!B.sGoals)B.sGoals=[{id:'sg1',t:'صندوق ذخیره اضطراری',target:50000000,saved:0,mTarget:5000000}];
     if(!B.catRules)B.catRules={};
     if(!B.customCats)B.customCats=[];
+    if(!B.budManual)B.budManual={};
+    if(!B.budBaseYm){const np_=pp(new Date());B.budBaseYm=np_.y*12+np_.m}
     syncCustomCats(B);
+    syncAssetsFromMkt(B);
     (B.assets||[]).forEach(a=>{if(a.buyP===undefined)a.buyP=a.p||0});
     return B;
   }
@@ -3277,9 +3305,27 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
     return alerts;
   }
 
+  function resolveMonthBudget(B,y,m){
+    const k=y+'-'+m,ym=y*12+m,raw=B.bud[k]||{};
+    const isFuture=ym>(B.budBaseYm||0);
+    if(!isFuture)return {bud:raw,autoFlags:{},isFuture:false};
+    const pm=pvM(y,m,1),prevEx=mdat(pm.y,pm.m).ex;
+    const man=(B.budManual&&B.budManual[k])||{};
+    const bud=Object.assign({},raw),autoFlags={};
+    GXs.forEach(g=>{
+      const gid=g[0];
+      if(!man[gid]){
+        const spent=Math.round(gs(prevEx,gid));
+        if(spent>0){bud[gid]=spent;autoFlags[gid]=true}
+      }
+    });
+    return {bud,autoFlags,isFuture:true};
+  }
+
   function renderWealthTab(){
     const B=ensureWealthDB(),k=hs.y+'-'+hs.m,M=mdat(hs.y,hs.m),pm=pvM(hs.y,hs.m),P=mdat(pm.y,pm.m);
-    const np=pp(new Date()),c={B,k,M,P,n:M.n,cd:curD(),bu:B.bud[k]||{},gl:B.goal[k]||0,bal:M.I-M.E,sr:M.I?Math.round(100*(M.I-M.E)/M.I):0};
+    const rb=resolveMonthBudget(B,hs.y,hs.m);
+    const np=pp(new Date()),c={B,k,M,P,n:M.n,cd:curD(),bu:rb.bud,budAuto:rb.autoFlags,isFutureBud:rb.isFuture,gl:B.goal[k]||0,bal:M.I-M.E,sr:M.I?Math.round(100*(M.I-M.E)/M.I):0};
     const SB=[
       ['db','📊 داشبورد و پیش‌بینی'],
       ['tx','🧾 تراکنش و انتقال'],
@@ -4069,6 +4115,12 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
       const t=$('sgTitle').value.trim(),target=+$('sgTarget').value||0,mTarget=+$('sgMonth').value||0;
       if(!t||!target)return;
       B.sGoals.push({id:'sg'+Date.now(),t,target,saved:0,mTarget});save();render();
+    }
+    else if(a==='bBudResetAuto'){
+      if(B.budManual&&B.budManual[k])delete B.budManual[k];
+      if(B.bud&&B.bud[k])delete B.bud[k];
+      save();render();
+      if(window.showToast)showToast('سقف بودجه سرفصل‌ها از هزینه‌های واقعی ماه قبل بازنشانی شد ↺');
     }
     else if(a==='bSgDel'){B.sGoals.splice(+b.dataset.i,1);save();render()}
   });
@@ -5210,6 +5262,179 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
   });
 
   render();
+})();
+// ==================== موتور انیمیشن زنده برای تمام نمودارها و نوارهای پیشرفت برنامه ====================
+(function(){
+  const reduceMotion=()=>window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let lastViewSig='';
+
+  function getViewSig(){
+    const subBtn=q('#main .ctr button.p, #main .ai-nav button.p');
+    const subTxt=subBtn?(subBtn.dataset.v||subBtn.textContent.trim()):'';
+    return `${tab}|${subTxt}|${hs.y}-${hs.m}|${key()}|${di}`;
+  }
+
+  function animateLiveCharts(){
+    if(reduceMotion())return;
+    const root=$('main');if(!root)return;
+
+    // ۱. انیمیشن نوارهای پیشرفت افقی (.bar > i)
+    root.querySelectorAll('.bar > i').forEach((el,idx)=>{
+      const targetW=el.style.width;
+      if(!targetW||targetW==='0%'||targetW==='0px')return;
+      el.style.transition='none';
+      el.style.width='0%';
+      requestAnimationFrame(()=>{
+        requestAnimationFrame(()=>{
+          el.style.transition=`width 0.72s cubic-bezier(0.22,1,0.36,1) ${Math.min(idx*30,240)}ms`;
+          el.style.width=targetW;
+        });
+      });
+    });
+
+    // ۲. انیمیشن تمام نمودارهای SVG
+    root.querySelectorAll('svg').forEach(svg=>{
+      // الف) میله‌های نمودار ستونی (رو به بالا و رو به پایین در نمودار دوطرفه)
+      let barIdx=0;
+      svg.querySelectorAll('rect').forEach(rc=>{
+        if(rc.classList.contains('bg-hl'))return;
+        const fill=(rc.getAttribute('fill')||'').trim();
+        if(fill==='var(--ac2)'||fill==='none'||fill==='transparent')return;
+        const h=parseFloat(rc.getAttribute('height')||'0');
+        const y=parseFloat(rc.getAttribute('y')||'0');
+        const x=parseFloat(rc.getAttribute('x')||'0');
+        const w=parseFloat(rc.getAttribute('width')||'0');
+        if(!(h>0)||!(w>0))return;
+        const isDown=fill.includes('ExpDn');
+        const originY=isDown?y:(y+h);
+        const delay=Math.min(barIdx*22,420);
+        barIdx++;
+        rc.style.transformOrigin=`${x+w/2}px ${originY}px`;
+        rc.style.transform='scaleY(0)';
+        rc.style.opacity='0.25';
+        rc.style.transition='none';
+        requestAnimationFrame(()=>{
+          requestAnimationFrame(()=>{
+            rc.style.transition=`transform 0.68s cubic-bezier(0.22,1,0.36,1) ${delay}ms, opacity 0.45s ease ${delay}ms`;
+            rc.style.transform='scaleY(1)';
+            rc.style.opacity='1';
+          });
+        });
+      });
+
+      // ب) خطوط و منحنی‌ها (Sparkline / Cashflow / Habit Line)
+      svg.querySelectorAll('path, polyline').forEach(ln=>{
+        const fill=(ln.getAttribute('fill')||'none').trim();
+        const stroke=(ln.getAttribute('stroke')||'none').trim();
+        if(fill==='none'&&stroke!=='none'){
+          try{
+            const len=ln.getTotalLength();
+            if(len>0){
+              ln.style.strokeDasharray=`${len}`;
+              ln.style.strokeDashoffset=`${len}`;
+              ln.style.transition='none';
+              requestAnimationFrame(()=>{
+                requestAnimationFrame(()=>{
+                  ln.style.transition='stroke-dashoffset 0.9s cubic-bezier(0.22,1,0.36,1) 60ms';
+                  ln.style.strokeDashoffset='0';
+                });
+              });
+            }
+          }catch(e){}
+        }else if(fill!=='none'&&fill!=='transparent'){
+          const origOp=ln.getAttribute('opacity')||'1';
+          ln.style.opacity='0';
+          ln.style.transition='none';
+          requestAnimationFrame(()=>{
+            requestAnimationFrame(()=>{
+              ln.style.transition='opacity 0.75s ease 180ms';
+              ln.style.opacity=origOp;
+            });
+          });
+        }
+      });
+
+      // ج) نمودارهای دایره‌ای و حلقه‌ای (Donuts, Activity Rings, Asset Allocation) + نقاط روی نمودار
+      let ringIdx=0,dotIdx=0;
+      svg.querySelectorAll('circle').forEach(ci=>{
+        const da=(ci.getAttribute('stroke-dasharray')||'').trim();
+        const r=parseFloat(ci.getAttribute('r')||'0');
+        if(da){
+          const parts=da.split(/[\s,]+/).map(Number).filter(v=>!isNaN(v));
+          const delay=Math.min(ringIdx*85,400);
+          ringIdx++;
+          if(parts.length>=2){
+            const total=parts[0]+parts[1];
+            ci.style.strokeDasharray=`0 ${total}`;
+            ci.style.transition='none';
+            requestAnimationFrame(()=>{
+              requestAnimationFrame(()=>{
+                ci.style.transition=`stroke-dasharray 0.85s cubic-bezier(0.22,1,0.36,1) ${delay}ms`;
+                ci.style.strokeDasharray=`${parts[0]} ${parts[1]}`;
+              });
+            });
+          }else if(parts.length===1&&ci.hasAttribute('stroke-dashoffset')){
+            const targetOff=ci.getAttribute('stroke-dashoffset');
+            ci.style.strokeDashoffset=`${parts[0]}`;
+            ci.style.transition='none';
+            requestAnimationFrame(()=>{
+              requestAnimationFrame(()=>{
+                ci.style.transition=`stroke-dashoffset 0.9s cubic-bezier(0.22,1,0.36,1) ${delay}ms`;
+                ci.style.strokeDashoffset=targetOff;
+              });
+            });
+          }
+        }else if(ci.classList.contains('ch-dot')||(r>0&&r<=5.5)){
+          const delay=Math.min(220+dotIdx*28,650);
+          dotIdx++;
+          ci.style.transformBox='fill-box';
+          ci.style.transformOrigin='center';
+          ci.style.transform='scale(0)';
+          ci.style.transition='none';
+          requestAnimationFrame(()=>{
+            requestAnimationFrame(()=>{
+              ci.style.transition=`transform 0.4s cubic-bezier(0.34,1.56,0.64,1) ${delay}ms`;
+              ci.style.transform='scale(1)';
+            });
+          });
+        }
+      });
+
+      // د) نمودارهای رادار (Polygon)
+      let polyIdx=0;
+      svg.querySelectorAll('polygon').forEach(pg=>{
+        const fill=(pg.getAttribute('fill')||'none').trim();
+        if(fill==='none'||fill==='transparent')return;
+        const delay=100+polyIdx*120;
+        polyIdx++;
+        pg.style.transformBox='fill-box';
+        pg.style.transformOrigin='center';
+        pg.style.transform='scale(0.15)';
+        pg.style.opacity='0';
+        pg.style.transition='none';
+        requestAnimationFrame(()=>{
+          requestAnimationFrame(()=>{
+            pg.style.transition=`transform 0.78s cubic-bezier(0.34,1.56,0.64,1) ${delay}ms, opacity 0.55s ease ${delay}ms`;
+            pg.style.transform='scale(1)';
+            pg.style.opacity='1';
+          });
+        });
+      });
+    });
+  }
+
+  const prevR=window.render;
+  window.render=function(){
+    prevR();
+    const sig=getViewSig();
+    if(sig!==lastViewSig){
+      lastViewSig=sig;
+      animateLiveCharts();
+    }
+  };
+  // اجرای انیمیشن برای صفحه اول هنگام باز شدن برنامه
+  lastViewSig=getViewSig();
+  animateLiveCharts();
 })();
 // ساخت خودکار آیکون 512x512 شیشه‌ای و مانیفست اپلیکیشن (بدون نیاز به آپلود عکس)
 (function(){
