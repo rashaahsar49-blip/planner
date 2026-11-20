@@ -567,6 +567,11 @@ body[data-sec="lrn"] #pv,body[data-sec="lrn"] #wl,body[data-sec="lrn"] #nx,body[
       <input type="text" id="apiPathG" placeholder="مسیر طلا ۱۸ (مثال: gold.0.price)" dir="ltr">
       <input type="text" id="apiPathU" placeholder="مسیر تتر (مثال: currency.0.price)" dir="ltr">
     </div>
+    <div class="row">
+      <input type="text" id="apiPathC" placeholder="مسیر سکه امامی (اختیاری)" dir="ltr">
+      <input type="text" id="apiPathH" placeholder="مسیر نیم سکه (اختیاری)" dir="ltr">
+      <input type="text" id="apiPathQ" placeholder="مسیر ربع سکه (اختیاری)" dir="ltr">
+    </div>
     <div id="apiTestMsg" class="mu" style="text-align:center;min-height:18px;margin:4px 0"></div>
     <div class="row"><button class="p f1" id="apiSaveBtn">ذخیره و دریافت لحظه‌ای قیمت</button></div>
   </div>
@@ -759,31 +764,40 @@ function getPrayTimes(dt,cIdx){
 let S={},syTimer=null,booting=true,wakeLock=null,noiseNode=null,noiseCtx=null,qIdx=new Date().getDate()%QUOTES.length;
 try{S=JSON.parse(localStorage.getItem('wp26')||'{}')}catch(e){}
 function MKT(){
-  if(!S.mkt)S.mkt={g18:4600000,usdt:71000,oz:2740,ts:''};
-  if(!S.mktCfg)S.mktCfg={prov:'brs',url:'',unit:'toman',pathG:'',pathU:''};
+  if(!S.mkt)S.mkt={g18:4600000,usdt:71000,coin:52000000,hcoin:27000000,qcoin:17000000,btc:0,oz:2740,ts:''};
+  if(S.mkt.coin===undefined)S.mkt.coin=52000000;
+  if(S.mkt.hcoin===undefined)S.mkt.hcoin=27000000;
+  if(S.mkt.qcoin===undefined)S.mkt.qcoin=17000000;
+  if(S.mkt.btc===undefined)S.mkt.btc=0;
+  if(!S.mktCfg)S.mktCfg={prov:'brs',url:'',unit:'toman',pathG:'',pathU:'',pathC:'',pathH:'',pathQ:''};
   if(S.mktCfg.key){setMktKey(S.mktCfg.key);delete S.mktCfg.key;try{localStorage.setItem('wp26',JSON.stringify(S))}catch(e){}}
   return S.mkt;
 }
 const getByPath=(obj,path)=>(!obj||!path)?null:path.split('.').reduce((o,k)=>(o&&o[k]!==undefined)?o[k]:null,obj);
 const cleanNum=v=>(v===null||v===undefined)?0:+(toEnDigits(String(v)).replace(/[^\d.]/g,''))||0;
 function scanJsonRates(data){
-  let g18=0,usdt=0,oz=0;
+  let g18=0,usdt=0,coin=0,hcoin=0,qcoin=0,oz=0;
+  function matchKey(lb,val){
+    if(!(val>0))return;
+    if(!g18&&(lb.includes('18')||lb.includes('۱۸')||lb.includes('geram18')||lb.includes('gold_18')||lb==='ir_gold_18k'||lb==='g18'))g18=val;
+    if(!usdt&&(lb.includes('usdt')||lb.includes('tether')||lb.includes('تتر')||lb==='usd'||lb.includes('دلار')))usdt=val;
+    if(!oz&&(lb.includes('ons')||lb.includes('ounce')||lb.includes('انس')||lb.includes('xau')))oz=val;
+    if(!hcoin&&(lb.includes('نیم')||lb.includes('nim')||lb.includes('half')||lb==='ir_coin_half'||lb==='sekkeh_nim'||lb==='hcoin'))hcoin=val;
+    else if(!qcoin&&(lb.includes('ربع')||lb.includes('rob')||lb.includes('quarter')||lb==='ir_coin_quarter'||lb==='sekkeh_rob'||lb==='qcoin'))qcoin=val;
+    else if(!coin&&!lb.includes('نیم')&&!lb.includes('ربع')&&!lb.includes('گرمی')&&!lb.includes('nim')&&!lb.includes('rob')&&!lb.includes('gerami')&&(lb.includes('امامی')||lb.includes('تمام')||lb.includes('emami')||lb==='sekkeh'||lb==='sekee'||lb==='ir_coin_emami'||lb==='coin'||lb==='bahar'))coin=val;
+  }
   function walk(o,kn=''){
     if(!o||typeof o!=='object')return;
     if(Array.isArray(o)){o.forEach(x=>walk(x,kn));return}
     const lb=String(o.name||o.title||o.symbol||o.slug||o.item||kn||'').toLowerCase();
     const val=cleanNum(o.price??o.value??o.rate??o.lastTradePrice??o.last??o.buy??o.p);
-    if(val>0){
-      if(!g18&&(lb.includes('18')||lb.includes('۱۸')||lb.includes('geram18')||lb.includes('gold_18')))g18=val;
-      if(!usdt&&(lb.includes('usdt')||lb.includes('tether')||lb.includes('تتر')||lb==='usd'||lb.includes('دلار')))usdt=val;
-      if(!oz&&(lb.includes('ons')||lb.includes('ounce')||lb.includes('انس')||lb.includes('xau')))oz=val;
-    }
+    matchKey(lb,val);
     Object.entries(o).forEach(([k,v])=>{
       if(typeof v==='object'&&v!==null)walk(v,k);
-      else{const lk=k.toLowerCase(),nv=cleanNum(v);if(nv>0){if(!g18&&(lk==='geram18'||lk==='gold18'||lk==='ir_gold_18k'||lk==='g18'))g18=nv;if(!usdt&&(lk==='usdt'||lk==='tether'||lk==='usd'))usdt=nv}}
+      else matchKey(k.toLowerCase(),cleanNum(v));
     });
   }
-  walk(data);return {g18,usdt,oz};
+  walk(data);return {g18,usdt,coin,hcoin,qcoin,oz};
 }
 async function fetchLiveRates(){
   const m=MKT(),cfg=S.mktCfg,btn=$('mktRefBtn'),msg=$('apiTestMsg');
@@ -801,9 +815,15 @@ async function fetchLiveRates(){
         const dt=await res.json(),sc=scanJsonRates(dt);
         let gv=cfg.pathG?cleanNum(getByPath(dt,cfg.pathG)):sc.g18;
         let uv=cfg.pathU?cleanNum(getByPath(dt,cfg.pathU)):sc.usdt;
+        let cv=cfg.pathC?cleanNum(getByPath(dt,cfg.pathC)):sc.coin;
+        let hv=cfg.pathH?cleanNum(getByPath(dt,cfg.pathH)):sc.hcoin;
+        let qv=cfg.pathQ?cleanNum(getByPath(dt,cfg.pathQ)):sc.qcoin;
         if(sc.oz>0)m.oz=Math.round(sc.oz);
         if(gv>0){m.g18=Math.round(gv/div);got=true}
         if(uv>0){m.usdt=Math.round(uv/div);got=true}
+        if(cv>0){m.coin=Math.round(cv/div);got=true}
+        if(hv>0){m.hcoin=Math.round(hv/div);got=true}
+        if(qv>0){m.qcoin=Math.round(qv/div);got=true}
       }
     }
     if(!got||cfg.prov==='free'){
@@ -812,12 +832,15 @@ async function fetchLiveRates(){
       const r2=await fetch('https://api.binance.com/api/v3/ticker/price?symbol=PAXGUSDT',{cache:'no-store'}).catch(()=>null);
       if(r2&&r2.ok){const d2=await r2.json();if(d2&&d2.price){m.oz=Math.round(+d2.price);if(m.usdt>0){m.g18=Math.round((+d2.price*m.usdt*.75)/31.1035);got=true}}}
     }
+    const rb=await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT',{cache:'no-store'}).catch(()=>null);
+    if(rb&&rb.ok){const db=await rb.json();if(db&&db.price&&m.usdt>0)m.btc=Math.round(+db.price*m.usdt)}
   }catch(e){}
   m.ts=new Date().toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'});
-  const B=BD(),ag=B.assets.find(x=>x.id==='g18'),au=B.assets.find(x=>x.id==='usdt');
-  if(ag&&m.g18>0)ag.p=m.g18;if(au&&m.usdt>0)au.p=m.usdt;
+  const B=BD();
+  const syncMap={g18:m.g18,usdt:m.usdt,coin:m.coin,hcoin:m.hcoin,qcoin:m.qcoin,btc:m.btc};
+  Object.entries(syncMap).forEach(([id,pr])=>{const a=B.assets.find(x=>x.id===id);if(a&&pr>0)a.p=pr});
   save();render();
-  if(msg)msg.textContent=got?`دریافت شد: طلا ${fa(m.g18)} ت | تتر ${fa(m.usdt)} ت`:'عدم دریافت (کلید API یا اتصال را بررسی کنید).';
+  if(msg)msg.textContent=got?`دریافت شد: طلا ${fa(m.g18)} | تتر ${fa(m.usdt)} | امامی ${fa(m.coin)}`:'عدم دریافت (کلید API یا اتصال را بررسی کنید).';
 }
 function toggleNoise(){
   if(noiseNode){try{noiseNode.stop();noiseCtx.close()}catch(e){}noiseNode=null;noiseCtx=null;render();return}
@@ -1182,11 +1205,14 @@ function openMktCfg(){
   MKT();const c=S.mktCfg;
   $('apiProv').value=c.prov||'brs';$('apiKey').value=getMktKey();$('apiUrl').value=c.url||'';
   $('apiUnit').value=c.unit||'toman';$('apiPathG').value=c.pathG||'';$('apiPathU').value=c.pathU||'';
+  if($('apiPathC'))$('apiPathC').value=c.pathC||'';
+  if($('apiPathH'))$('apiPathH').value=c.pathH||'';
+  if($('apiPathQ'))$('apiPathQ').value=c.pathQ||'';
   $('apiTestMsg').textContent='';$('mktMdl').classList.add('on');
 }
 $('apiSaveBtn').onclick=async()=>{
   MKT();setMktKey($('apiKey').value.trim());
-  S.mktCfg={prov:$('apiProv').value,url:$('apiUrl').value.trim(),unit:$('apiUnit').value,pathG:$('apiPathG').value.trim(),pathU:$('apiPathU').value.trim()};
+  S.mktCfg={prov:$('apiProv').value,url:$('apiUrl').value.trim(),unit:$('apiUnit').value,pathG:$('apiPathG').value.trim(),pathU:$('apiPathU').value.trim(),pathC:($('apiPathC')?.value||'').trim(),pathH:($('apiPathH')?.value||'').trim(),pathQ:($('apiPathQ')?.value||'').trim()};
   save();await fetchLiveRates();
 };
 document.querySelectorAll('[data-cls]').forEach(btn=>btn.onclick=()=>$(btn.dataset.cls).classList.remove('on'));
@@ -1196,7 +1222,8 @@ if(a=='tab')tab=b.dataset.v;else if(a=='day')di=+b.dataset.v;else if(a=='goDay')
 else if(a=='mktRef'){fetchLiveRates();return}
 else if(a=='mktCfgOpen'){openMktCfg();return}
 else if(a=='editMkt'){
-  const k=b.dataset.k,m=MKT(),v=prompt(k==='g18'?'نرخ روز هر گرم طلای ۱۸ عیار (تومان):':'نرخ روز تتر / دلار (تومان):',m[k]);
+  const k=b.dataset.k,m=MKT(),lbls={g18:'هر گرم طلای ۱۸ عیار',usdt:'تتر / دلار',coin:'سکه تمام امامی',hcoin:'نیم سکه',qcoin:'ربع سکه',btc:'بیت‌کوین'};
+  const v=prompt(`نرخ روز ${lbls[k]||k} (تومان):`,m[k]||0);
   if(v!==null&&+v>0){m[k]=+v;const as=BD().assets.find(x=>x.id===k);if(as)as.p=+v;m.ts=new Date().toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'});save();render()}
   return;
 }
@@ -2062,23 +2089,20 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
     const mkt=MKT();
     return `<div class="cd mkt-bar" style="position:relative;overflow:hidden">
       <div class="mkt-items">
-        <span style="font-weight:800;font-size:13.5px;display:flex;align-items:center;gap:6px">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2.3"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        <span style="font-weight:800;font-size:13px;display:flex;align-items:center;gap:5px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2.3"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
           نرخ لحظه‌ای:
         </span>
-        <div class="mkt-pill" data-a="editMkt" data-k="g18" title="ویرایش دستی نرخ طلا" style="border-color:rgba(2,132,199,.3)">
-          <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#2563eb)"></span>
-          <span>طلای ۱۸ عیار:</span><b style="color:var(--ac)">${fa(mkt.g18)}</b><small class="mu">تومان</small>
-        </div>
-        <div class="mkt-pill" data-a="editMkt" data-k="usdt" title="ویرایش دستی نرخ تتر" style="border-color:rgba(13,148,136,.3)">
-          <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:linear-gradient(135deg,#14b8a6,#0d9488)"></span>
-          <span>تتر / دلار:</span><b style="color:var(--ok)">${fa(mkt.usdt)}</b><small class="mu">تومان</small>
-        </div>
+        <div class="mkt-pill" data-a="editMkt" data-k="g18" title="ویرایش دستی"><span>طلا ۱۸:</span><b style="color:var(--ac)">${fa(mkt.g18)}</b></div>
+        <div class="mkt-pill" data-a="editMkt" data-k="usdt" title="ویرایش دستی"><span>تتر:</span><b style="color:var(--ok)">${fa(mkt.usdt)}</b></div>
+        <div class="mkt-pill" data-a="editMkt" data-k="coin" title="ویرایش دستی"><span>سکه امامی:</span><b style="color:var(--wn)">${fa(mkt.coin||0)}</b></div>
+        <div class="mkt-pill" data-a="editMkt" data-k="hcoin" title="ویرایش دستی"><span>نیم سکه:</span><b style="color:var(--wn)">${fa(mkt.hcoin||0)}</b></div>
+        <div class="mkt-pill" data-a="editMkt" data-k="qcoin" title="ویرایش دستی"><span>ربع سکه:</span><b style="color:var(--wn)">${fa(mkt.qcoin||0)}</b></div>
       </div>
       <div class="row" style="margin:0">
         <small class="mu">${mkt.ts||''}</small>
         <button id="mktRefBtn" data-a="mktRef">↻ بروزرسانی</button>
-        <button data-a="mktCfgOpen">⚙ تنظیم API</button>
+        <button data-a="mktCfgOpen">⚙ API</button>
       </div>
     </div>`;
   };
@@ -3099,7 +3123,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 (function(){
   let hideMoney=localStorage.getItem('wp26_hide_mo')==='1';
   let nwUnit=localStorage.getItem('wp26_nw_unit')||'toman'; // 'toman' | 'gold' | 'usdt'
-  let wSub='db',bAccFilter='',calcTab='conv';
+  let wSub='db',bAccFilter='',calcTab='conv',trdMode='buy';
   const getInsAm=(i,k)=>(i.amts&&i.amts[k]!=null)?i.amts[k]:(i.a||0);
   const pmo=n=>hideMoney?'••••••':mo(n);
 
@@ -3134,9 +3158,22 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
       B.accs=[
         {id:'acc_main',n:'💳 کارت اصلی (روزمره)',init:0},
         {id:'acc_save',n:'🏦 حساب پس‌انداز',init:0},
+        {id:'acc_exch',n:'🔄 کیف تومانی صرافی',init:0},
         {id:'acc_cash',n:'💵 کیف پول نقد',init:0}
       ];
     }
+    if(!B._v7Exch){
+      if(!B.accs.some(a=>a.id==='acc_exch'))B.accs.push({id:'acc_exch',n:'🔄 کیف تومانی صرافی',init:0});
+      B._v7Exch=1;
+    }
+    if(!B._v7Assets){
+      const m=MKT();
+      if(!B.assets.some(a=>a.id==='hcoin'))B.assets.push({id:'hcoin',n:'نیم سکه بهار آزادی (عدد)',q:0,p:m.hcoin||27000000,buyP:m.hcoin||27000000});
+      if(!B.assets.some(a=>a.id==='qcoin'))B.assets.push({id:'qcoin',n:'ربع سکه بهار آزادی (عدد)',q:0,p:m.qcoin||17000000,buyP:m.qcoin||17000000});
+      if(!B.assets.some(a=>a.id==='btc'))B.assets.push({id:'btc',n:'بیت‌کوین (BTC)',q:0,p:m.btc||6500000000,buyP:m.btc||6500000000});
+      B._v7Assets=1;
+    }
+    if(!B.trades)B.trades=[];
     if(!B.transfers)B.transfers={};
     if(!B.recs)B.recs=[
       {id:'rc1',t:'حقوق ماهانه',c:'sal',a:0,d:1,acc:'acc_main'},
@@ -3168,6 +3205,10 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
         if(bals[tr.from]!==undefined)bals[tr.from]-=Number(tr.a);
         if(bals[tr.to]!==undefined)bals[tr.to]+=Number(tr.a);
       });
+    });
+    (B.trades||[]).forEach(tr=>{
+      if(tr.tp==='buy'&&bals[tr.acc]!==undefined)bals[tr.acc]-=Number(tr.toman||0);
+      else if(tr.tp==='sell'&&bals[tr.acc]!==undefined)bals[tr.acc]+=Number(tr.toman||0);
     });
     return bals;
   }
@@ -3540,6 +3581,85 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
       <div>💰 کل آورده شما: <b>${mo(contrib)} ت</b> · سود مرکب خالص: <b style="color:var(--ac)">+${mo(profit)} ت</b></div>`;
   };
 
+  function buildTradeBox(B){
+    const accOpts=B.accs.map(a=>`<option value="${a.id}" ${a.id==='acc_exch'?'selected':''}>${esc(a.n)}</option>`).join('');
+    const asOpts=(defId)=>B.assets.map(a=>`<option value="${a.id}" ${a.id===defId?'selected':''}>${esc(a.n)} (موجودی: ${fa(+(a.q||0).toFixed(6))})</option>`).join('');
+    let form='';
+    if(trdMode==='buy'){
+      form=`<div class="row fw">
+        <div class="f1" style="min-width:140px"><small class="mu">پرداخت از حساب:</small><select id="trdAcc">${accOpts}</select></div>
+        <div class="f1" style="min-width:160px"><small class="mu">خرید دارایی:</small><select id="trdAs" onchange="calcTrdPreview('tom')">${asOpts('usdt')}</select></div>
+        <div class="f1" style="min-width:130px"><small class="mu">مبلغ پرداختی (تومان):</small><input type="number" id="trdTom" placeholder="مثلاً 10000000" oninput="calcTrdPreview('tom')"></div>
+        <div class="f1" style="min-width:110px"><small class="mu">مقدار دریافتی:</small><input type="number" step="any" id="trdQty" placeholder="مقدار" oninput="calcTrdPreview('qty')"></div>
+      </div>
+      <div class="row sb fw" style="margin-bottom:0">
+        <span id="trdHint" class="mu">بدون ثبت هزینه کاذب؛ مبلغ از حساب کسر و به سبد دارایی اضافه می‌شود.</span>
+        <button class="p" data-a="bTrdExec">✓ ثبت خرید دارایی</button>
+      </div>`;
+    }else if(trdMode==='swap'){
+      form=`<div class="row fw">
+        <div class="f1" style="min-width:155px"><small class="mu">تبدیل از دارایی:</small><select id="trdFromAs" onchange="calcSwapPreview()">${asOpts('usdt')}</select></div>
+        <div style="width:120px"><small class="mu">مقدار مبدا:</small><input type="number" step="any" id="trdFromQty" placeholder="مثلاً 150" oninput="calcSwapPreview()"></div>
+        <div class="f1" style="min-width:155px"><small class="mu">به دارایی مقصد:</small><select id="trdToAs" onchange="calcSwapPreview()">${asOpts('btc')}</select></div>
+        <div style="width:125px"><small class="mu">مقدار مقصد:</small><input type="number" step="any" id="trdToQty" placeholder="مقدار خریداری‌شده"></div>
+      </div>
+      <div class="row sb fw" style="margin-bottom:0">
+        <span id="trdHint" class="mu">مثلاً تبدیل تتر به بیت‌کوین یا برعکس (بدون تغییر در حساب‌های تومانی).</span>
+        <button class="p" data-a="bTrdExec">⇄ ثبت تبدیل دارایی</button>
+      </div>`;
+    }else{
+      form=`<div class="row fw">
+        <div class="f1" style="min-width:160px"><small class="mu">فروش دارایی:</small><select id="trdAs" onchange="calcTrdPreview('qty')">${asOpts('usdt')}</select></div>
+        <div style="width:120px"><small class="mu">مقدار فروش:</small><input type="number" step="any" id="trdQty" placeholder="مقدار" oninput="calcTrdPreview('qty')"></div>
+        <div class="f1" style="min-width:140px"><small class="mu">واریز به حساب:</small><select id="trdAcc">${accOpts}</select></div>
+        <div class="f1" style="min-width:130px"><small class="mu">مبلغ دریافتی (تومان):</small><input type="number" id="trdTom" placeholder="مبلغ تومانی"></div>
+      </div>
+      <div class="row sb fw" style="margin-bottom:0">
+        <span id="trdHint" class="mu">مبلغ به حساب انتخابی اضافه و مقدار از دارایی کسر می‌شود (بدون درآمد کاذب).</span>
+        <button class="p" data-a="bTrdExec">✓ ثبت فروش و نقد کردن</button>
+      </div>`;
+    }
+    const hist=(B.trades||[]).slice(0,6).map(tr=>{
+      const accN=B.accs.find(a=>a.id===tr.acc)?.n||'حساب';
+      const asN=id=>B.assets.find(a=>a.id===id)?.n||id;
+      let desc='';
+      if(tr.tp==='buy')desc=`🟢 خرید <b>${fa(+(tr.qty).toFixed(6))}</b> ${esc(asN(tr.as))} از ${esc(accN)} (${pmo(tr.toman)} ت)`;
+      else if(tr.tp==='sell')desc=`🔴 فروش <b>${fa(+(tr.qty).toFixed(6))}</b> ${esc(asN(tr.as))} به ${esc(accN)} (${pmo(tr.toman)} ت)`;
+      else desc=`⇄ تبدیل <b>${fa(+(tr.fromQty).toFixed(6))}</b> ${esc(asN(tr.fromAs))} ← <b>${fa(+(tr.toQty).toFixed(6))}</b> ${esc(asN(tr.toAs))}`;
+      return `<div class="row" style="font-size:12.5px;border-top:1px dashed var(--bd2);padding-top:5px;margin-top:5px;margin-bottom:0"><span class="mu">${esc(tr.dt)}</span><span class="f1">${desc}</span><button class="x" data-a="bTrdUndo" data-id="${tr.id}" title="برگشت کامل این معامله">↺ برگشت</button></div>`;
+    }).join('');
+    return `<div class="cd next">
+      <div class="row sb fw" style="margin-bottom:10px">
+        <h2 style="margin:0">🔄 ثبت معامله و تبدیل دارایی (کارت ⇄ صرافی ⇄ تتر ⇄ بیت‌کوین/طلا)</h2>
+        <div class="row" style="margin:0">
+          <button class="${trdMode==='buy'?'p':''}" data-a="bTrdMode" data-v="buy">خرید از حساب</button>
+          <button class="${trdMode==='swap'?'p':''}" data-a="bTrdMode" data-v="swap">تبدیل (Swap)</button>
+          <button class="${trdMode==='sell'?'p':''}" data-a="bTrdMode" data-v="sell">فروش به حساب</button>
+        </div>
+      </div>
+      ${form}
+      ${hist?`<div style="margin-top:10px"><div class="mu" style="font-size:11.5px">آخرین معاملات و تبدیل‌های دارایی:</div>${hist}</div>`:''}
+    </div>`;
+  }
+
+  window.calcTrdPreview=function(src){
+    const B=ensureWealthDB(),as=B.assets.find(x=>x.id===$('trdAs')?.value);if(!as||!(as.p>0))return;
+    const tomEl=$('trdTom'),qtyEl=$('trdQty');if(!tomEl||!qtyEl)return;
+    if(src==='tom'){
+      const t=+tomEl.value||0;
+      qtyEl.value=t>0?(t/as.p).toFixed(as.id==='btc'?6:3).replace(/\.?0+$/,''):'';
+    }else{
+      const qv=+qtyEl.value||0;
+      tomEl.value=qv>0?Math.round(qv*as.p):'';
+    }
+  };
+  window.calcSwapPreview=function(){
+    const B=ensureWealthDB(),fAs=B.assets.find(x=>x.id===$('trdFromAs')?.value),tAs=B.assets.find(x=>x.id===$('trdToAs')?.value);
+    const fq=+$('trdFromQty')?.value||0,tqEl=$('trdToQty');
+    if(!fAs||!tAs||!(fAs.p>0)||!(tAs.p>0)||!tqEl)return;
+    tqEl.value=fq>0?((fq*fAs.p)/tAs.p).toFixed(tAs.id==='btc'?6:4).replace(/\.?0+$/,''):'';
+  };
+
   function wAs(c){
     const {B}=c,assets=B.assets||[];
     const totVal=sm_(assets.map(a=>(a.q||0)*(a.p||0)));
@@ -3555,6 +3675,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
       <h2>🥧 نمودار ترکیب سبد دارایی و نقدینگی (Asset Allocation)</h2>
       ${buildAssetAllocationSvg(B)}
     </div>
+    ${buildTradeBox(B)}
     <div class="cd">
       <h2>💎 سبد دارایی با محاسبه سود و زیان (قیمت خرید در برابر قیمت روز)</h2>
       <div class="wide"><table>
@@ -3563,7 +3684,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
           const curV=(a.q||0)*(a.p||0),buyV=(a.q||0)*(a.buyP||a.p||0),pf=curV-buyV,pfPct=buyV>0?Math.round((pf/buyV)*1000)/10:0;
           return `<tr>
             <td style="text-align:right;font-weight:700">${esc(a.n)}</td>
-            <td><input type="number" step="0.01" data-f="asq" data-id="${a.id}" value="${a.q||0}" style="width:78px"></td>
+            <td><input type="number" step="any" data-f="asq" data-id="${a.id}" value="${a.q||0}" style="width:78px"></td>
             <td><input type="number" step="1000" data-f="asbuy" data-id="${a.id}" value="${a.buyP||a.p||0}" style="width:110px"></td>
             <td><input type="number" step="1000" data-f="asp" data-id="${a.id}" value="${a.p||0}" style="width:110px"></td>
             <td><b>${pmo(curV)}</b></td>
@@ -3790,6 +3911,55 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
     if(a==='wSubBtn'){wSub=b.dataset.v;render()}
     else if(a==='bNwUnit'){nwUnit=b.dataset.v;localStorage.setItem('wp26_nw_unit',nwUnit);render()}
     else if(a==='bCalcTab'){calcTab=b.dataset.v;render()}
+    else if(a==='bTrdMode'){trdMode=b.dataset.v;render()}
+    else if(a==='bTrdExec'){
+      const dtStr=pdy(new Date());
+      if(trdMode==='buy'){
+        const acc=$('trdAcc').value,asId=$('trdAs').value,toman=+$('trdTom').value||0,qty=+$('trdQty').value||0;
+        const as=B.assets.find(x=>x.id===asId);
+        if(!as||toman<=0||qty<=0)return notifyMsg('مبلغ تومانی و مقدار دارایی را کامل وارد کنید.');
+        const oldQ=Number(as.q)||0,oldCost=oldQ*(Number(as.buyP)||Number(as.p)||0);
+        as.q=+(oldQ+qty).toFixed(8);
+        as.buyP=Math.round((oldCost+toman)/as.q);
+        B.trades.unshift({id:'trd'+Date.now(),tp:'buy',dt:dtStr,acc,as:asId,toman,qty});
+        save();render();
+        if(window.showToast)showToast(`خرید ${fa(+(qty).toFixed(6))} واحد ثبت و از حساب کسر شد ✓`);
+      }else if(trdMode==='swap'){
+        const fId=$('trdFromAs').value,tId=$('trdToAs').value,fq=+$('trdFromQty').value||0,tq=+$('trdToQty').value||0;
+        if(fId===tId)return notifyMsg('دارایی مبدا و مقصد نمی‌تواند یکی باشد.');
+        const fAs=B.assets.find(x=>x.id===fId),tAs=B.assets.find(x=>x.id===tId);
+        if(!fAs||!tAs||fq<=0||tq<=0)return notifyMsg('مقدار مبدا و مقصد را وارد کنید.');
+        const valEst=fq*(Number(fAs.p)||0);
+        fAs.q=Math.max(0,+((Number(fAs.q)||0)-fq).toFixed(8));
+        const oldTQ=Number(tAs.q)||0,oldTCost=oldTQ*(Number(tAs.buyP)||Number(tAs.p)||0);
+        tAs.q=+(oldTQ+tq).toFixed(8);
+        if(valEst>0)tAs.buyP=Math.round((oldTCost+valEst)/tAs.q);
+        B.trades.unshift({id:'trd'+Date.now(),tp:'swap',dt:dtStr,fromAs:fId,toAs:tId,fromQty:fq,toQty:tq});
+        save();render();
+        if(window.showToast)showToast('تبدیل دارایی (Swap) با موفقیت ثبت شد ✓');
+      }else{
+        const acc=$('trdAcc').value,asId=$('trdAs').value,toman=+$('trdTom').value||0,qty=+$('trdQty').value||0;
+        const as=B.assets.find(x=>x.id===asId);
+        if(!as||toman<=0||qty<=0)return notifyMsg('مقدار فروش و مبلغ دریافتی را وارد کنید.');
+        as.q=Math.max(0,+((Number(as.q)||0)-qty).toFixed(8));
+        B.trades.unshift({id:'trd'+Date.now(),tp:'sell',dt:dtStr,acc,as:asId,toman,qty});
+        save();render();
+        if(window.showToast)showToast(`فروش ثبت و ${mo(toman)} ت به حساب واریز شد ✓`);
+      }
+    }
+    else if(a==='bTrdUndo'){
+      const idx=(B.trades||[]).findIndex(x=>x.id===b.dataset.id);if(idx<0)return;
+      const tr=B.trades[idx];
+      if(tr.tp==='buy'){const as=B.assets.find(x=>x.id===tr.as);if(as)as.q=Math.max(0,+((Number(as.q)||0)-tr.qty).toFixed(8))}
+      else if(tr.tp==='sell'){const as=B.assets.find(x=>x.id===tr.as);if(as)as.q=+((Number(as.q)||0)+tr.qty).toFixed(8)}
+      else if(tr.tp==='swap'){
+        const fAs=B.assets.find(x=>x.id===tr.fromAs),tAs=B.assets.find(x=>x.id===tr.toAs);
+        if(fAs)fAs.q=+((Number(fAs.q)||0)+tr.fromQty).toFixed(8);
+        if(tAs)tAs.q=Math.max(0,+((Number(tAs.q)||0)-tr.toQty).toFixed(8));
+      }
+      B.trades.splice(idx,1);save();render();
+      if(window.showToast)showToast('معامله برگشت داده شد و موجودی‌ها اصلاح شدند ↺');
+    }
     else if(a==='bTogglePrivacy'){hideMoney=!hideMoney;localStorage.setItem('wp26_hide_mo',hideMoney?'1':'0');render()}
     else if(a==='bNowM'){const t=new Date();t.setHours(12,0,0,0);const p=pp(t);hs={y:p.y,m:p.m,s:new Date(t.getTime()-(p.d-1)*864e5)};render()}
     else if(a==='bCsvExp'){
