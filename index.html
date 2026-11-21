@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Sl8p7nZUsOGcd+N+yVqVkEXuSbk5mm84k5e7y4SWLno='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-zpd7kaVZ4KOd70R8qLhoNnpPbdCDnKljwkmTxr+wWWA='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>پلنر هفتگی</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -1427,6 +1427,119 @@ input::placeholder,textarea::placeholder{
     justify-content:center;
   }
 }
+
+/* ==================== تقویم ماهانه گرافیکی، شکیل و جامع (v43) ==================== */
+.cal-hero-cd{
+  padding:16px 18px!important;
+  display:flex;flex-direction:column;gap:12px;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--sf) 88%,#2563eb 10%),color-mix(in srgb,var(--sf) 88%,#0d9488 10%))!important;
+}
+.cal-kpis{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;
+}
+@media(max-width:640px){.cal-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}}
+.cal-kpi{
+  background:color-mix(in srgb,var(--sf) 84%,transparent);
+  border:1px solid var(--bd2);border-radius:14px;padding:9px 10px;
+  display:flex;flex-direction:column;gap:2px;
+}
+.cal-kpi small{font-size:0.6875rem;color:var(--mu);font-weight:600}
+.cal-kpi b{font-size:0.9375rem;font-weight:900;color:var(--tx);font-variant-numeric:tabular-nums}
+.cal-flt{
+  display:flex;align-items:center;gap:6px;overflow-x:auto;padding:2px 1px;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;
+}
+.cal-flt::-webkit-scrollbar{display:none}
+.cal-flt button{
+  flex:none;white-space:nowrap;padding:5px 11px!important;font-size:0.75rem!important;
+  min-height:32px!important;border-radius:10px!important;
+  background:var(--sf2);border:1px solid var(--bd2);color:var(--mu);
+}
+.cal-flt button.on{
+  background:var(--ac)!important;color:var(--act)!important;border-color:transparent!important;font-weight:700!important;
+}
+.cal-h{
+  font-size:0.75rem;font-weight:800;color:var(--mu);padding:7px 2px;
+  background:var(--sf2);border-radius:10px;border:1px solid var(--bd2);
+}
+.cal-h.fri{color:var(--er);background:color-mix(in srgb,var(--er) 8%,var(--sf2))}
+.cal-d{
+  position:relative;min-height:86px;padding:7px 6px 9px!important;
+  border-radius:15px!important;border:1.5px solid var(--bd2)!important;
+  background:var(--sf2)!important;transition:all .16s ease!important;
+}
+.cal-d:hover{border-color:var(--ac)!important;transform:translateY(-2px);background:var(--sf)!important}
+.cal-d.tdy{
+  border-color:var(--ok)!important;
+  background:linear-gradient(155deg,color-mix(in srgb,var(--ok) 14%,var(--sf)),var(--sf2))!important;
+  box-shadow:0 6px 16px -6px color-mix(in srgb,var(--ok) 35%,transparent);
+}
+.cal-d.sel{
+  border-color:var(--ac)!important;
+  box-shadow:0 0 0 2.5px color-mix(in srgb,var(--ac) 28%,transparent)!important;
+  background:color-mix(in srgb,var(--ac) 10%,var(--sf))!important;
+}
+.cal-d.hol:not(.tdy):not(.sel){
+  background:color-mix(in srgb,var(--er) 6%,var(--sf2))!important;
+}
+.cal-d.hol .cal-num span{color:var(--er)}
+.cal-d.tdy .cal-num span{
+  background:var(--ok);color:#fff;width:24px;height:24px;border-radius:8px;
+  display:inline-grid;place-items:center;font-size:0.8125rem;
+}
+.cal-pbar{
+  position:absolute;bottom:3px;left:6px;right:6px;height:3px;
+  border-radius:99px;background:var(--ac2);overflow:hidden;
+}
+.cal-pbar i{display:block;height:100%;border-radius:99px;background:var(--ok)}
+@media(max-width:640px){
+  .cal-d{min-height:58px!important;padding:5px 2px 8px!important;border-radius:12px!important}
+  .cal-d.tdy .cal-num span{width:22px;height:22px;font-size:0.75rem}
+  .cal-pbar{left:4px;right:4px;bottom:2px;height:2.5px}
+}
+.cal-day-panel{
+  border-inline-start:4px solid var(--ac)!important;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--sf) 92%,var(--ac2)),var(--sf))!important;
+}
+.cal-dp-top{
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
+  padding-bottom:10px;border-bottom:1px solid var(--bd2);margin-bottom:10px;
+}
+.cal-dp-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.cal-dp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){.cal-dp-grid{grid-template-columns:1fr;gap:10px}}
+.cal-dp-box{
+  background:var(--sf2);border:1px solid var(--bd2);border-radius:14px;padding:10px 12px;
+}
+.cal-dp-box h3{margin:0 0 8px;font-size:0.8438rem;font-weight:800;color:var(--tx);display:flex;align-items:center;justify-content:space-between}
+
+/* ==================== یکدست‌سازی دکمه‌های ثبت همه صفحات شبیه دکمه + (v44) ==================== */
+button.p.btn-plus{
+  width:40px!important;min-width:40px!important;height:38px!important;min-height:38px!important;
+  padding:0!important;font-size:1.25rem!important;font-weight:800!important;line-height:1!important;
+  display:inline-grid!important;place-items:center!important;flex:none!important;
+  border-radius:11px!important;
+}
+@media(max-width:640px){
+  .row.fw > button.p.btn-plus{
+    width:100%!important;flex:1 1 100%!important;height:40px!important;
+  }
+}
+
+/* ==================== لوگوهای وکتوری (SVG) طلا، سکه، تتر و دارایی‌ها (v45) ==================== */
+.hero-mkt-item > span{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:5px!important;
+}
+.mkt-ic{
+  width:18px;height:18px;flex:none;display:inline-block;vertical-align:middle;
+}
+.as-ic{
+  width:34px;height:34px;border-radius:11px;flex:none;
+  display:grid;place-items:center;
+  background:var(--sf);border:1px solid var(--bd2);
+}
+.as-ic svg{width:22px;height:22px;display:block}
+.as-head{align-items:center!important}
 </style>
 </head>
 <body>
@@ -1702,6 +1815,22 @@ function renderPrayerCards(prArr,pt,dayIdx,compact=false){
 
 let S={},syTimer=null,booting=true,wakeLock=null,noiseNode=null,noiseCtx=null,qIdx=new Date().getDate()%QUOTES.length;
 try{S=JSON.parse(localStorage.getItem('wp26')||'{}')}catch(e){}
+function assetLogoSvg(id,name='',sz=18){
+  const k=String(id||'').toLowerCase(),n=String(name||'').toLowerCase();
+  if(k==='g18'||n.includes('۱۸')||n.includes('18')||n.includes('آب‌شده')||n.includes('آب شده')){
+    return `<svg class="mkt-ic" width="${sz}" height="${sz}" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="gBar" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fde047"/><stop offset="55%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#b45309"/></linearGradient></defs><path d="M5.5 16.5L7.8 9.2C8.1 8.4 8.8 8 9.6 8h4.8c.8 0 1.5.4 1.8 1.2l2.3 7.3c.3.9-.4 1.8-1.3 1.8H6.8c-.9 0-1.6-.9-1.3-1.8z" fill="url(#gBar)" stroke="#92400e" stroke-width="1.2"/><path d="M9.5 10.5h5l1 3.2h-7l1-3.2z" fill="#fef08a" opacity=".55"/><path d="M12 3.2v2.1M17.2 5l-1.3 1.5M6.8 5l1.3 1.5" stroke="#f59e0b" stroke-width="1.6" stroke-linecap="round"/></svg>`;
+  }
+  if(k==='usdt'||n.includes('تتر')||n.includes('usdt')||n.includes('دلار')){
+    return `<svg class="mkt-ic" width="${sz}" height="${sz}" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#10b981"/><path d="M7.5 8h9v2.2h-3.3v1.2c2.4.15 4.1.65 4.1 1.25 0 .62-1.7 1.12-4.1 1.26V17.5h-2.4v-3.59c-2.4-.14-4.1-.64-4.1-1.26 0-.6 1.7-1.1 4.1-1.25v-1.2H7.5V8z" fill="#fff"/></svg>`;
+  }
+  if(k==='coin'||k==='hcoin'||k==='qcoin'||n.includes('سکه')||n.includes('امامی')){
+    return `<svg class="mkt-ic" width="${sz}" height="${sz}" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="cGld" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fef08a"/><stop offset="50%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#b45309"/></linearGradient></defs><circle cx="12" cy="12" r="10" fill="url(#cGld)" stroke="#92400e" stroke-width="1.2"/><circle cx="12" cy="12" r="7.2" fill="none" stroke="#fef9c3" stroke-width="1.1" stroke-dasharray="2 1.5"/><path d="M12 7.2l1.35 2.75 3.05.45-2.2 2.15.52 3.03L12 14.15l-2.72 1.43.52-3.03-2.2-2.15 3.05-.45L12 7.2z" fill="#fffbeb"/></svg>`;
+  }
+  if(k==='btc'||n.includes('بیت‌کوین')||n.includes('بیت کوین')||n.includes('btc')){
+    return `<svg class="mkt-ic" width="${sz}" height="${sz}" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#f97316"/><path d="M10.2 7.5h3.1c1.3 0 2.2.7 2.2 1.8 0 .8-.5 1.4-1.2 1.6.9.2 1.6.9 1.6 1.9 0 1.3-1 2.2-2.5 2.2h-3.2V7.5zm1.7 2.9h1.2c.5 0 .8-.3.8-.7s-.3-.7-.8-.7h-1.2v1.4zm0 3.1h1.4c.6 0 1-.3 1-.8s-.4-.8-1-.8h-1.4v1.6zM11 6v1.5M13.2 6v1.5M11 15v1.5M13.2 15v1.5" stroke="#fff" stroke-width="1.1" fill="#fff" stroke-linecap="round"/></svg>`;
+  }
+  return `<svg class="mkt-ic" width="${sz}" height="${sz}" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="#2563eb"/><path d="M7 14.5l3.2-3.2 2.4 2.4L17 9.3M14 9.3h3v3" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
 function MKT(){
   if(!S.mkt)S.mkt={g18:4600000,usdt:71000,coin:52000000,hcoin:27000000,qcoin:17000000,btc:0,oz:2740,ts:''};
   if(S.mkt.coin===undefined)S.mkt.coin=52000000;
@@ -2356,7 +2485,7 @@ function vOv(){const w=W(),p=weekPct(),cds=CDs(),wls=WLs(),now=new Date();now.se
 const prTot=w.days.reduce((a,d)=>a+(d.pr?d.pr.filter(Boolean).length:0),0),prPct=Math.round(100*prTot/21),pt=getPrayTimes(new Date(),S.city||0);
 const cdHtml=cds.map((c,i)=>{const td=new Date(c.dt);td.setHours(0,0,0,0);const df=Math.round((td-now)/864e5);
 const bdg=df<0?`<span class="bdg">${fa(Math.abs(df))} روز گذشته</span>`:df===0?`<span class="bdg wn">امروز</span>`:`<span class="bdg ${df<=7?'wn':'ok'}">${fa(df)} روز مانده</span>`;
-return `<div class="row"><span class="f1"><b>${esc(c.t)}</b> <small class="mu">(${pdy(td)})</small></span>${bdg}<button class="x" data-a="cdDel" data-i="${i}">✕</button></div>`}).join('');
+return `<div class="row"><span class="f1"><b>${esc(c.t)}</b> <small class="mu">(${pdy(td)})</small></span>${bdg}<button class="x" data-a="cdEdit" data-i="${i}" aria-label="ویرایش رویداد" title="ویرایش">✎</button><button class="x" data-a="cdDel" data-i="${i}" aria-label="حذف رویداد" title="حذف">✕</button></div>`}).join('');
 const dO=Array.from({length:31},(_,i)=>`<option value="${i+1}" ${np.d==i+1?'selected':''}>${fa(i+1)}</option>`).join('');
 const mO=PM.map((m,i)=>`<option value="${i+1}" ${np.m==i+1?'selected':''}>${m}</option>`).join('');
 const yO=Array.from({length:12},(_,i)=>{const y=np.y-1+i;return `<option value="${y}" ${np.y==y?'selected':''}>${fy(y)}</option>`}).join('');
@@ -2373,17 +2502,17 @@ ${mktWidget()}
 ${w.days.map((d,i)=>{const pr=d.pr||[0,0,0];return `<tr><td style="font-weight:600">${DN[i]}</td>${[0,1,2].map(pI=>`<td><button class="pr-btn ${pr[pI]?'on':''}" data-a="prTog" data-d="${i}" data-p="${pI}">${pr[pI]?'خوانده شد ✓':'ثبت'}</button></td>`).join('')}<td class="mu">${fa(pr.filter(Boolean).length)}/۳</td></tr>`}).join('')}</table></div></div>
 <div class="g2"><div class="cd"><h2>اولویت‌های اصلی هفته</h2>${w.pri.map((x,i)=>`<div class="row"><b class="mu" style="width:16px">${fa(i+1)}</b><input type="text" data-f="pri" data-i="${i}" value="${esc(x)}" placeholder="اولویت کلیدی..."></div>`).join('')}</div>
 <div class="cd"><h2>اهداف هفته</h2>${w.goals.map((g,i)=>`<div class="row"><input type="checkbox" data-a="gd" data-i="${i}" ${g.d?'checked':''}><span class="f1 ${g.d?'done':''}">${esc(g.t)}</span><button class="x" data-a="gx" data-i="${i}">✕</button></div>`).join('')}
-<div class="row"><input type="text" id="gn" placeholder="افزودن هدف جدید..."><button class="p" data-a="ga">ثبت</button></div></div></div>
+<div class="row"><input type="text" id="gn" placeholder="افزودن هدف جدید..."><button class="p btn-plus" data-a="ga" aria-label="ثبت هدف" title="ثبت هدف">+</button></div></div></div>
 <div class="g2"><div class="cd"><h2>روزشمار رویدادها (تقویم شمسی)</h2>${cdHtml||'<div class="mu" style="margin-bottom:8px">رویدادی ثبت نشده است.</div>'}
-<div class="row fw"><input type="text" id="cdTitle" placeholder="عنوان رویداد..." class="f1" style="min-width:110px"><select id="cdD" style="width:58px">${dO}</select><select id="cdM" style="width:92px">${mO}</select><select id="cdY" style="width:76px">${yO}</select><button class="p" data-a="cdAdd">ثبت</button></div></div>
+<div class="row fw"><input type="text" id="cdTitle" placeholder="عنوان رویداد..." class="f1" style="min-width:110px"><select id="cdD" style="width:58px">${dO}</select><select id="cdM" style="width:92px">${mO}</select><select id="cdY" style="width:76px">${yO}</select><button class="p btn-plus" data-a="cdAdd" aria-label="ثبت رویداد" title="ثبت رویداد">+</button></div></div>
 <div class="cd"><h2>اهداف سالانه و لیست خواسته‌ها</h2>${wls.map((w,i)=>`<div class="row"><input type="checkbox" data-a="wlTog" data-i="${i}" ${w.d?'checked':''}><span class="f1 ${w.d?'done':''}">${esc(w.t)} ${w.p?`<small class="mu">(${fa(w.p)} ت)</small>`:''}</span><button class="x" data-a="wlDel" data-i="${i}">✕</button></div>`).join('')||'<div class="mu" style="margin-bottom:8px">موردی ثبت نشده است.</div>'}
-<div class="row"><input type="text" id="wlTitle" placeholder="هدف یا آیتم خرید..." style="flex:2"><input type="number" id="wlPrc" placeholder="مبلغ" class="f1"><button class="p" data-a="wlAdd">ثبت</button></div></div></div>
+<div class="row"><input type="text" id="wlTitle" placeholder="هدف یا آیتم خرید..." style="flex:2"><input type="number" id="wlPrc" placeholder="مبلغ" class="f1"><button class="p btn-plus" data-a="wlAdd" aria-label="ثبت خواسته" title="ثبت خواسته">+</button></div></div></div>
 <div class="cd"><h2>یادداشت‌های هفته</h2><textarea data-f="wn" placeholder="نکات مهم این هفته...">${esc(w.notes)}</textarea></div>`}
 function vDay(){const d=W().days[di],p=dayPct(d),un=d.t.filter(x=>!x.d).length,pr=d.pr||[0,0,0],pt=getPrayTimes(dd(di),S.city||0);let h='';
 for(let i=5;i<=23;i++){const b=d.b[i]||{t:'',c:'study'};h+=`<div class="blk" data-c="${esc(b.c)}"><span>${fa(i)}:۰۰</span><input type="text" data-f="bt" data-i="${i}" value="${esc(b.t)}" placeholder="—"><select data-f="bc" data-i="${i}">${Object.entries(CT).map(([k,v])=>`<option value="${k}" ${b.c==k?'selected':''}>${v}</option>`).join('')}</select></div>`}
 return dayBar()+`<div class="g2"><div class="cd"><div class="row sb fw" style="margin-bottom:10px"><h2 style="margin:0">برنامه ساعتی ${DN[di]}</h2><div class="row" style="margin:0"><button data-a="cpPrevWk">کپی از هفته قبل</button><button data-a="offDay" class="${d.hol?'p':''}">${d.hol?'تعطیل ✓':'ثبت تعطیل'}</button></div></div>${h}</div>
-<div><div class="cd"><div class="row sb" style="margin-bottom:8px"><h2 style="margin:0">کارهای روز (${fa(p)}٪)</h2>${un?`<button data-a="roll">انتقال ${fa(un)} کار به فردا ↪</button>`:''}</div>${bar(p)}<div style="margin-top:10px">${d.t.map((x,i)=>`<div class="row"><input type="checkbox" data-a="td" data-i="${i}" ${x.d?'checked':''}><span class="f1 ${x.d?'done':''}">${x.p?'<span class="bdg wn" style="margin-inline-end:5px">مهم</span>':''}${esc(x.t)}</span><button class="x" data-a="tp" data-i="${i}">★</button><button class="x" data-a="tx" data-i="${i}">✕</button></div>`).join('')}</div>
-<div class="row"><input type="text" id="tn" placeholder="کار جدید..."><button class="p" data-a="ta">افزودن</button></div></div>
+<div><div class="cd"><div class="row sb" style="margin-bottom:8px"><h2 style="margin:0">کارهای روز (${fa(p)}٪)</h2>${un?`<button data-a="roll">انتقال ${fa(un)} کار به فردا ↪</button>`:''}</div>${bar(p)}<div style="margin-top:10px">${d.t.map((x,i)=>`<div class="row"><input type="checkbox" data-a="td" data-i="${i}" ${x.d?'checked':''}><span class="f1 ${x.d?'done':''}">${x.p?'<span class="bdg wn" style="margin-inline-end:5px">مهم</span>':''}${esc(x.t)}</span><button class="x" data-a="tEdit" data-i="${i}" aria-label="ویرایش کار" title="ویرایش">✎</button><button class="x" data-a="tp" data-i="${i}" aria-label="مهم" title="مهم">★</button><button class="x" data-a="tx" data-i="${i}" aria-label="حذف کار" title="حذف">✕</button></div>`).join('')}</div>
+<div class="row"><input type="text" id="tn" placeholder="کار جدید..."><button class="p btn-plus" data-a="ta" aria-label="افزودن کار" title="افزودن کار">+</button></div></div>
 <div class="cd"><div class="row sb" style="margin-bottom:10px"><h2 style="margin:0">🕌 نمازهای روز ${DN[di]}</h2><span class="bdg ${pr.filter(Boolean).length===3?'ok':''}">${fa(pr.filter(Boolean).length)} از ۳ نوبت</span></div>${renderPrayerCards(pr,pt,di,false)}</div>
 <div class="cd"><h2>انرژی و سلامت</h2><div class="ctr">${['ضعیف','پایین','معمولی','خوب','عالی'].map((e,k)=>`<button class="mb ${d.mood==k+1?'on':''}" data-a="mood" data-v="${k+1}">${e}</button>`).join('')}</div><div class="row"><span class="mu">خواب</span><input type="number" min="0" max="14" step="0.5" data-f="sleep" value="${d.sleep||''}" placeholder="ساعت"><span class="mu">آب</span><input type="number" min="0" max="20" data-f="water" value="${d.water||''}" placeholder="لیوان"></div></div>
 <div class="cd"><h2>یادداشت روزانه</h2><textarea data-f="dn" placeholder="خلاصه روز...">${esc(d.n)}</textarea></div></div></div>`}
@@ -2424,7 +2553,7 @@ return `<div class='cd'><div class='row sb' style='margin:0'><button data-a='hm'
 <div class='cd'><h2>تفکیک هفته‌ها</h2><div class='rings'>${[0,1,2,3,4].map(i=>`<div>${rng(nw[i]?Math.round(100*pw[i]/nw[i]):0,WC[i],58)}هفته ${fa(i+1)}</div>`).join('')}</div></div></div>
 <div class='cd'><h2>روند استمرار روزانه</h2><svg viewBox='0 0 600 110' width='100%' height='95' preserveAspectRatio='none' style='direction:ltr'><polyline points='${pts.join(' ')}' fill='none' stroke='var(--ok)' stroke-width='2.2' vector-effect='non-scaling-stroke'/></svg></div>
 <div class='cd'><div class='wide hsc'><table class='ht'><tr>${h1}<th colspan='5'></th></tr><tr>${h2}<th class='mu'>انجام</th><th class='mu'>هدف</th><th class='mu'>٪</th><th class='mu'>رکورد</th><th></th></tr>${rows}</table></div>
-<div class='row' style='margin-top:12px'><input type='text' id='hn' placeholder='عنوان عادت جدید...'><button class='p' data-a='ha'>افزودن</button></div></div>`}
+<div class='row' style='margin-top:12px'><input type='text' id='hn' placeholder='عنوان عادت جدید...'><button class='p btn-plus' data-a='ha' aria-label='افزودن عادت' title='افزودن عادت'>+</button></div></div>`}
 function rr(){const s=q('.hsc'),x=s?s.scrollLeft:0;render();const n=q('.hsc');if(n)n.scrollLeft=x}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b||b.dataset.a[0]!='h')return;const a=b.dataset.a,H=HD();
 if(a=='hc'){const k=hs.y+'-'+hs.m,lg=H.log[k]=H.log[k]||{},id=b.dataset.h,d=+b.dataset.v,l=lg[id]=lg[id]||[],j=l.indexOf(d);j<0?l.push(d):l.splice(j,1)}
@@ -2509,7 +2638,7 @@ return `<div class='tiles'>${kpi('درآمد (تومان)',mo(M.I),dl(M.I,P.I),t
 <div class='cd'><h2>بزرگ‌ترین هزینه‌های ماه</h2>${cl.length?cl.map(x=>hbar(catL(x[0]),x[1],cl[0][1],'var(--er)')).join(''):`<div class='mu'>—</div>`}</div></div>`}
 function bTx(c){const n=c.n,cd=c.cd,opts=GR.map(g=>`<optgroup label='${g[3]=='in'?'درآمد':'هزینه'} — ${g[1]}'>${g[4].map(i=>`<option value='${esc(i[0])}'>${esc(i[1])}</option>`).join('')}</optgroup>`).join('');
 return `<div class='cd'><h2>استخراج خودکار از پیامک بانکی</h2><div class='row'><input type='text' id='smsBox' placeholder='متن پیامک بانک را اینجا جای‌گذاری کنید...'><button data-a='bsms'>استخراج اطلاعات</button></div></div>
-<div class='cd'><h2>ثبت تراکنش جدید</h2><div class='row fw'><input type='number' id='bdy' min='1' max='${n}' value='${cd||1}' style='width:68px'><select id='bcat' class='f1' style='min-width:185px'>${opts}</select><input type='number' id='bam' min='1' placeholder='مبلغ (تومان)' class='f1' style='min-width:120px'><input type='text' id='bnt' placeholder='توضیحات...' class='f1' style='min-width:120px'><button class='p' data-a='ba'>ثبت</button></div><div id='bamWords' class='mu' style='font-weight:600;color:var(--tx)'></div></div>
+<div class='cd'><h2>ثبت تراکنش جدید</h2><div class='row fw'><input type='number' id='bdy' min='1' max='${n}' value='${cd||1}' style='width:68px'><select id='bcat' class='f1' style='min-width:185px'>${opts}</select><input type='number' id='bam' min='1' placeholder='مبلغ (تومان)' class='f1' style='min-width:120px'><input type='text' id='bnt' placeholder='توضیحات...' class='f1' style='min-width:120px'><button class='p btn-plus' data-a='ba' aria-label='ثبت تراکنش' title='ثبت تراکنش'>+</button></div><div id='bamWords' class='mu' style='font-weight:600;color:var(--tx)'></div></div>
 <div class='cd'><h2>فهرست تراکنش‌های ${PM[hs.m-1]} (${fa(c.M.tx.length)})</h2><div class='row'><select data-f='bfg'><option value=''>همه سرفصل‌ها</option>${GR.map(g=>`<option value='${g[0]}' ${bfg==g[0]?'selected':''}>${g[1]}</option>`).join('')}</select><input type='text' data-f='bq' value='${esc(bq)}' placeholder='جستجو...'></div><div id='tl'>${bList()}</div></div>`}
 function bPl(c){const{M,bu,gl,bal,budAuto={},isFutureBud=false}=c,ex=M.ex,tl=Object.values(bu).reduce((a,b)=>a+b,0),nd=['food','trans','bill','net','health','fin','edu','work'],nv=sm_(nd.map(g=>gs(ex,g))),wv=M.E-nv,p3=v=>M.I?Math.round(100*v/M.I):0,gp=gl?clamp(Math.round(100*bal/gl)):0;
 const rows=GXs.map(g=>{const v=gs(ex,g[0]),lm=bu[g[0]]||0,p=lm?Math.round(100*v/lm):0,col=!lm?'var(--mu)':p>=100?'var(--er)':p>=80?'var(--wn)':'var(--ok)';
@@ -2536,7 +2665,7 @@ function bAs(c){
     <div class='wide'><table><tr><th>نوع دارایی</th><th>مقدار</th><th>قیمت واحد (تومان)</th><th>ارزش کل</th><th></th></tr>
     ${assets.map(a=>`<tr><td style='text-align:start;font-weight:600'>${esc(a.n)}</td><td><input type='number' step='0.01' min='0' data-f='asq' data-id='${esc(a.id)}' value='${a.q||0}' style='width:85px'></td><td><input type='number' step='1000' min='0' data-f='asp' data-id='${esc(a.id)}' value='${a.p||0}' style='width:120px'></td><td><b style='color:var(--ok)'>${mo((a.q||0)*(a.p||0))}</b></td><td><button class='x' data-a='basDel' data-id='${esc(a.id)}'>✕</button></td></tr>`).join('')}
     </table></div>
-    <div class='row fw' style='margin-top:10px'><input type='text' id='asName' placeholder='عنوان دارایی جدید...' style='flex:2;min-width:140px'><input type='number' step='0.01' id='asQty' placeholder='مقدار' class='f1' style='min-width:80px'><input type='number' id='asPrc' placeholder='قیمت واحد' class='f1' style='min-width:120px'><button class='p' data-a='basAdd'>افزودن</button></div>
+    <div class='row fw' style='margin-top:10px'><input type='text' id='asName' placeholder='عنوان دارایی جدید...' style='flex:2;min-width:140px'><input type='number' step='0.01' id='asQty' placeholder='مقدار' class='f1' style='min-width:80px'><input type='number' id='asPrc' placeholder='قیمت واحد' class='f1' style='min-width:120px'><button class='p btn-plus' data-a='basAdd' aria-label='افزودن دارایی' title='افزودن دارایی'>+</button></div>
   </div>
   <div class='cd'><h2>مدیریت اقساط و وام‌ها (قابلیت ویرایش مبلغ برای هر ماه خاص)</h2>
     ${inst.length?inst.map(i=>{const isP=!!(i.paid&&i.paid[k]),pc=Object.keys(i.paid||{}).length,curA=insAm(i,k),isC=i.amts&&i.amts[k]!=null&&i.amts[k]!==i.a;
@@ -2548,7 +2677,7 @@ function bAs(c){
       <button class='${isP?'p':''}' data-a='binsPay' data-id='${esc(i.id)}'>${isP?'پرداخت شد ✓':'ثبت پرداخت '+PM[hs.m-1]}</button>
       <button class='x' data-a='binsDel' data-id='${esc(i.id)}'>✕</button>
     </div>`}).join(''):'<div class="mu" style="margin-bottom:8px">هنوز قسطی ثبت نشده است.</div>'}
-    <div class='row fw' style='margin-top:12px'><input type='text' id='inTitle' placeholder='عنوان قسط...' style='flex:2;min-width:150px'><input type='number' id='inAm' placeholder='مبلغ پایه قسط (تومان)' class='f1' style='min-width:130px'><input type='number' id='inDay' min='1' max='31' placeholder='روز سررسید' style='width:95px'><input type='number' id='inTot' min='1' placeholder='تعداد کل' style='width:95px'><button class='p' data-a='binsAdd'>ثبت قسط</button></div>
+    <div class='row fw' style='margin-top:12px'><input type='text' id='inTitle' placeholder='عنوان قسط...' style='flex:2;min-width:150px'><input type='number' id='inAm' placeholder='مبلغ پایه قسط (تومان)' class='f1' style='min-width:130px'><input type='number' id='inDay' min='1' max='31' placeholder='روز سررسید' style='width:95px'><input type='number' id='inTot' min='1' placeholder='تعداد کل' style='width:95px'><button class='p btn-plus' data-a='binsAdd' aria-label='ثبت قسط' title='ثبت قسط'>+</button></div>
     <div id='inAmWords' class='mu'></div>
   </div>`;
 }
@@ -3061,7 +3190,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
         <select id="lrnType" style="width:110px"><option value="کتاب">📚 کتاب</option><option value="دوره">🎓 دوره آموزشی</option><option value="پروژه">🚀 پروژه/مهارت</option></select>
         <input type="number" id="lrnCur" placeholder="فعلی (مثلاً 0)" style="width:95px">
         <input type="number" id="lrnTot" placeholder="کل (مثلاً 300)" style="width:105px">
-        <button class="p" data-a="lrnAdd">+ ثبت</button>
+        <button class="p btn-plus" data-a="lrnAdd" aria-label="ثبت منبع آموزشی" title="ثبت">+</button>
       </div>
     </div>
     <div class="g2">${cards||'<div class="mu">هنوز کتاب یا دوره‌ای ثبت نشده است.</div>'}</div>`;
@@ -3086,7 +3215,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
         </select>
         <input type="number" id="dtAm" placeholder="مبلغ (تومان)" style="flex:1;min-width:120px" data-ei="dtWords">
         <input type="text" id="dtNote" placeholder="بابت (مثلاً: دنگ سفر، قرض...)" style="flex:1;min-width:130px">
-        <button class="p" data-a="dtAdd">+ ثبت حساب</button>
+        <button class="p btn-plus" data-a="dtAdd" aria-label="ثبت حساب" title="ثبت حساب">+</button>
       </div>
       <div id="dtWords" class="mu"></div>
     </div>
@@ -3118,7 +3247,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
       <div class="ctr">${H.list.map(h=>{const isOn=(hLog[h.id]||[]).includes(nowP.d);return `<button class="pr-btn ${isOn?'on':''}" data-a="nrHabTog" data-h="${esc(h.id)}" data-d="${nowP.d}" data-hk="${esc(hk)}">${esc(h.n)} ${isOn?'✓':''}</button>`}).join('')}</div>
       <hr style="border:0;border-top:1px solid var(--bd2);margin:10px 0">
       <div class="mu" style="margin-bottom:6px">۴. <b>ثبت مهم‌ترین اولویت فردا:</b></div>
-      <div class="row"><input type="text" id="nrTmrTask" placeholder="مهم‌ترین کاری که فردا صبح باید انجام دهم..."><button class="p" data-ev="addTmr">+ ثبت برای فردا</button></div>
+      <div class="row"><input type="text" id="nrTmrTask" placeholder="مهم‌ترین کاری که فردا صبح باید انجام دهم..."><button class="p btn-plus" data-ev="addTmr" aria-label="ثبت برای فردا" title="ثبت برای فردا">+</button></div>
     `;
     $('nrMdl').classList.add('on');
   }
@@ -3617,11 +3746,11 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2.3"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
           نرخ لحظه‌ای:
         </span>
-        <div class="mkt-pill" data-a="editMkt" data-k="g18" title="ویرایش دستی"><span>طلا ۱۸:</span><b style="color:var(--ac)">${fa(mkt.g18)}</b></div>
-        <div class="mkt-pill" data-a="editMkt" data-k="usdt" title="ویرایش دستی"><span>تتر:</span><b style="color:var(--ok)">${fa(mkt.usdt)}</b></div>
-        <div class="mkt-pill" data-a="editMkt" data-k="coin" title="ویرایش دستی"><span>سکه امامی:</span><b style="color:var(--wn)">${fa(mkt.coin||0)}</b></div>
-        <div class="mkt-pill" data-a="editMkt" data-k="hcoin" title="ویرایش دستی"><span>نیم سکه:</span><b style="color:var(--wn)">${fa(mkt.hcoin||0)}</b></div>
-        <div class="mkt-pill" data-a="editMkt" data-k="qcoin" title="ویرایش دستی"><span>ربع سکه:</span><b style="color:var(--wn)">${fa(mkt.qcoin||0)}</b></div>
+        <div class="mkt-pill" data-a="editMkt" data-k="g18" title="ویرایش دستی">${assetLogoSvg('g18','',16)}<span>طلا ۱۸:</span><b style="color:var(--ac)">${fa(mkt.g18)}</b></div>
+        <div class="mkt-pill" data-a="editMkt" data-k="usdt" title="ویرایش دستی">${assetLogoSvg('usdt','',16)}<span>تتر:</span><b style="color:var(--ok)">${fa(mkt.usdt)}</b></div>
+        <div class="mkt-pill" data-a="editMkt" data-k="coin" title="ویرایش دستی">${assetLogoSvg('coin','',16)}<span>سکه امامی:</span><b style="color:var(--wn)">${fa(mkt.coin||0)}</b></div>
+        <div class="mkt-pill" data-a="editMkt" data-k="hcoin" title="ویرایش دستی">${assetLogoSvg('hcoin','',16)}<span>نیم سکه:</span><b style="color:var(--wn)">${fa(mkt.hcoin||0)}</b></div>
+        <div class="mkt-pill" data-a="editMkt" data-k="qcoin" title="ویرایش دستی">${assetLogoSvg('qcoin','',16)}<span>ربع سکه:</span><b style="color:var(--wn)">${fa(mkt.qcoin||0)}</b></div>
       </div>
       <div class="row" style="margin:0">
         <small class="mu">${esc(mkt.ts||'')}</small>
@@ -3643,68 +3772,160 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
   }
   const origW=window.W;
   window.W=function(){const w=origW();applyDefaultSchedule(w);return w};
+  let calSelDay=pp(new Date()).d,calFilter='all';
   function renderMonthlyCal(){
     const n=ML(hs.y,hs.m),off=(hs.s.getDay()+1)%7,nowP=pp(new Date()),cds=CDs();
     const mk=hs.y+'-'+hs.m,B=BD(),inst=B.inst||[],mTxs=(B.tx&&B.tx[mk])||[];
-    let cells=DN.map(d=>`<div class="cal-h">${d}</div>`).join('');
+    if(calSelDay>n)calSelDay=n;
+    if(calSelDay<1)calSelDay=1;
+
+    let cells=DN.map((d,idx)=>`<div class="cal-h ${idx===6?'fri':''}">${d}</div>`).join('');
     for(let i=0;i<off;i++)cells+=`<div></div>`;
+
     const monthAgenda=[];
+    let mTaskTot=0,mTaskDone=0,mStudyMin=0,mEvCnt=0,mInstTot=0,mInstPaid=0,mInstSum=0;
+    let selInfo=null;
+
     for(let d=1;d<=n;d++){
       const dt=j2d(hs.y,hs.m,d),wSat=sat(dt),wKey=wSat.toISOString().slice(0,10),dIdx=(dt.getDay()+1)%7;
-      const dayData=(S[wKey]&&S[wKey].days&&S[wKey].days[dIdx])||{t:[],hol:0};
+      const dayData=(S[wKey]&&S[wKey].days&&S[wKey].days[dIdx])||{t:[],ses:[],hol:0,pr:[0,0,0]};
       const isToday=(nowP.y===hs.y&&nowP.m===hs.m&&nowP.d===d);
+      const isSel=(calSelDay===d);
       const isHol=dayData.hol||dIdx===6;
-      const tTot=(dayData.t||[]).length,tDone=(dayData.t||[]).filter(x=>x.d).length;
+      const tTot=(dayData.t||[]).length,tDone=(dayData.t||[]).filter(x=>x.d).length,tPct=tTot?Math.round(100*tDone/tTot):0;
+      const sMin=Math.round(dayMin(dayData));
       const iso=dt.toISOString().slice(0,10);
       const evs=cds.filter(c=>c.dt===iso);
       const dayInst=inst.filter(ins=>Number(ins.d)===d);
       const rentTxs=mTxs.filter(tx=>Number(tx.d)===d&&(tx.c==='rent'||tx.c==='lon')&&!tx.insId);
+
+      mTaskTot+=tTot;mTaskDone+=tDone;mStudyMin+=sMin;mEvCnt+=evs.length;
+      dayInst.forEach(ins=>{mInstTot++;if(ins.paid&&ins.paid[mk])mInstPaid++;mInstSum+=insAm(ins,mk)});
+
+      if(isSel)selInfo={d,dt,wKey,dIdx,dayData,evs,dayInst,rentTxs,sMin,tTot,tDone,tPct,iso};
+
       let tags='',dots='';
-      if(tTot){
+      const showT=(calFilter==='all'||calFilter==='task');
+      const showF=(calFilter==='all'||calFilter==='fin');
+      const showE=(calFilter==='all'||calFilter==='ev');
+      const showS=(calFilter==='all'||calFilter==='study');
+
+      if(showT&&tTot){
         tags+=`<div class="cal-tag" style="color:${tDone===tTot?'var(--ok)':'var(--tx)'}">✓ ${fa(tDone)}/${fa(tTot)} کار</div>`;
         dots+=`<span class="c-mini">${fa(tDone)}/${fa(tTot)}</span>`;
       }
+      if(showS&&sMin>0){
+        tags+=`<div class="cal-tag" style="background:color-mix(in srgb,#7c3aed 15%,transparent);color:#7c3aed">⏱ ${fa(sMin)}د</div>`;
+        dots+=`<span class="c-dot" style="background:#7c3aed"></span>`;
+      }
       evs.forEach(ev=>{
-        tags+=`<div class="cal-tag" style="background:color-mix(in srgb,var(--wn) 20%,transparent);color:var(--wn)">📌 ${esc(ev.t)}</div>`;
-        dots+=`<span class="c-dot" style="background:var(--wn)"></span>`;
+        if(showE){
+          tags+=`<div class="cal-tag" style="background:color-mix(in srgb,var(--wn) 20%,transparent);color:var(--wn)">📌 ${esc(ev.t)}</div>`;
+          dots+=`<span class="c-dot" style="background:var(--wn)"></span>`;
+        }
         monthAgenda.push({d,tp:'رویداد',t:ev.t,am:0,done:false,col:'var(--wn)'});
       });
       dayInst.forEach(ins=>{
         const isPaid=!!(ins.paid&&ins.paid[mk]),amt=insAm(ins,mk);
-        tags+=`<div class="cal-tag" style="background:color-mix(in srgb,${isPaid?'var(--ok)':'var(--ac)'} 18%,transparent);color:${isPaid?'var(--ok)':'var(--ac)'};font-weight:700">${isPaid?'✓':'💳'} ${esc(ins.t)}</div>`;
-        dots+=`<span class="c-dot" style="background:${isPaid?'var(--ok)':'var(--ac)'}"></span>`;
+        if(showF){
+          tags+=`<div class="cal-tag" style="background:color-mix(in srgb,${isPaid?'var(--ok)':'var(--ac)'} 18%,transparent);color:${isPaid?'var(--ok)':'var(--ac)'};font-weight:700">${isPaid?'✓':'💳'} ${esc(ins.t)}</div>`;
+          dots+=`<span class="c-dot" style="background:${isPaid?'var(--ok)':'var(--ac)'}"></span>`;
+        }
         monthAgenda.push({d,tp:isPaid?'قسط (پرداخت‌شده ✓)':'سررسید قسط',t:ins.t,am:amt,done:isPaid,col:isPaid?'var(--ok)':'var(--ac)'});
       });
       rentTxs.forEach(rt=>{
-        tags+=`<div class="cal-tag" style="background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)">🏠 ${esc(rt.n||catL(rt.c))}</div>`;
-        dots+=`<span class="c-dot" style="background:var(--ok)"></span>`;
+        if(showF){
+          tags+=`<div class="cal-tag" style="background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)">🏠 ${esc(rt.n||catL(rt.c))}</div>`;
+          dots+=`<span class="c-dot" style="background:var(--ok)"></span>`;
+        }
         monthAgenda.push({d,tp:'مسکن/وام',t:rt.n||catL(rt.c),am:rt.a,done:true,col:'var(--ok)'});
       });
-      cells+=`<div class="cal-d ${isToday?'tdy':''} ${isHol?'hol':''}" data-a="calGo" data-d="${d}">
-        <div class="cal-num"><span>${fa(d)}</span>${isToday?'<small class="bdg ok" style="font-size:0.5625rem;padding:1px 4px">امروز</small>':''}</div>
+
+      const pbarHtml=(tTot>0)?`<div class="cal-pbar"><i style="width:${tPct}%;background:${tPct===100?'var(--ok)':'var(--ac)'}"></i></div>`:'';
+      cells+=`<div class="cal-d ${isToday?'tdy':''} ${isSel?'sel':''} ${isHol?'hol':''}" data-a="calSel" data-d="${d}">
+        <div class="cal-num"><span>${fa(d)}</span>${isToday?'<small class="bdg ok" style="font-size:0.5625rem;padding:1px 5px">امروز</small>':''}</div>
         <div class="cal-tags">${tags}</div>
         <div class="cal-dot-row">${dots}</div>
+        ${pbarHtml}
       </div>`;
     }
-    const agendaHtml=monthAgenda.length?`<div class="cd"><h2>💳 فهرست سررسید اقساط، اجاره و رویدادهای ${PM[hs.m-1]}</h2>
-      ${monthAgenda.map(x=>`<div class="row sb fw d-row" data-a="calGo" data-d="${x.d}" style="padding:7px 6px;border-bottom:1px solid var(--bd2)">
+
+    const mTaskPct=mTaskTot?Math.round(100*mTaskDone/mTaskTot):0;
+    const fltItems=[['all','همه لایه‌ها'],['task','✅ کارها'],['fin','💳 اقساط و مالی'],['ev','📌 رویدادها'],['study','⏱️ مطالعه']];
+
+    // پنل جزئیات روز انتخاب‌شده
+    let dayPanelHtml='';
+    if(selInfo){
+      const pt=getPrayTimes(selInfo.dt,S.city||0),pr=selInfo.dayData.pr||[0,0,0];
+      const tasksList=(selInfo.dayData.t||[]).length
+        ?(selInfo.dayData.t||[]).map((x,idx)=>`<div class="row" style="margin-bottom:5px"><input type="checkbox" data-a="calTaskTog" data-wk="${esc(selInfo.wKey)}" data-di="${selInfo.dIdx}" data-i="${idx}" ${x.d?'checked':''}><span class="f1 ${x.d?'done':''}" style="font-size:0.8125rem">${x.p?'<span class="bdg wn" style="margin-inline-end:4px">مهم</span>':''}${esc(x.t)}</span><button class="x" data-a="calTaskEdit" data-wk="${esc(selInfo.wKey)}" data-di="${selInfo.dIdx}" data-i="${idx}" aria-label="ویرایش کار" title="ویرایش">✎</button><button class="x" data-a="calTaskDel" data-wk="${esc(selInfo.wKey)}" data-di="${selInfo.dIdx}" data-i="${idx}" aria-label="حذف کار" title="حذف">✕</button></div>`).join('')
+        :`<div class="mu" style="margin-bottom:6px">کاری برای این روز ثبت نشده است.</div>`;
+      const evFinItems=[];
+      selInfo.evs.forEach(ev=>{
+        const evIdx=cds.indexOf(ev);
+        evFinItems.push(`<div class="row sb" style="margin-bottom:5px;font-size:0.8125rem"><span class="f1">📌 <b>${esc(ev.t)}</b></span><span class="bdg" style="color:var(--wn)">رویداد</span><button class="x" data-a="calEvEdit" data-i="${evIdx}" aria-label="ویرایش رویداد" title="ویرایش">✎</button><button class="x" data-a="calEvDel" data-i="${evIdx}" aria-label="حذف رویداد" title="حذف">✕</button></div>`);
+      });
+      selInfo.dayInst.forEach(ins=>{
+        const isP=!!(ins.paid&&ins.paid[mk]);
+        evFinItems.push(`<div class="row sb" style="margin-bottom:5px;font-size:0.8125rem"><span>💳 <b>${esc(ins.t)}</b> (${mo(insAm(ins,mk))} ت)</span><span class="bdg ${isP?'ok':'wn'}">${isP?'پرداخت شد ✓':'سررسید'}</span></div>`);
+      });
+      selInfo.rentTxs.forEach(rt=>evFinItems.push(`<div class="row sb" style="margin-bottom:5px;font-size:0.8125rem"><span>🏠 <b>${esc(rt.n||catL(rt.c))}</b></span><b>${mo(rt.a)} ت</b></div>`));
+
+      dayPanelHtml=`<div class="cd cal-day-panel">
+        <div class="cal-dp-top">
+          <div>
+            <div class="mu" style="font-size:0.7188rem">جزئیات روز انتخاب‌شده</div>
+            <b style="font-size:1rem">${pfull(selInfo.dt)}</b>
+          </div>
+          <button class="p" data-a="calGo" data-d="${selInfo.d}" style="font-size:0.7812rem">باز کردن برنامه روزانه ←</button>
+        </div>
+        <div class="cal-dp-meta">
+          <span class="bdg">🕌 صبح ${pt.sobh} · ظهر ${pt.zohr} · مغرب ${pt.maghreb}</span>
+          <span class="bdg ${selInfo.sMin>0?'ok':''}">⏱ مطالعه: ${fa(selInfo.sMin)} دقیقه</span>
+          <span class="bdg">نماز ثبت‌شده: ${fa(pr.filter(Boolean).length)}/۳</span>
+        </div>
+        <div class="cal-dp-grid">
+          <div class="cal-dp-box">
+            <h3><span>✅ کارهای این روز</span><span class="mu">${fa(selInfo.tDone)}/${fa(selInfo.tTot)}</span></h3>
+            ${tasksList}
+            <div class="row" style="margin:6px 0 0"><input type="text" id="calQuickTask" placeholder="افزودن کار سریع به ${fa(selInfo.d)} ${PM[hs.m-1]}..."><button class="p btn-plus" data-a="calAddTask" data-d="${selInfo.d}" aria-label="ثبت کار" title="ثبت کار">+</button></div>
+          </div>
+          <div class="cal-dp-box">
+            <h3><span>📌 رویدادها و سررسیدهای مالی</span><span class="mu">${fa(evFinItems.length)} مورد</span></h3>
+            ${evFinItems.join('')||'<div class="mu" style="margin-bottom:6px">رویداد یا سررسیدی برای این روز نیست.</div>'}
+            <div class="row" style="margin:6px 0 0"><input type="text" id="calQuickEv" placeholder="ثبت رویداد جدید در این تاریخ..."><button class="p btn-plus" data-a="calAddEv" data-d="${selInfo.d}" aria-label="ثبت رویداد" title="ثبت رویداد">+</button></div>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    const agendaHtml=monthAgenda.length?`<div class="cd"><h2>📋 فهرست جامع سررسید اقساط و رویدادهای ${PM[hs.m-1]} (${fa(monthAgenda.length)} مورد)</h2>
+      ${monthAgenda.map(x=>`<div class="row sb fw d-row" data-a="calSel" data-d="${x.d}" style="padding:8px 6px;border-bottom:1px solid var(--bd2)">
         <div class="row" style="margin:0"><span class="bdg" style="color:${x.col}">${fa(x.d)} ${PM[hs.m-1]}</span><b>${esc(x.t)}</b> <small class="mu">(${esc(x.tp)})</small></div>
         ${x.am?`<b style="color:${x.col}">${mo(x.am)} تومان</b>`:''}
       </div>`).join('')}
     </div>`:'';
-    return `<div class="cd"><div class="row sb fw" style="margin:0">
-      <button data-a="hm" data-v="-1">› ماه قبل</button>
-      <div class="row" style="margin:0"><h2 style="margin:0;font-size:1.0625rem">تقویم ماهانه — ${PM[hs.m-1]} ${fy(hs.y)}</h2>${(hs.y!==nowP.y||hs.m!==nowP.m)?`<button data-a="calNow" style="font-size:0.7188rem;padding:3px 8px">ماه جاری</button>`:''}</div>
-      <button data-a="hm" data-v="1">ماه بعد ‹</button>
-    </div></div>
-    <div class="cd">
-      <div class="lg" style="margin:0 0 10px;justify-content:center">
-        <span><b style="background:var(--ac);border-radius:50%"></b>سررسید قسط</span>
-        <span><b style="background:var(--ok);border-radius:50%"></b>پرداخت‌شده / اجاره</span>
-        <span><b style="background:var(--wn);border-radius:50%"></b>رویداد مهم</span>
+
+    return `<div class="cd cal-hero-cd">
+      <div class="fin-month-bar">
+        <button data-a="hm" data-v="-1">› ماه قبل</button>
+        <div class="fin-month-mid">
+          <span>📅 ${PM[hs.m-1]} ${fy(hs.y)}</span>
+          ${(hs.y!==nowP.y||hs.m!==nowP.m)?`<button data-a="calNow">ماه جاری</button>`:''}
+        </div>
+        <button data-a="hm" data-v="1">ماه بعد ‹</button>
       </div>
+      <div class="cal-kpis">
+        <div class="cal-kpi"><small>✅ کارهای ماه</small><b>${fa(mTaskDone)}/${fa(mTaskTot)} <span class="mu" style="font-size:0.7188rem">(${fa(mTaskPct)}٪)</span></b></div>
+        <div class="cal-kpi"><small>⏱️ تمرکز و مطالعه</small><b style="color:var(--ac)">${fa(+(mStudyMin/60).toFixed(1))} ساعت</b></div>
+        <div class="cal-kpi"><small>💳 اقساط ماه</small><b style="color:${mInstPaid===mInstTot&&mInstTot>0?'var(--ok)':'var(--wn)'}">${fa(mInstPaid)}/${fa(mInstTot)} <span class="mu" style="font-size:0.6875rem">(${mo(mInstSum)})</span></b></div>
+        <div class="cal-kpi"><small>📌 رویدادهای ماه</small><b>${fa(mEvCnt)} رویداد</b></div>
+      </div>
+      <div class="cal-flt">${fltItems.map(f=>`<button class="${calFilter===f[0]?'on':''}" data-a="calFlt" data-v="${f[0]}">${f[1]}</button>`).join('')}</div>
+    </div>
+    <div class="cd" style="padding:14px 12px!important">
       <div class="cal-g">${cells}</div>
-    </div>`+agendaHtml;
+    </div>`+dayPanelHtml+agendaHtml;
   }
   window.vDay=function(){
     const d=W().days[di],p=dayPct(d),un=d.t.filter(x=>!x.d).length,pr=d.pr||[0,0,0],pt=getPrayTimes(dd(di),S.city||0);
@@ -3717,8 +3938,8 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
       h+=`<div class="blk" data-c="${esc(b.c)}"><span>${fa(i)}:۰۰</span><input type="text" data-f="bt" data-i="${i}" value="${esc(b.t)}" placeholder="${i>=8&&i<=18?'ساعت کاری...':'استراحت...'}"><select data-f="bc" data-i="${i}">${Object.entries(CT).map(([k,v])=>`<option value="${k}" ${b.c==k?'selected':''}>${v}</option>`).join('')}</select></div>`;
     }
     return dayBar()+instBanner+`<div class="g2"><div class="cd"><div class="row sb fw" style="margin-bottom:10px"><h2 style="margin:0">برنامه ساعتی ${DN[di]}</h2><div class="row" style="margin:0"><button data-a="rstDefBlk">↺ چیدمان ۸-۱۸ کار</button><button data-a="cpPrevWk">کپی از هفته قبل</button><button data-a="offDay" class="${d.hol?'p':''}">${d.hol?'تعطیل ✓':'ثبت تعطیل'}</button></div></div>${h}</div>
-    <div><div class="cd"><div class="row sb" style="margin-bottom:8px"><h2 style="margin:0">کارهای روز (${fa(p)}٪)</h2>${un?`<button data-a="roll">انتقال ${fa(un)} کار به فردا ↪</button>`:''}</div>${bar(p)}<div style="margin-top:10px">${d.t.map((x,i)=>`<div class="row"><input type="checkbox" data-a="td" data-i="${i}" ${x.d?'checked':''}><span class="f1 ${x.d?'done':''}">${x.p?'<span class="bdg wn" style="margin-inline-end:5px">مهم</span>':''}${esc(x.t)}</span><button class="x" data-a="tp" data-i="${i}">★</button><button class="x" data-a="tx" data-i="${i}">✕</button></div>`).join('')}</div>
-    <div class="row"><input type="text" id="tn" placeholder="کار جدید..."><button class="p" data-a="ta">افزودن</button></div></div>
+    <div><div class="cd"><div class="row sb" style="margin-bottom:8px"><h2 style="margin:0">کارهای روز (${fa(p)}٪)</h2>${un?`<button data-a="roll">انتقال ${fa(un)} کار به فردا ↪</button>`:''}</div>${bar(p)}<div style="margin-top:10px">${d.t.map((x,i)=>`<div class="row"><input type="checkbox" data-a="td" data-i="${i}" ${x.d?'checked':''}><span class="f1 ${x.d?'done':''}">${x.p?'<span class="bdg wn" style="margin-inline-end:5px">مهم</span>':''}${esc(x.t)}</span><button class="x" data-a="tEdit" data-i="${i}" aria-label="ویرایش کار" title="ویرایش">✎</button><button class="x" data-a="tp" data-i="${i}" aria-label="مهم" title="مهم">★</button><button class="x" data-a="tx" data-i="${i}" aria-label="حذف کار" title="حذف">✕</button></div>`).join('')}</div>
+    <div class="row"><input type="text" id="tn" placeholder="کار جدید..."><button class="p btn-plus" data-a="ta" aria-label="افزودن کار" title="افزودن کار">+</button></div></div>
     <div class="cd"><div class="row sb" style="margin-bottom:10px"><h2 style="margin:0">🕌 نمازهای روز ${DN[di]}</h2><span class="bdg ${pr.filter(Boolean).length===3?'ok':''}">${fa(pr.filter(Boolean).length)} از ۳ نوبت</span></div>${renderPrayerCards(pr,pt,di,false)}</div>
     <div class="cd"><h2>انرژی و سلامت</h2><div class="ctr">${['ضعیف','پایین','معمولی','خوب','عالی'].map((e,k)=>`<button class="mb ${d.mood==k+1?'on':''}" data-a="mood" data-v="${k+1}">${e}</button>`).join('')}</div><div class="row"><span class="mu">خواب</span><input type="number" min="0" max="14" step="0.5" data-f="sleep" value="${d.sleep||''}" placeholder="ساعت"><span class="mu">آب</span><input type="number" min="0" max="20" data-f="water" value="${d.water||''}" placeholder="لیوان"></div></div>
     <div class="cd"><h2>یادداشت روزانه</h2><textarea data-f="dn" placeholder="خلاصه روز...">${esc(d.n)}</textarea></div></div></div>`;
@@ -3734,12 +3955,73 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
       const d=W().days[di];
       for(let i=5;i<=23;i++){d.b[i]=d.b[i]||{t:'',c:'rest'};d.b[i].c=(i>=8&&i<=18)?'work':'rest'}
       save();render();
+    }else if(b.dataset.a==='calSel'){
+      calSelDay=+b.dataset.d||1;render();
+    }else if(b.dataset.a==='calFlt'){
+      calFilter=b.dataset.v||'all';render();
+    }else if(b.dataset.a==='calAddTask'){
+      const v=($('calQuickTask')?.value||'').trim();if(!v)return;
+      const dt=j2d(hs.y,hs.m,+b.dataset.d),wSat=sat(dt),wKey=wSat.toISOString().slice(0,10),dIdx=(dt.getDay()+1)%7;
+      if(!S[wKey])S[wKey]={goals:[],pri:['','',''],notes:'',days:DN.map(()=>({b:{},t:[],n:'',plan:0,ses:[],hol:0,pr:[0,0,0]}))};
+      S[wKey].days[dIdx].t.push({t:v,d:0,p:v.includes('!')||v.includes('مهم')?1:0});
+      save();render();
+      if(window.showToast)showToast(`کار در ${fa(+b.dataset.d)} ${PM[hs.m-1]} ثبت شد ✓`);
+    }else if(b.dataset.a==='calAddEv'){
+      const v=($('calQuickEv')?.value||'').trim();if(!v)return;
+      const dt=j2d(hs.y,hs.m,+b.dataset.d);
+      CDs().push({t:v,dt:dt.toISOString().slice(0,10)});
+      save();render();
+      if(window.showToast)showToast(`رویداد در ${fa(+b.dataset.d)} ${PM[hs.m-1]} ثبت شد ✓`);
+    }else if(b.dataset.a==='calTaskTog'){
+      const wk=b.dataset.wk,dIdx=+b.dataset.di,idx=+b.dataset.i;
+      if(S[wk]&&S[wk].days&&S[wk].days[dIdx]&&S[wk].days[dIdx].t[idx]){
+        S[wk].days[dIdx].t[idx].d=b.checked?1:0;save();render();
+      }
+    }else if(b.dataset.a==='calTaskEdit'){
+      const wk=b.dataset.wk,dIdx=+b.dataset.di,idx=+b.dataset.i;
+      const item=S[wk]&&S[wk].days&&S[wk].days[dIdx]&&S[wk].days[dIdx].t[idx];
+      if(item){
+        const nv=prompt('ویرایش عنوان کار:',item.t||'');
+        if(nv!==null&&nv.trim()){item.t=nv.trim();save();render();if(window.showToast)showToast('کار ویرایش شد ✓')}
+      }
+    }else if(b.dataset.a==='calTaskDel'){
+      const wk=b.dataset.wk,dIdx=+b.dataset.di,idx=+b.dataset.i;
+      if(S[wk]&&S[wk].days&&S[wk].days[dIdx]&&S[wk].days[dIdx].t[idx]){
+        if(window.pushUndo)pushUndo('calTaskDel');
+        S[wk].days[dIdx].t.splice(idx,1);save();render();
+        if(window.showToast)showToast('کار حذف شد',true);
+      }
+    }else if(b.dataset.a==='calEvEdit'){
+      const idx=+b.dataset.i,ev=CDs()[idx];
+      if(ev){
+        const nv=prompt('ویرایش عنوان رویداد:',ev.t||'');
+        if(nv!==null&&nv.trim()){ev.t=nv.trim();save();render();if(window.showToast)showToast('رویداد ویرایش شد ✓')}
+      }
+    }else if(b.dataset.a==='calEvDel'){
+      const idx=+b.dataset.i;
+      if(CDs()[idx]){
+        if(window.pushUndo)pushUndo('calEvDel');
+        CDs().splice(idx,1);save();render();
+        if(window.showToast)showToast('رویداد حذف شد',true);
+      }
+    }else if(b.dataset.a==='tEdit'){
+      const idx=+b.dataset.i,item=W().days[di]&&W().days[di].t[idx];
+      if(item){
+        const nv=prompt('ویرایش عنوان کار:',item.t||'');
+        if(nv!==null&&nv.trim()){item.t=nv.trim();save();render();if(window.showToast)showToast('کار ویرایش شد ✓')}
+      }
+    }else if(b.dataset.a==='cdEdit'){
+      const idx=+b.dataset.i,ev=CDs()[idx];
+      if(ev){
+        const nv=prompt('ویرایش عنوان رویداد:',ev.t||'');
+        if(nv!==null&&nv.trim()){ev.t=nv.trim();save();render();if(window.showToast)showToast('رویداد ویرایش شد ✓')}
+      }
     }else if(b.dataset.a==='calNow'){
       const t=new Date();t.setHours(12,0,0,0);const p=pp(t);
-      hs={y:p.y,m:p.m,s:new Date(t.getTime()-(p.d-1)*864e5)};render();
+      hs={y:p.y,m:p.m,s:new Date(t.getTime()-(p.d-1)*864e5)};calSelDay=p.d;render();
     }else if(b.dataset.a==='tab'&&b.dataset.v==='cal'){
       const t=new Date();t.setHours(12,0,0,0);const p=pp(t);
-      hs={y:p.y,m:p.m,s:new Date(t.getTime()-(p.d-1)*864e5)};render();
+      hs={y:p.y,m:p.m,s:new Date(t.getTime()-(p.d-1)*864e5)};calSelDay=p.d;render();
     }
   });
   Object.keys(S).forEach(k=>{if(/^\d{4}-\d{2}-\d{2}$/.test(k))applyDefaultSchedule(S[k])});
@@ -4323,7 +4605,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
     card.innerHTML=`<div class="row sb"><h2 style="margin:0">⚡ کارهای امروز (${DN[tdIdx]} — ${fa(p)}٪)</h2><button data-a="goDay" data-v="${tdIdx}" style="font-size:0.7188rem">برنامه ساعتی امروز ←</button></div>
       ${bar(p)}
       <div style="margin-top:10px">${td.t.map((x,i)=>`<div class="row"><input type="checkbox" data-ec="tdTask" data-d="${tdIdx}" data-i="${i}" ${x.d?'checked':''}><span class="f1 ${x.d?'done':''}">${x.p?'<span class="bdg wn" style="margin-inline-end:5px">مهم</span>':''}${esc(x.t)}</span><button class="x" data-ev="tdDel" data-d="${tdIdx}" data-i="${i}">✕</button></div>`).join('')||'<div class="mu" style="margin-bottom:6px">برای امروز هنوز کاری ثبت نشده است.</div>'}</div>
-      <div class="row" style="margin-top:8px"><input type="text" id="ovFastTask" placeholder="افزودن سریع کار برای امروز (Enter)..." data-ek="fastTd"><button class="p" data-ev="fastTd">افزودن</button></div>`;
+      <div class="row" style="margin-top:8px"><input type="text" id="ovFastTask" placeholder="افزودن سریع کار برای امروز (Enter)..." data-ek="fastTd"><button class="p btn-plus" data-ev="fastTd" aria-label="افزودن کار امروز" title="افزودن کار">+</button></div>`;
     hero.insertAdjacentElement('afterend',card);
   }
   window.addFastTodayTask=function(){
@@ -5016,7 +5298,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
     return `<div class="g2">
       <div class="cd">
         <h2>⚡ ثبت سریع یک‌خطی یا پیامک بانکی</h2>
-        <div class="row"><input type="text" id="fastTxInp" placeholder="مثال: ۳۸۰ هزار رستوران دیروز #سفر (یا پیامک بانک)..." data-ek="fastSms"><button class="p" data-a="bFastParse">ثبت هوشمند</button></div>
+        <div class="row"><input type="text" id="fastTxInp" placeholder="مثال: ۳۸۰ هزار رستوران دیروز #سفر (یا پیامک بانک)..." data-ek="fastSms"><button class="p btn-plus" data-a="bFastParse" aria-label="ثبت هوشمند" title="ثبت هوشمند">+</button></div>
         <div class="mu">مبلغ، دسته‌بندی، تاریخ («دیروز») و تگ (#) را خودکار تشخیص می‌دهد و از ثبت پیامک تکراری جلوگیری می‌کند.</div>
       </div>
       <div class="cd">
@@ -5070,7 +5352,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
         <button type="button" id="bcatBtn" class="cat-pick-btn f1" data-a="bCatPickOpen" style="min-width:175px" aria-label="انتخاب سرفصل تراکنش"><span class="cp-dot" style="background:${initGrp[2]}"></span><span class="cp-lbl">${esc(catL(initCat))}</span><small class="cp-grp">${esc(initGrp[1])}</small><span class="cp-arr">▾</span></button>
         <input type="number" id="bam" min="1" placeholder="مبلغ (تومان)" class="f1" style="min-width:115px">
         <input type="text" id="bnt" placeholder="توضیح و تگ (مثلاً: ناهار #سفر_شمال)" class="f1" style="min-width:150px" data-ei="autoCat">
-        <button class="p" data-a="bAddWithAcc">ثبت</button>
+        <button class="p btn-plus" data-a="bAddWithAcc" aria-label="ثبت تراکنش" title="ثبت تراکنش">+</button>
       </div>
       <div id="bamWords" class="mu" style="font-weight:600;color:var(--tx)"></div>
     </div>
@@ -5299,7 +5581,8 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
           const pfBadge=a.q>0?`<span class="bdg ${pf>=0?'ok':'wn'}"><bdi dir="ltr">${pf>=0?'▲ +':'▼ −'}${pmo(Math.abs(pf))}</bdi> ت (<bdi dir="ltr">${pf>=0?'+':'−'}${fa(Math.abs(pfPct))}٪</bdi>)</span>`:`<span class="bdg">موجودی صفر</span>`;
           return `<div class="as-card ${a.q>0?'has-qty':''}">
             <div class="as-head">
-              <div class="as-name">${esc(a.n)}</div>
+              <span class="as-ic" aria-hidden="true">${assetLogoSvg(a.id,a.n,22)}</span>
+              <div class="as-name">${esc(String(a.n||'').replace(/^[🪙🟡🟢💎💵]+\s*/u,''))}</div>
               <button class="x" data-a="basDel" data-id="${esc(a.id)}" aria-label="حذف دارایی ${esc(a.n)}" title="حذف">✕</button>
             </div>
             <div class="as-val-bar">
@@ -5328,7 +5611,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
         <input type="number" step="0.01" id="asQty" placeholder="مقدار" class="f1">
         <input type="number" id="asBuyPrc" placeholder="قیمت خرید واحد" class="f1">
         <input type="number" id="asPrc" placeholder="قیمت روز واحد" class="f1">
-        <button class="p" data-a="bAsAddWithBuy">+ افزودن</button>
+        <button class="p btn-plus" data-a="bAsAddWithBuy" aria-label="افزودن دارایی" title="افزودن دارایی">+</button>
       </div>
     </div>
     ${buildMiniCalcCard()}`;
@@ -5380,7 +5663,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
         <input type="number" id="chkAm" placeholder="مبلغ چک (تومان)" class="f1" style="min-width:115px">
         <input type="text" id="chkDate" placeholder="سررسید (مثلاً ۲۵ آذر)" class="f1" style="min-width:125px">
         <input type="text" id="chkNum" placeholder="شناسه صیادی" style="width:110px">
-        <button class="p" data-a="bChkAdd">+ ثبت چک</button>
+        <button class="p btn-plus" data-a="bChkAdd" aria-label="ثبت چک" title="ثبت چک">+</button>
       </div>
     </div>
     <div class="cd">
@@ -5394,7 +5677,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
         <button class="${isP?'p':''}" data-a="binsPay" data-id="${esc(i.id)}">${isP?'پرداخت شد ✓':'ثبت پرداخت '+PM[hs.m-1]}</button>
         <button class="x" data-a="binsDel" data-id="${esc(i.id)}">✕</button>
       </div>`}).join(''):'<div class="mu" style="margin-bottom:8px">هنوز قسطی ثبت نشده است.</div>'}
-      <div class="row fw" style="margin-top:12px"><input type="text" id="inTitle" placeholder="عنوان قسط..." style="flex:2;min-width:150px"><input type="number" id="inAm" placeholder="مبلغ پایه قسط (تومان)" class="f1" style="min-width:130px"><input type="number" id="inDay" min="1" max="31" placeholder="روز سررسید" style="width:95px"><input type="number" id="inTot" min="1" placeholder="تعداد کل" style="width:95px"><button class="p" data-a="binsAdd">ثبت قسط</button></div>
+      <div class="row fw" style="margin-top:12px"><input type="text" id="inTitle" placeholder="عنوان قسط..." style="flex:2;min-width:150px"><input type="number" id="inAm" placeholder="مبلغ پایه قسط (تومان)" class="f1" style="min-width:130px"><input type="number" id="inDay" min="1" max="31" placeholder="روز سررسید" style="width:95px"><input type="number" id="inTot" min="1" placeholder="تعداد کل" style="width:95px"><button class="p btn-plus" data-a="binsAdd" aria-label="ثبت قسط" title="ثبت قسط">+</button></div>
     </div>`;
   }
 
@@ -5435,7 +5718,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
         <select id="dtType" style="width:155px"><option value="talab">🟢 طلب دارم (قرض دادم)</option><option value="bedehi">🔴 بدهکارم (قرض گرفتم)</option></select>
         <input type="number" id="dtAm" placeholder="مبلغ (تومان)" class="f1" style="min-width:120px">
         <input type="text" id="dtNote" placeholder="بابت (مثلاً: دنگ سفر...)" class="f1" style="min-width:130px">
-        <button class="p" data-a="dtAdd">+ ثبت حساب</button>
+        <button class="p btn-plus" data-a="dtAdd" aria-label="ثبت حساب" title="ثبت حساب">+</button>
       </div>
     </div>
     <div class="cd"><h2>فهرست طلب‌ها و بدهی‌ها</h2>
@@ -5474,7 +5757,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
         <input type="text" id="sgTitle" placeholder="عنوان هدف (مثلاً: سفر، لپ‌تاپ...)" class="f1" style="min-width:140px">
         <input type="number" id="sgTarget" placeholder="مبلغ کل هدف (تومان)" class="f1" style="min-width:130px">
         <input type="number" id="sgMonth" placeholder="پس‌انداز ماهانه پیشنهادی" class="f1" style="min-width:130px">
-        <button class="p" data-a="bSgAdd">+ افزودن هدف</button>
+        <button class="p btn-plus" data-a="bSgAdd" aria-label="افزودن هدف پس‌انداز" title="افزودن هدف">+</button>
       </div>
     </div>`+(window.bPl?window.bPl(c):'');
   }
@@ -6524,7 +6807,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
         <div>
           <h2>✅ کارهای امروز (${DN[tdIdx]})</h2>
           ${td.t.map((x,i)=>`<div class="row"><input type="checkbox" data-ec="tdTask" data-d="${tdIdx}" data-i="${i}" ${x.d?'checked':''}><span class="f1 ${x.d?'done':''}">${esc(x.t)}</span></div>`).join('')}
-          <div class="row"><input type="text" id="ovQuickT" placeholder="کار جدید برای امروز..."><button class="p" data-ev="ovQuickAdd" data-d="${tdIdx}">افزودن</button></div>
+          <div class="row"><input type="text" id="ovQuickT" placeholder="کار جدید برای امروز..."><button class="p btn-plus" data-ev="ovQuickAdd" data-d="${tdIdx}" aria-label="افزودن کار" title="افزودن کار">+</button></div>
         </div>
         <div>
           <h2>🎯 ۳ اولویت اصلی هفته</h2>
@@ -6604,7 +6887,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
       </div>
       <div class="row" style="margin-top:8px;margin-bottom:0">
         <input type="text" id="newRuleInp" placeholder="افزودن قانون طلایی جدید..." data-ek="clickA" data-v="ruleAdd">
-        <button class="p" data-a="ruleAdd">+ ثبت</button>
+        <button class="p btn-plus" data-a="ruleAdd" aria-label="ثبت قانون" title="ثبت قانون">+</button>
       </div>
     </div>`;
   }
@@ -7024,7 +7307,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
       <select id="tlQTo" style="width:74px" title="تا ساعت">${hrOpts(Math.min(23,nextFree+1))}</select>
       <select id="tlQCat" style="width:98px">${catOpts}</select>
       <input type="text" id="tlQTxt" class="f1" style="min-width:110px" placeholder="عنوان بازه زمانی..." data-ek="clickA" data-v="tlRangeAdd">
-      <button type="button" class="p" data-a="tlRangeAdd">+ ثبت</button>
+      <button type="button" class="p btn-plus" data-a="tlRangeAdd" aria-label="ثبت بازه زمانی" title="ثبت بازه">+</button>
     </div>`:'';
 
     let bodyHtml='';
@@ -7115,8 +7398,8 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
     const dayP=pp(dd(di)),mk=dayP.y+'-'+dayP.m,dayInst=(BD().inst||[]).filter(ins=>Number(ins.d)===dayP.d);
     const instBanner=dayInst.length?`<div class="cd next" style="padding:12px 16px"><div class="row sb fw" style="margin:0"><b>💳 سررسید قسط امروز (${fa(dayP.d)} ${PM[dayP.m-1]}):</b><span>${dayInst.map(ins=>`${esc(ins.t)}: <b>${mo(insAm(ins,mk))} تومان</b> (${ins.paid&&ins.paid[mk]?'پرداخت‌شده ✓':'پرداخت‌نشده'})`).join(' ، ')}</span></div></div>`:'';
     return dayBar()+instBanner+`<div class="g2">${buildTimelineCard(d)}
-    <div><div class="cd"><div class="row sb" style="margin-bottom:8px"><h2 style="margin:0">کارهای روز (${fa(p)}٪)</h2>${un?`<button data-a="roll">انتقال ${fa(un)} کار به فردا ↪</button>`:''}</div>${bar(p)}<div style="margin-top:10px">${d.t.map((x,i)=>`<div class="row"><input type="checkbox" data-a="td" data-i="${i}" ${x.d?'checked':''}><span class="f1 ${x.d?'done':''}">${x.p?'<span class="bdg wn" style="margin-inline-end:5px">مهم</span>':''}${esc(x.t)}</span>${!x.d?`<button class="x" data-a="tlFromTask" data-i="${i}" title="زمان‌بندی سریع این کار در تایم‌لاین">🕒</button>`:''}<button class="x" data-a="tp" data-i="${i}">★</button><button class="x" data-a="tx" data-i="${i}">✕</button></div>`).join('')}</div>
-    <div class="row"><input type="text" id="tn" placeholder="کار جدید..."><button class="p" data-a="ta">افزودن</button></div></div>
+    <div><div class="cd"><div class="row sb" style="margin-bottom:8px"><h2 style="margin:0">کارهای روز (${fa(p)}٪)</h2>${un?`<button data-a="roll">انتقال ${fa(un)} کار به فردا ↪</button>`:''}</div>${bar(p)}<div style="margin-top:10px">${d.t.map((x,i)=>`<div class="row"><input type="checkbox" data-a="td" data-i="${i}" ${x.d?'checked':''}><span class="f1 ${x.d?'done':''}">${x.p?'<span class="bdg wn" style="margin-inline-end:5px">مهم</span>':''}${esc(x.t)}</span>${!x.d?`<button class="x" data-a="tlFromTask" data-i="${i}" title="زمان‌بندی سریع این کار در تایم‌لاین">🕒</button>`:''}<button class="x" data-a="tEdit" data-i="${i}" aria-label="ویرایش کار" title="ویرایش">✎</button><button class="x" data-a="tp" data-i="${i}" aria-label="مهم" title="مهم">★</button><button class="x" data-a="tx" data-i="${i}" aria-label="حذف کار" title="حذف">✕</button></div>`).join('')}</div>
+    <div class="row"><input type="text" id="tn" placeholder="کار جدید..."><button class="p btn-plus" data-a="ta" aria-label="افزودن کار" title="افزودن کار">+</button></div></div>
     <div class="cd"><div class="row sb" style="margin-bottom:10px"><h2 style="margin:0">🕌 نمازهای روز ${DN[di]}</h2><span class="bdg ${pr.filter(Boolean).length===3?'ok':''}">${fa(pr.filter(Boolean).length)} از ۳ نوبت</span></div>${renderPrayerCards(pr,pt,di,false)}</div>
     <div class="cd"><h2>انرژی و سلامت</h2><div class="ctr">${['ضعیف','پایین','معمولی','خوب','عالی'].map((e,k)=>`<button class="mb ${d.mood==k+1?'on':''}" data-a="mood" data-v="${k+1}">${e}</button>`).join('')}</div><div class="row"><span class="mu">خواب</span><input type="number" min="0" max="14" step="0.5" data-f="sleep" value="${d.sleep||''}" placeholder="ساعت"><span class="mu">آب</span><input type="number" min="0" max="20" data-f="water" value="${d.water||''}" placeholder="لیوان"></div></div>
     <div class="cd"><h2>یادداشت روزانه</h2><textarea data-f="dn" placeholder="خلاصه روز...">${esc(d.n)}</textarea></div></div></div>`;
@@ -7303,7 +7586,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
         </select>
         <input type="number" id="lrnCur" placeholder="فعلی (مثلاً ۰)" style="width:95px" data-ek="clickA" data-v="lrnAdd2">
         <input type="number" id="lrnTot" placeholder="کل (مثلاً ۳۰۰)" style="width:105px" data-ek="clickA" data-v="lrnAdd2">
-        <button type="button" class="p" data-a="lrnAdd2">+ ثبت منبع</button>
+        <button type="button" class="p btn-plus" data-a="lrnAdd2" aria-label="ثبت منبع آموزشی" title="ثبت منبع">+</button>
       </div>
     </div>`;
 
@@ -7613,9 +7896,9 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
         </div>
       </div>
       <div class="hero-mkt-grid">
-        <div class="hero-mkt-item" data-a="editMkt" data-k="g18" title="ویرایش دستی"><span>🟡 طلای ۱۸ عیار</span><b style="color:var(--ac)">${fa(mkt.g18)} <small class="mu" style="font-weight:500">تومان</small></b></div>
-        <div class="hero-mkt-item" data-a="editMkt" data-k="usdt" title="ویرایش دستی"><span>🟢 تتر / دلار</span><b style="color:var(--ok)">${fa(mkt.usdt)} <small class="mu" style="font-weight:500">تومان</small></b></div>
-        <div class="hero-mkt-item" data-a="editMkt" data-k="coin" title="ویرایش دستی"><span>🪙 سکه امامی</span><b style="color:var(--wn)">${fa(mkt.coin||0)} <small class="mu" style="font-weight:500">تومان</small></b></div>
+        <div class="hero-mkt-item" data-a="editMkt" data-k="g18" title="ویرایش دستی"><span>${assetLogoSvg('g18','',18)} طلای ۱۸ عیار</span><b style="color:var(--ac)">${fa(mkt.g18)} <small class="mu" style="font-weight:500">تومان</small></b></div>
+        <div class="hero-mkt-item" data-a="editMkt" data-k="usdt" title="ویرایش دستی"><span>${assetLogoSvg('usdt','',18)} تتر / دلار</span><b style="color:var(--ok)">${fa(mkt.usdt)} <small class="mu" style="font-weight:500">تومان</small></b></div>
+        <div class="hero-mkt-item" data-a="editMkt" data-k="coin" title="ویرایش دستی"><span>${assetLogoSvg('coin','',18)} سکه امامی</span><b style="color:var(--wn)">${fa(mkt.coin||0)} <small class="mu" style="font-weight:500">تومان</small></b></div>
       </div>
     </div>
 
@@ -7746,7 +8029,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
         <div>
           <h2>✅ کارهای امروز (${DN[tdIdx]})</h2>
           ${td.t.map((x,i)=>`<div class="row"><input type="checkbox" data-ec="tdTask" data-d="${tdIdx}" data-i="${i}" ${x.d?'checked':''}><span class="f1 ${x.d?'done':''}">${esc(x.t)}</span></div>`).join('')}
-          <div class="row"><input type="text" id="ovQuickT" placeholder="کار جدید برای امروز..."><button class="p" data-ev="ovQuickAdd" data-d="${tdIdx}">افزودن</button></div>
+          <div class="row"><input type="text" id="ovQuickT" placeholder="کار جدید برای امروز..."><button class="p btn-plus" data-ev="ovQuickAdd" data-d="${tdIdx}" aria-label="افزودن کار" title="افزودن کار">+</button></div>
         </div>
         <div>
           <h2>🎯 ۳ اولویت اصلی هفته</h2>
