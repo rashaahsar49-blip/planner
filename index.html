@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Sh8guFsFy/XUJHgNy1/9UHN3Cd9KNssSNIzBRDBnCNk='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-qlrzaAAjqSbRiQPHxrRZV29kQgEZT/fOg3wpU6J3ZrE='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>پلنر هفتگی</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -2320,7 +2320,7 @@ function validatePlannerData(obj){
         nb.tx[mk]=B.tx[mk].slice(0,2000).filter(t=>_isPlainObj(t)).map(t=>({
           id:_sId(t.id,'t'),d:Math.round(_sNum(t.d,1,31,1)),c:_sId(t.c,'oth'),a:_sNum(t.a,0,1e14,0),
           n:_sStr(t.n,240),acc:_sId(t.acc||'acc_main','acc'),
-          ...(t.insId?{insId:_sId(t.insId,'in')}:{}),...(t.rawSms?{rawSms:_sStr(t.rawSms,500)}:{})
+          ...(t.insId?{insId:_sId(t.insId,'in')}:{}),...(t.rawSms?{rawSms:_sStr(t.rawSms,500)}:{}),...(t.forNext?{forNext:1}:{})
         }));
       });
     }
@@ -2684,7 +2684,7 @@ const GR=GR_RAW.map(g=>[g[0],g[1],g[2],g[3],g[4].split('|').map(s=>s.split(':'))
 const CC={};GR.forEach(g=>g[4].forEach(i=>CC[i[0]]={l:i[1],g:g[0],t:g[3]}));
 const isIn=c=>!!CC[c]&&CC[c].t=='in',GXs=GR.filter(g=>g[3]=='ex'),catL=c=>CC[c]?CC[c].l:c,gOf=c=>CC[c]?CC[c].g:'oth';
 const clamp=(x,a=0,b=100)=>Math.max(a,Math.min(b,x)),pvM=(y,m,k=1)=>{m-=k;while(m<1){m+=12;y--}return{y,m}};
-function mdat(y,m){const tx=BD().tx[y+'-'+m]||[],inc=tx.filter(t=>isIn(t.c)),ex=tx.filter(t=>!isIn(t.c));return{tx,inc,ex,I:sm_(inc.map(t=>t.a)),E:sm_(ex.map(t=>t.a)),n:ML(y,m)}}
+function mdat(y,m){const pm=pvM(y,m,1),raw=BD().tx[y+'-'+m]||[],prevRaw=BD().tx[pm.y+'-'+pm.m]||[],carriedInc=prevRaw.filter(t=>isIn(t.c)&&t.forNext).map(t=>({...t,d:1,_fromPrev:true,_origD:t.d,_origK:pm.y+'-'+pm.m})),inc=raw.filter(t=>isIn(t.c)&&!t.forNext).concat(carriedInc),ex=raw.filter(t=>!isIn(t.c)),tx=raw.filter(t=>!(isIn(t.c)&&t.forNext)).concat(carriedInc);return{tx,inc,ex,I:sm_(inc.map(t=>t.a)),E:sm_(ex.map(t=>t.a)),n:ML(y,m),carriedInc}}
 const gs=(arr,gid)=>sm_(arr.filter(t=>gOf(t.c)==gid).map(t=>t.a)),dl=(a,b)=>b>0?Math.round(100*(a-b)/b):null;
 const tbl=(h,r)=>`<div class='wide'><table><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr>${r.map(x=>`<tr>${x.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</table></div>`;
 const kpi=(l,v,d,up,col)=>`<div class='cd tl'><b style='${col?'color:'+col:''}'>${v}</b><span>${l}</span>${d!=null?`<div style='font-size:0.7188rem;color:${(d>=0)==up?'var(--ok)':'var(--er)'}'>${d>=0?'▲':'▼'} ${fa(Math.abs(d))}٪</div>`:''}</div>`;
@@ -5420,7 +5420,10 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
         <input type="text" id="bnt" placeholder="توضیح و تگ (مثلاً: ناهار #سفر_شمال)" class="f1" style="min-width:150px" data-ei="autoCat">
         <button class="p btn-plus" data-a="bAddWithAcc" aria-label="ثبت تراکنش" title="ثبت تراکنش">+</button>
       </div>
-      <div id="bamWords" class="mu" style="font-weight:600;color:var(--tx)"></div>
+      <div class="row sb fw" style="margin:4px 0 0">
+        <div id="bamWords" class="mu" style="font-weight:600;color:var(--tx)"></div>
+        <label class="mu" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:0.75rem"><input type="checkbox" id="bForNext" style="width:15px;height:15px"> ↪ منظور در بودجه و گزارش ماه بعد (مخصوص حقوق آخر ماه)</label>
+      </div>
     </div>
     ${trList?`<div class="cd"><h2>⇄ انتقال‌های بین‌حسابی این ماه</h2>${trList}</div>`:''}
     <div class="cd">
@@ -5440,11 +5443,17 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
     if(bAccFilter)tx=tx.filter(t=>(t.acc||'acc_main')===bAccFilter);
     if(bfg)tx=tx.filter(t=>gOf(t.c)===bfg);
     if(bq)tx=tx.filter(t=>(catL(t.c)+' '+(t.n||'')).includes(bq));
-    if(!tx.length)return `<div class="mu">تراکنشی با این فیلتر پیدا نشد.</div>`;
-    return tx.map(t=>{
+    const pm=pvM(hs.y,hs.m,1),carried=(B.tx[pm.y+'-'+pm.m]||[]).filter(t=>isIn(t.c)&&t.forNext);
+    const carriedHtml=carried.length?`<div style="background:color-mix(in srgb,var(--ok) 11%,var(--sf2));border:1px solid color-mix(in srgb,var(--ok) 30%,transparent);border-radius:12px;padding:8px 11px;margin-bottom:10px;font-size:0.7812rem">
+      <div style="font-weight:700;color:var(--ok);margin-bottom:4px">↩ درآمدهای آخر ${PM[pm.m-1]} (منظور در بودجه و گزارش ${PM[hs.m-1]}):</div>
+      ${carried.map(t=>`<div class="row" style="margin-bottom:2px"><span class="f1">${esc(catL(t.c))}${t.n?' — '+esc(t.n):''} <small class="mu">(دریافت‌شده در ${fa(t.d)} ${PM[pm.m-1]})</small></span><b style="color:var(--ok)">+${pmo(t.a)}</b></div>`).join('')}
+    </div>`:'';
+    if(!tx.length)return carriedHtml+`<div class="mu">تراکنشی با این فیلتر پیدا نشد.</div>`;
+    return carriedHtml+tx.map(t=>{
       const ii=isIn(t.c),accName=B.accs.find(a=>a.id===(t.acc||'acc_main'))?.n||'کارت اصلی';
       const noteHtml=esc(t.n||'').replace(/#([\w\u0600-\u06FF]+)/g,'<span class="tag-pill">#$1</span>');
-      return `<div class="row"><span class="mu" style="width:28px">${fa(t.d)}</span><span class="bdg" style="font-size:0.625rem">${esc(accName)}</span><span class="f1">${esc(catL(t.c))}${noteHtml?' — '+noteHtml:''}</span><b style="color:${ii?'var(--ok)':'var(--er)'}">${ii?'+':'−'}${pmo(t.a)}</b><button class="x" data-a="bTxEdit" data-id="${esc(t.id)}" title="ویرایش تراکنش">✎</button><button class="x" data-a="bx" data-id="${esc(t.id)}" title="حذف">✕</button></div>`;
+      const nextBtn=ii?`<button class="x" data-a="bToggleNext" data-id="${esc(t.id)}" title="${t.forNext?'بازگرداندن به درآمد همین ماه':'انتساب این درآمد به بودجه و گزارش ماه بعد'}" style="${t.forNext?'color:var(--ac);font-weight:700':''}">${t.forNext?'↪ ماه بعد ✓':'↪ ماه بعد'}</button>`:'';
+      return `<div class="row"><span class="mu" style="width:28px">${fa(t.d)}</span><span class="bdg" style="font-size:0.625rem">${esc(accName)}</span><span class="f1">${esc(catL(t.c))}${noteHtml?' — '+noteHtml:''}${t.forNext?' <span class="bdg" style="color:var(--ac);font-size:0.625rem">منظور در ماه بعد</span>':''}</span><b style="color:${ii?'var(--ok)':'var(--er)'}">${ii?'+':'−'}${pmo(t.a)}</b>${nextBtn}<button class="x" data-a="bTxEdit" data-id="${esc(t.id)}" title="ویرایش تراکنش">✎</button><button class="x" data-a="bx" data-id="${esc(t.id)}" title="حذف">✕</button></div>`;
     }).join('');
   };
   window.filterTxList=function(){bAccFilter=$('bFltAcc')?.value||'';const tl=$('tl');if(tl)tl.innerHTML=renderRichTxList()};
@@ -5951,6 +5960,14 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
       const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}),lnk=document.createElement('a');
       lnk.href=URL.createObjectURL(blob);lnk.download=`finance-${hs.y}-${hs.m}.csv`;lnk.click();
     }
+    else if(a==='bToggleNext'){
+      const tx=(B.tx[k]||[]).find(x=>x.id===b.dataset.id);
+      if(tx&&isIn(tx.c)){
+        if(tx.forNext)delete tx.forNext;else tx.forNext=1;
+        save();render();
+        if(window.showToast)showToast(tx.forNext?'این درآمد در بودجه و گزارش ماه بعد محاسبه می‌شود ✓':'این درآمد به گزارش همین ماه بازگردانده شد ✓');
+      }
+    }
     else if(a==='bTxEdit'){
       const tx=(B.tx[k]||[]).find(x=>x.id===b.dataset.id);if(!tx)return;
       $('edTxId').value=tx.id;
@@ -5992,7 +6009,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
     else if(a==='bAddWithAcc'){
       const am=+$('bam').value||0,d=clamp(+$('bdy').value||1,1,ML(hs.y,hs.m)),cat=$('bcat').value,acc=$('bAccSel').value,nt=$('bnt').value.trim();
       if(am<=0)return;
-      (B.tx[k]=B.tx[k]||[]).push({id:'t'+Date.now(),d,c:cat,a:am,n:nt,acc});
+      const forNext=(isIn(cat)&&$('bForNext')?.checked)?1:0;(B.tx[k]=B.tx[k]||[]).push({id:'t'+Date.now(),d,c:cat,a:am,n:nt,acc,...(forNext?{forNext:1}:{})});
       const firstWord=nt.split(/\s+/)[0];if(firstWord&&firstWord.length>2&&!firstWord.startsWith('#'))B.catRules[firstWord]=cat;
       save();render();
     }
