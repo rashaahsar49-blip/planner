@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-8EVXngwTWgBV15sAe+NsL2n3+L7QfaPYqPRR4A4RNzY='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Sh8guFsFy/XUJHgNy1/9UHN3Cd9KNssSNIzBRDBnCNk='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>پلنر هفتگی</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -2587,12 +2587,12 @@ return dayBar()+`<div class="g2"><div class="cd"><div class="row sb fw" style="m
 let T={mode:'pomo',work:25,brk:5,ph:'w',left:1500,el:0,run:false,id:null,subj:'',taskRef:null};
 const fmt=s=>{s=Math.max(0,s);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
 function addSpacedReview(subj){const b=dd(di);[1,3,7,30].forEach(dl=>{const tg=new Date(b.getTime()+dl*864e5),tK=sat(tg).toISOString().slice(0,10),tD=(tg.getDay()+1)%7;if(!S[tK])S[tK]={goals:[],pri:['','',''],notes:'',days:DN.map(()=>({b:{},t:[],n:'',plan:0,ses:[],hol:0,pr:[0,0,0]}))};const ti=`مرور (${fa(dl)} روزه): ${subj}`;if(!S[tK].days[tD].t.some(x=>x.t===ti))S[tK].days[tD].t.push({t:ti,d:0,p:1})});save()}
-function vTm(){const d=W().days[di];return dayBar()+`<div class="cd"><div class="row"><select data-f="tmode"><option value="pomo" ${T.mode=='pomo'?'selected':''}>پومودورو</option><option value="sw" ${T.mode=='sw'?'selected':''}>کرونومتر آزاد</option></select><input type="text" id="sj" data-f="subj" value="${esc(T.subj)}" placeholder="موضوع آموزش، تخصص یا کار عمیق..."></div>
+function vTm(){const d=W().days[di],sjLocked=!!(T.run||T.el>0);return dayBar()+`<div class="cd"><div class="row"><select data-f="tmode"><option value="pomo" ${T.mode=='pomo'?'selected':''}>پومودورو</option><option value="sw" ${T.mode=='sw'?'selected':''}>کرونومتر آزاد</option></select><input type="text" id="sj" data-f="subj" value="${esc(T.subj)}" placeholder="موضوع آموزش، تخصص یا کار عمیق..." ${sjLocked?'readonly aria-readonly="true" style="opacity:.72;cursor:not-allowed" title="برای تغییر موضوع، ابتدا جلسهٔ فعلی را ثبت یا ریست کنید"':''}></div><div id="sjLockHint" class="mu" style="display:${sjLocked?'block':'none'};font-size:0.7188rem;color:var(--wn);margin:-2px 0 8px">🔒 موضوع در حین جلسهٔ فعال قفل است — برای تغییر، ابتدا جلسه را ثبت یا ریست کنید.</div>
 ${T.mode=='pomo'?`<div class="row"><span class="mu">تمرکز</span><input type="number" min="1" data-f="tw" value="${T.work}"><span class="mu">استراحت</span><input type="number" min="1" data-f="tb" value="${T.brk}"><span class="mu">دقیقه</span></div>`:''}
 <div class="mu" style="text-align:center;margin-top:8px" id="ph"></div><div class="tm" id="tm"></div>
 <div class="ctr"><button class="p" data-a="tg" id="tg"></button><button data-a="tl">ثبت جلسه</button><button data-a="rev">ثبت در مرور لایتنر</button><button data-a="noise" class="${noiseNode?'p':''}">${noiseNode?'توقف صدای تمرکز':'صدای نویز تمرکز'}</button><button data-a="sndTest">تست زنگ</button><button data-a="tr">ریست</button></div></div>
 <div class="cd"><h2>جلسات ثبت‌شده امروز (${fa(Math.round(dayMin(d)))} دقیقه)</h2>${d.ses.length?d.ses.map((s,i)=>`<div class="row"><span class="f1">${esc(s.s||'بدون عنوان')}</span><b>${fa(s.m)} دقیقه</b><button class="x" data-a="revItem" data-i="${i}">افزودن به مرور</button><button class="x" data-a="sx" data-i="${i}">✕</button></div>`).join(''):'<div class="mu">هنوز جلسه‌ای ثبت نشده است.</div>'}</div>`}
-function upTm(){const ts=fmt(T.mode=='pomo'?T.left:T.el);document.title=T.run?`${ts} · ${T.subj||'پلنر هفتگی'}`:'پلنر هفتگی';const a=$('tm');if(!a)return;a.textContent=ts;$('ph').textContent=T.mode=='pomo'?(T.ph=='w'?'بخش تمرکز':'بخش استراحت'):'کرونومتر آزاد';$('tg').textContent=T.run?'توقف':'شروع'}
+function upTm(){const ts=fmt(T.mode=='pomo'?T.left:T.el);document.title=T.run?`${ts} · ${T.subj||'پلنر هفتگی'}`:'پلنر هفتگی';const a=$('tm');if(!a)return;a.textContent=ts;$('ph').textContent=T.mode=='pomo'?(T.ph=='w'?'بخش تمرکز':'بخش استراحت'):'کرونومتر آزاد';$('tg').textContent=T.run?'توقف':'شروع';const sj=$('sj'),sh=$('sjLockHint'),lk=!!(T.run||T.el>0);if(sj){sj.readOnly=lk;sj.setAttribute('aria-readonly',lk?'true':'false');sj.style.opacity=lk?'.72':'';sj.style.cursor=lk?'not-allowed':'';sj.title=lk?'برای تغییر موضوع، ابتدا جلسهٔ فعلی را ثبت یا ریست کنید':''}if(sh)sh.style.display=lk?'block':'none'}
 function logS(refOverride){const m=Math.round(T.el/60*10)/10;if(m>=.5){const ref=refOverride||T.taskRef;const targetDay=(ref&&ref.wk&&ref.di!=null&&S[ref.wk]&&S[ref.wk].days&&S[ref.wk].days[ref.di])?S[ref.wk].days[ref.di]:W().days[di];targetDay.ses=targetDay.ses||[];targetDay.ses.push({s:T.subj,m});save()}T.el=0}
 function switchTimerSubject(newSubj,goToTimerTab=false){const nextTitle=String(newSubj||'').trim();if(!nextTitle)return false;const hasPrevTime=(T.run||T.el>0);if(hasPrevTime&&(T.taskRef||T.subj!==nextTitle)){const mins=Math.round(T.el/60*10)/10;const durTxt=mins>=0.5?` (${fa(mins)} دقیقه ثبت‌نشده)`:' (در حال اجرا)';const ok=confirm(`تایمر فعلی برای «${T.subj||'جلسه قبلی'}»${durTxt} فعال است.\nآیا جلسهٔ قبلی ثبت شده و تایمر برای «${nextTitle}» از ابتدا تنظیم شود؟`);if(!ok)return false;if(T.run)stopT();logS();T.ph='w';T.el=0;T.left=T.work*60}T.taskRef=null;T.subj=nextTitle;if(goToTimerTab)tab='tm';save();render();return true}
 function tick(){if(T.mode=='pomo'){T.left--;if(T.ph=='w')T.el++;if(T.left<=0){playBell();if(T.ph=='w'){logS();sendNotif('عالی بود! پارت تمرکز تمام شد',`جلسه «${T.subj||'تمرکز عمیق'}» ثبت شد. حالا ${fa(T.brk)} دقیقه استراحت کن، یک لیوان آب بنوش و برای پارت بعدی آماده شو.`,'pomo');T.ph='b';T.left=T.brk*60}else{sendNotif('پایان استراحت — وقت شروع پارت جدید!',`انرژی‌ات شارژ شد؛ ${fa(T.work)} دقیقه تمرکز عمیق بعدی روی «${T.subj||'هدف امروز'}» را با قدرت شروع کن.`,'pomo');T.ph='w';T.left=T.work*60}try{navigator.vibrate&&navigator.vibrate(300)}catch(e){}if(tab=='tm')render();return}}else T.el++;upTm()}
@@ -2840,6 +2840,7 @@ else if(a=='sndTest'){playBell();return}
 else if(a=='tr'){stopT();T.el=0;T.ph='w';T.left=T.work*60;T.taskRef=null}
 else return;
 save();render()});
+let _sjToastAt=0;document.addEventListener('click',e=>{if(e.target&&e.target.id==='sj'&&(T.run||T.el>0)){const now=Date.now();if(now-_sjToastAt>2000){_sjToastAt=now;if(window.showToast)showToast('🔒 برای تغییر موضوع، ابتدا جلسهٔ فعلی را ثبت یا ریست کنید.')}}});
 $('srchBtn').onclick=()=>{$('srchMdl').classList.add('on');$('srchInp').focus()};
 $('srchInp').oninput=e=>{
   const v=e.target.value.trim();if(!v){$('srchRes').textContent='عبارت مورد نظر را تایپ کنید...';return}
@@ -2868,7 +2869,7 @@ document.addEventListener('input',e=>{const t=e.target,f=t.dataset.f;if(!f)retur
 if(f=='pri')w.pri[i]=t.value;else if(f=='wn')w.notes=t.value;else if(f=='dn')d.n=t.value;
 else if(f=='bt'){(d.b[i]=d.b[i]||{t:'',c:'study'}).t=t.value}
 else if(f=='plan')w.days[i].plan=parseFloat(t.value)||0;
-else if(f=='subj'){T.subj=t.value;if(!T.run&&T.el===0)T.taskRef=null;}else if(f=='sleep')d.sleep=parseFloat(t.value)||0;else if(f=='water')d.water=parseInt(t.value)||0;
+else if(f=='subj'){if(T.run||T.el>0){t.value=T.subj;if(window.showToast)showToast('برای تغییر موضوع، ابتدا جلسهٔ فعلی را ثبت یا ریست کنید.');return}T.subj=t.value;T.taskRef=null;}else if(f=='sleep')d.sleep=parseFloat(t.value)||0;else if(f=='water')d.water=parseInt(t.value)||0;
 else if(f=='tw'){T.work=Math.max(1,+t.value||25);if(!T.run&&T.ph=='w')T.left=T.work*60}
 else if(f=='tb')T.brk=Math.max(1,+t.value||5);
 save()});
