@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-qlrzaAAjqSbRiQPHxrRZV29kQgEZT/fOg3wpU6J3ZrE='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-f4QRSarSkEjrDcam5GEFMGTyosfU0XnJUV313CWe06U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>پلنر هفتگی</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -1608,6 +1608,33 @@ button.p.btn-plus{
   color:#f8fafc;border-radius:14px;padding:10px 12px;min-height:66px;font-size:0.8438rem;
 }
 #zenScr .zen-note-wrap textarea::placeholder{color:rgba(248,250,252,.5)}
+
+/* ==================== v54: ریسپانسیو کامل برنامه روزانه و اسکرول خودکار تب فعال در موبایل ==================== */
+.g2 > *{min-width:0}
+@media(max-width:640px){
+  .tl-list{padding-right:12px!important}
+  .tl-list::before{right:4px!important}
+  .tl-dot{right:-12px!important;width:8px!important;height:8px!important}
+  .tl-qadd{gap:6px!important;padding:9px!important}
+  .tl-qadd #tlQFrom,.tl-qadd #tlQTo{flex:1 1 70px!important;width:auto!important;min-width:66px!important}
+  .tl-qadd #tlQCat{flex:1 1 100%!important;width:100%!important}
+  .tl-qadd #tlQTxt{flex:1 1 calc(100% - 50px)!important;min-width:0!important}
+  .tl-qadd button.btn-plus{width:40px!important;min-width:40px!important;flex:0 0 40px!important}
+  .tl-slot{flex-wrap:wrap!important;gap:6px 8px!important;padding:8px 10px!important;align-items:center!important}
+  .tl-slot.is-range{padding:9px 10px!important}
+  .tl-slot .tl-range-hr{min-width:64px!important;font-size:0.6875rem!important;padding:3px 5px!important}
+  .tl-slot .tl-hr{min-width:38px!important;font-size:0.7188rem!important}
+  .tl-slot > .f1{flex:1 1 150px!important;min-width:0!important}
+  .tl-slot > .f1 > div:first-child{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;word-break:break-word!important;line-height:1.45!important}
+  .tl-slot .tl-inp{flex:1 1 140px!important;min-width:120px!important}
+  .tl-slot .tl-cat-btn{padding:4px 8px!important;font-size:0.6875rem!important;min-height:30px!important}
+  .tl-slot .tl-act-btn{min-width:32px!important;min-height:32px!important;width:32px!important;height:32px!important;padding:0!important}
+  .tl-now-card{flex-wrap:wrap!important;padding:9px 10px!important}
+  .blk{grid-template-columns:42px 1fr 82px!important;gap:5px!important}
+  .days{padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .days::-webkit-scrollbar{display:none}
+  .days button{flex:0 0 auto!important;min-width:64px!important;padding:7px 8px!important}
+}
 </style>
 </head>
 <body>
@@ -9371,12 +9398,21 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
   },true);
 
   // اتصال به render اصلی
+  function scrollActiveTabsIntoView(){
+    ['.fin-subnav button.p','.ia-subbar button.on','.days button.on'].forEach(sel=>{
+      const el=document.querySelector(sel);
+      if(el&&typeof el.scrollIntoView==='function'){
+        try{el.scrollIntoView({inline:'center',block:'nearest',behavior:'auto'})}catch(e){}
+      }
+    });
+  }
   const prevRenderV46=window.render;
   window.render=function(){
     prevRenderV46();
     render5DomainNav();
     injectSubNavIfNeeded();
     enhanceOverviewV46();
+    requestAnimationFrame(scrollActiveTabsIntoView);
   };
 
   // مدیریت کلیک روی ۵ حوزه اصلی و دکمه‌های جدید
