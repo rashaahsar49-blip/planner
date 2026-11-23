@@ -1,4 +1,4 @@
-const CACHE = 'planner-v42';
+const CACHE = 'planner-v43';
 const ASSETS = ['./', './index.html'];
 
 self.addEventListener('install', e => {
@@ -23,4 +23,5 @@ self.addEventListener('fetch', e => {
     }).catch(() => caches.match(e.request))
   );
 });
+
 
