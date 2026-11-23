@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-f4QRSarSkEjrDcam5GEFMGTyosfU0XnJUV313CWe06U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-vdRQFfZWRcTybzs5Wmt7XCgWRTQZrDAQ9/tYbav/ovU='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>پلنر هفتگی</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -1635,6 +1635,33 @@ button.p.btn-plus{
   .days::-webkit-scrollbar{display:none}
   .days button{flex:0 0 auto!important;min-width:64px!important;padding:7px 8px!important}
 }
+
+/* ==================== v55: بهینه‌سازی نمایش لیست تراکنش‌ها در نمای موبایل ==================== */
+.tx-item{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 6px;border-bottom:1px solid var(--bd2);margin-bottom:2px;
+  transition:background .15s ease;
+}
+.tx-item:last-child{border-bottom:0}
+.tx-item:hover{background:color-mix(in srgb,var(--ac2) 55%,transparent);border-radius:10px}
+.tx-day{width:28px;flex:none;text-align:center;color:var(--mu);font-size:0.7812rem;font-weight:700}
+.tx-acc{flex:none;font-size:0.6562rem!important;padding:2px 7px!important}
+.tx-main{flex:1;min-width:0;line-height:1.45;word-break:break-word}
+.tx-am{flex:none;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tx-acts{display:inline-flex;align-items:center;gap:2px;flex:none}
+@media(max-width:640px){
+  .tx-item{
+    flex-wrap:wrap;gap:5px 8px;padding:10px 8px;margin-bottom:8px;
+    background:var(--sf2);border:1px solid var(--bd2);border-radius:14px;
+  }
+  .tx-item:last-child{border-bottom:1px solid var(--bd2)}
+  .tx-day{order:1;width:auto;background:var(--sf);border:1px solid var(--bd2);border-radius:7px;padding:1px 7px;font-size:0.6875rem}
+  .tx-acc{order:2;max-width:44%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tx-am{order:3;margin-right:auto;font-size:0.875rem}
+  .tx-main{order:4;flex:1 1 100%;font-size:0.8438rem;padding-top:2px}
+  .tx-acts{order:5;width:100%;justify-content:flex-end;gap:6px;padding-top:5px;border-top:1px dashed var(--bd2)}
+  .tx-acts button{min-height:30px!important;padding:3px 9px!important;font-size:0.7188rem!important;background:var(--sf)!important;border:1px solid var(--bd2)!important;border-radius:8px!important}
+}
 </style>
 </head>
 <body>
@@ -2718,7 +2745,7 @@ const kpi=(l,v,d,up,col)=>`<div class='cd tl'><b style='${col?'color:'+col:''}'>
 const hbar=(l,v,mx,c)=>`<div class='row' style='margin-bottom:6px'><span style='width:120px;font-size:0.8125rem'>${esc(l)}</span><div class='f1'><div class='bar'><i style='width:${mx?100*v/mx:0}%;background:${c}'></i></div></div><span class='mu' style='width:85px;text-align:end;font-size:0.75rem'>${mo(v)}</span></div>`;
 let bsub='db',bq='',bfg='';
 function bList(){const k=hs.y+'-'+hs.m;let tx=(BD().tx[k]||[]).slice().sort((a,b)=>b.d-a.d||(a.id<b.id?1:-1));if(bfg)tx=tx.filter(t=>gOf(t.c)==bfg);if(bq)tx=tx.filter(t=>(catL(t.c)+' '+(t.n||'')).includes(bq));
-return tx.length?tx.map(t=>{const ii=isIn(t.c);return `<div class='row'><span class='mu' style='width:30px'>${fa(t.d)}</span><span class='f1'>${esc(catL(t.c))}${t.n?' — '+esc(t.n):''}</span><b style='color:${ii?'var(--ok)':'var(--er)'}'>${ii?'+':'−'}${mo(t.a)}</b><button class='x' data-a='bx' data-id='${esc(t.id)}'>✕</button></div>`}).join(''):`<div class='mu'>تراکنشی پیدا نشد.</div>`}
+return tx.length?tx.map(t=>{const ii=isIn(t.c);return `<div class='tx-item'><span class='tx-day'>${fa(t.d)}</span><b class='tx-am' style='color:${ii?'var(--ok)':'var(--er)'}'>${ii?'+':'−'}${mo(t.a)}</b><div class='tx-main'><b>${esc(catL(t.c))}</b>${t.n?' — '+esc(t.n):''}</div><div class='tx-acts'><button class='x' data-a='bx' data-id='${esc(t.id)}'>✕</button></div></div>`}).join(''):`<div class='mu'>تراکنشی پیدا نشد.</div>`}
 function vBg2(){const B=BD(),k=hs.y+'-'+hs.m,M=mdat(hs.y,hs.m),pm=pvM(hs.y,hs.m),P=mdat(pm.y,pm.m),c={B,k,M,P,n:M.n,cd:curD(),bu:B.bud[k]||{},gl:B.goal[k]||0,bal:M.I-M.E,sr:M.I?Math.round(100*(M.I-M.E)/M.I):0};
 const SB=[['db','نمای کلی'],['tx','تراکنش‌ها'],['pl','بودجه‌بندی'],['as','دارایی و اقساط'],['rp','گزارش تحلیلی']];
 return `<div class='cd'><div class='row sb'><button data-a='hm' data-v='-1'>›</button><h2 style='margin:0;font-size:1.0625rem'>مدیریت مالی — ${PM[hs.m-1]} ${fy(hs.y)}</h2><button data-a='hm' data-v='1'>‹</button></div><div class='ctr' style='margin:6px 0 0'>${SB.map(s=>`<button class='${bsub==s[0]?'p':''}' data-a='bs' data-v='${s[0]}'>${s[1]}</button>`).join('')}</div></div>`+({db:bDb,tx:bTx,pl:bPl,as:bAs,rp:bRp}[bsub]||bDb)(c)}
@@ -3062,8 +3089,10 @@ if($('clrTokensBtn'))$('clrTokensBtn').onclick=()=>{
   setSyStatus('','محلی','تمام کلیدها، توکن‌ها و نشست‌های فعال پاک شدند ✓');
   if(window.showToast)showToast('تمام کلیدها، توکن‌ها و ارتباطات فعال پاک شدند 🧹');
 };
-if(getGh().t)pullCloud(true);
+if(getGh().t)pullCloud(true);else setSyStatus('','محلی','همگام‌سازی ابری گیت‌هاب متصل نیست (روی «سینک» بزنید)');
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&getGh().t)pullCloud(true)});
+window.addEventListener('focus',()=>{if(getGh().t)pullCloud(true)});
+window.addEventListener('online',()=>{if(getGh().t)pullCloud(true)});
 (function(){
   // افزودن دکمه تلگرام به نوار ابزار بالای صفحه
   const wkBar=document.querySelector('header .wk');
@@ -5480,7 +5509,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
       const ii=isIn(t.c),accName=B.accs.find(a=>a.id===(t.acc||'acc_main'))?.n||'کارت اصلی';
       const noteHtml=esc(t.n||'').replace(/#([\w\u0600-\u06FF]+)/g,'<span class="tag-pill">#$1</span>');
       const nextBtn=ii?`<button class="x" data-a="bToggleNext" data-id="${esc(t.id)}" title="${t.forNext?'بازگرداندن به درآمد همین ماه':'انتساب این درآمد به بودجه و گزارش ماه بعد'}" style="${t.forNext?'color:var(--ac);font-weight:700':''}">${t.forNext?'↪ ماه بعد ✓':'↪ ماه بعد'}</button>`:'';
-      return `<div class="row"><span class="mu" style="width:28px">${fa(t.d)}</span><span class="bdg" style="font-size:0.625rem">${esc(accName)}</span><span class="f1">${esc(catL(t.c))}${noteHtml?' — '+noteHtml:''}${t.forNext?' <span class="bdg" style="color:var(--ac);font-size:0.625rem">منظور در ماه بعد</span>':''}</span><b style="color:${ii?'var(--ok)':'var(--er)'}">${ii?'+':'−'}${pmo(t.a)}</b>${nextBtn}<button class="x" data-a="bTxEdit" data-id="${esc(t.id)}" title="ویرایش تراکنش">✎</button><button class="x" data-a="bx" data-id="${esc(t.id)}" title="حذف">✕</button></div>`;
+      return `<div class="tx-item"><span class="tx-day">${fa(t.d)}</span><span class="bdg tx-acc">${esc(accName)}</span><b class="tx-am" style="color:${ii?'var(--ok)':'var(--er)'}">${ii?'+':'−'}${pmo(t.a)}</b><div class="tx-main"><b>${esc(catL(t.c))}</b>${noteHtml?' <span class="mu">—</span> '+noteHtml:''}${t.forNext?' <span class="bdg" style="color:var(--ac);font-size:0.625rem">منظور در ماه بعد</span>':''}</div><div class="tx-acts">${nextBtn}<button class="x" data-a="bTxEdit" data-id="${esc(t.id)}" title="ویرایش تراکنش">✎</button><button class="x" data-a="bx" data-id="${esc(t.id)}" title="حذف">✕</button></div></div>`;
     }).join('');
   };
   window.filterTxList=function(){bAccFilter=$('bFltAcc')?.value||'';const tl=$('tl');if(tl)tl.innerHTML=renderRichTxList()};
