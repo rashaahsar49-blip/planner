@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GJSnhHznYbgCneBR+N8Y7jDDbSjlwPeZGeanDcJomzc='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-ON1tk0Hp9wBMWbPhoNDY0DoDVi1zWvYlBb4KfZroYT4='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>پلنر هفتگی</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -1242,26 +1242,37 @@ input::placeholder,textarea::placeholder{
 .rn-card{
   pointer-events:auto;
   position:relative;overflow:hidden;
-  display:flex;align-items:flex-start;gap:11px;
-  padding:13px 14px 15px;
-  border-radius:18px;
-  background:color-mix(in srgb,var(--sf) 96%,var(--bg));
-  -webkit-backdrop-filter:blur(22px) saturate(180%);
-  backdrop-filter:blur(22px) saturate(180%);
-  border:1px solid color-mix(in srgb,var(--nc,var(--ac)) 35%,var(--bd));
-  box-shadow:0 18px 42px -10px rgba(15,23,42,.28),0 4px 12px rgba(0,0,0,.08);
-  animation:rnSlideIn .28s cubic-bezier(.16,1,.3,1);
+  display:flex;align-items:flex-start;gap:12px;
+  padding:14px 15px 16px;
+  border-radius:20px;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--nc,var(--ac)) 14%,var(--sf)),color-mix(in srgb,var(--sf) 96%,var(--bg)));
+  -webkit-backdrop-filter:blur(24px) saturate(195%);
+  backdrop-filter:blur(24px) saturate(195%);
+  border:1.5px solid color-mix(in srgb,var(--nc,var(--ac)) 42%,var(--bd));
+  box-shadow:0 20px 46px -10px color-mix(in srgb,var(--nc,var(--ac)) 32%,rgba(15,23,42,.25)),0 6px 16px rgba(0,0,0,.1);
+  animation:rnSlideIn .3s cubic-bezier(.16,1,.3,1);
 }
 :root[data-theme="dark"] .rn-card{
-  background:rgba(14,23,42,.95);
-  box-shadow:0 20px 46px -8px rgba(0,0,0,.72);
+  background:linear-gradient(135deg,color-mix(in srgb,var(--nc,var(--ac)) 18%,#0e172a),#0b1222);
+  box-shadow:0 22px 50px -8px rgba(0,0,0,.78),0 0 0 1px color-mix(in srgb,var(--nc,var(--ac)) 22%,transparent);
+}
+.rn-card::before{
+  content:"";position:absolute;top:-24px;left:-24px;width:90px;height:90px;border-radius:50%;
+  background:radial-gradient(circle,color-mix(in srgb,var(--nc,var(--ac)) 28%,transparent),transparent 70%);
+  pointer-events:none;
 }
 .rn-ic{
-  width:38px;height:38px;border-radius:12px;flex:none;
-  display:grid;place-items:center;font-size:1.15rem;
-  background:color-mix(in srgb,var(--nc,var(--ac)) 15%,transparent);
+  width:42px;height:42px;border-radius:14px;flex:none;
+  display:grid;place-items:center;font-size:1.3rem;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--nc,var(--ac)) 24%,transparent),color-mix(in srgb,var(--nc,var(--ac)) 10%,transparent));
   color:var(--nc,var(--ac));
-  border:1px solid color-mix(in srgb,var(--nc,var(--ac)) 25%,transparent);
+  border:1px solid color-mix(in srgb,var(--nc,var(--ac)) 35%,transparent);
+  box-shadow:0 6px 14px -4px color-mix(in srgb,var(--nc,var(--ac)) 35%,transparent);
+}
+.rn-pill{
+  display:inline-block;font-size:0.6562rem;font-weight:800;padding:1px 7px;border-radius:99px;
+  background:color-mix(in srgb,var(--nc,var(--ac)) 16%,transparent);
+  color:var(--nc,var(--ac));margin-inline-end:6px;vertical-align:middle;
 }
 .rn-body{flex:1;min-width:0}
 .rn-top{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:3px}
@@ -2074,27 +2085,28 @@ function toggleNoise(){
 }
 function isNotifEnabled(){
   const v=localStorage.getItem('wp26_ntf_on');
-  if(v==='1')return true;
   if(v==='0')return false;
-  return ('Notification' in window&&Notification.permission==='granted');
+  return true;
 }
 function showRichNotif(title,body,kind='info'){
   const wrap=$('richNotifWrap');if(!wrap)return;
   const meta={
-    prayer:{ic:'🕌',c:'#0d9488'},
-    pomo:{ic:'⏱️',c:'#4f46e5'},
-    sched:{ic:'📅',c:'#2563eb'},
-    ok:{ic:'🔔',c:'#16a34a'},
-    info:{ic:'✨',c:'#0284c7'}
-  }[kind]||{ic:'🔔',c:'#2563eb'};
+    prayer:{ic:'🕌',c:'#0d9488',tag:'اوقات شرعی'},
+    pomo:{ic:'⏱️',c:'#4f46e5',tag:'تمرکز پومودورو'},
+    sched:{ic:'📅',c:'#2563eb',tag:'برنامه ساعتی'},
+    inst:{ic:'💳',c:'#e11d48',tag:'یادآور قسط فردا'},
+    event:{ic:'🎯',c:'#d97706',tag:'رویداد امروز'},
+    ok:{ic:'🔔',c:'#16a34a',tag:'اعلان پلنر'},
+    info:{ic:'✨',c:'#0284c7',tag:'هوشمند'}
+  }[kind]||{ic:'🔔',c:'#2563eb',tag:'اعلان'};
   const card=document.createElement('div');
   card.className='rn-card';
   card.style.setProperty('--nc',meta.c);
   const tm=new Date().toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'});
   card.innerHTML=`<div class="rn-ic" aria-hidden="true">${meta.ic}</div>
     <div class="rn-body">
-      <div class="rn-top"><span class="rn-title">${esc(title)}</span><span class="rn-time">${tm}</span></div>
-      <div class="rn-text">${esc(body)}</div>
+      <div class="rn-top"><span class="rn-title"><span class="rn-pill">${meta.tag}</span>${esc(title)}</span><span class="rn-time">${tm}</span></div>
+      <div class="rn-text" style="white-space:pre-line">${esc(body)}</div>
     </div>
     <button type="button" class="rn-cls" aria-label="بستن اعلان">✕</button>
     <div class="rn-prog"></div>`;
@@ -2102,7 +2114,7 @@ function showRichNotif(title,body,kind='info'){
   card.querySelector('.rn-cls').onclick=kill;
   wrap.appendChild(card);
   while(wrap.children.length>3)wrap.firstElementChild.remove();
-  setTimeout(kill,7600);
+  setTimeout(kill,8500);
 }
 function sendNotif(t,b,kind='info',force=false){
   if(!force&&!isNotifEnabled())return;
@@ -2840,9 +2852,92 @@ return `<div class="cd hero"><div class="ring"><svg viewBox="0 0 120 120" width=
 <div class="tiles"><div class="cd tl"><b>${fa(r1(th))}</b><span>ساعت مطالعه</span></div><div class="cd tl"><b>${pct!=null?fa(pct)+'٪':'—'}</b><span>تکمیل کارها</span></div><div class="cd tl"><b>${fa(prPct)}٪</b><span>نمازهای هفته</span></div><div class="cd tl"><b>${sa!=null?fa(r1(sa)):'—'}</b><span>میانگین خواب</span></div></div>
 ${I.map(x=>`<div class="cd ins ${x.k}"><h3>${x.h}</h3><p>${x.p}</p><span class="act">پیشنهاد: ${x.a}</span></div>`).join('')}`}
 function upClock(){const el=$('liveClock');if(el)el.textContent=new Date().toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}
+function getIranHourMin(now){
+  try{
+    const pts={};
+    new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Tehran',hour12:false,hour:'2-digit',minute:'2-digit'}).formatToParts(now).forEach(p=>pts[p.type]=+p.value);
+    if(!isNaN(pts.hour))return {h:pts.hour%24,m:pts.minute||0};
+  }catch(e){}
+  return {h:now.getHours(),m:now.getMinutes()};
+}
+function checkDueReminders(now,forceCheck=false){
+  if(!isNotifEnabled())return;
+  const {h,m}=getIranHourMin(now);
+  const todayIso=now.toISOString().slice(0,10);
+  const nowP=pp(now);
+  const sentMap=JSON.parse(localStorage.getItem('wp26_due_sent')||'{}');
+  let dirty=false;
+
+  // ۱. رویدادهای روزشمار در همان روز (ارسال خودکار در روز رویداد، از ساعت ۸ صبح به بعد یا هنگام باز شدن اپ)
+  const cds=(S.cds||[]);
+  const todayEvs=cds.filter(c=>c&&c.dt===todayIso);
+  todayEvs.forEach((ev,idx)=>{
+    const evKey=`ev_${todayIso}_${idx}_${(ev.t||'').slice(0,24)}`;
+    if((h>=8||forceCheck)&&!sentMap[evKey]){
+      sentMap[evKey]=1;dirty=true;
+      const title=`رویداد امروز: ${ev.t||'رویداد مهم'}`;
+      const body=`📅 امروز (${fa(nowP.d)} ${PM[nowP.m-1]}) موعد رویداد «${ev.t}» است.
+برنامه‌ریزی و کارهای مرتبط را در اولویت قرار دهید.`;
+      sendNotif(title,body,'event');
+      if(window.sendTgText){
+        window.sendTgText(`🎯✨ <b>یادآور رویداد امروز</b> ✨🎯
+━━━━━━━━━━━━━━━━━━
+📌 <b>عنوان:</b> ${esc(ev.t)}
+📅 <b>تاریخ:</b> ${pfull(now)}
+💡 <i>امروز سررسید این رویداد در تقویم شماست.</i>`,true);
+      }
+    }
+  });
+
+  // ۲. اقساط پرداخت‌نشده که فردا سررسیدشان است -> شب قبل ساعت ۲۱:۰۰ (۹ شب)
+  if(h===21&&m===0){
+    const tmr=new Date(now.getTime()+864e5);
+    const tmrP=pp(tmr);
+    const tmrK=tmrP.y+'-'+tmrP.m;
+    const instList=(S.b&&S.b.inst)||[];
+    const dueTmr=instList.filter(ins=>{
+      if(!ins||Number(ins.d)!==Number(tmrP.d))return false;
+      if(ins.paid&&ins.paid[tmrK])return false;
+      return true;
+    });
+    dueTmr.forEach(ins=>{
+      const instKey=`inst_${tmrK}_${ins.d}_${ins.id||ins.t}`;
+      if(!sentMap[instKey]){
+        sentMap[instKey]=1;dirty=true;
+        const am=(ins.amts&&ins.amts[tmrK]!=null)?ins.amts[tmrK]:(ins.a||0);
+        const pc=Object.keys(ins.paid||{}).length;
+        const title=`قسط فردا: ${ins.t}`;
+        const body=`💳 مبلغ: ${fa(Math.round(am))} تومان
+🗓 سررسید: فردا ${fa(tmrP.d)} ${PM[tmrP.m-1]} (قسط ${fa(pc+1)} از ${fa(ins.tot||12)})`;
+        sendNotif(title,body,'inst');
+        if(window.sendTgText){
+          window.sendTgText(`💳🌙 <b>یادآور شبانه سررسید قسط فردا</b> 🌙💳
+━━━━━━━━━━━━━━━━━━
+🏦 <b>عنوان قسط:</b> ${esc(ins.t)}
+💰 <b>مبلغ قسط:</b> <b>${fa(Math.round(am))} تومان</b>
+🗓 <b>موعد پرداخت:</b> فردا ${fa(tmrP.d)} ${PM[tmrP.m-1]} ${fy(tmrP.y)}
+🔢 <b>شماره قسط:</b> ${fa(pc+1)} از ${fa(ins.tot||12)}
+💡 <i>موجودی حساب را امشب آماده کنید.</i>`,true);
+        }
+      }
+    });
+  }
+
+  if(dirty){
+    // پاکسازی کلیدهای قدیمی‌تر از ۳۰ روز برای تمیز ماندن localStorage
+    const cutoff=new Date(now.getTime()-30*864e5).toISOString().slice(0,10);
+    Object.keys(sentMap).forEach(k=>{
+      const mDate=k.match(/\d{4}-\d{2}-\d{2}/);
+      if(mDate&&mDate[0]<cutoff)delete sentMap[k];
+    });
+    try{localStorage.setItem('wp26_due_sent',JSON.stringify(sentMap))}catch(e){}
+  }
+}
+setTimeout(()=>checkDueReminders(new Date(),true),1800);
 setInterval(()=>{
   upClock();const now=new Date();
   if(now.getSeconds()===0){
+    checkDueReminders(now,false);
     if(now.getMinutes()===0){const cb=W().days[(now.getDay()+1)%7].b[now.getHours()];if(cb&&cb.t)sendNotif(`شروع برنامه ساعت ${fa(now.getHours())}:۰۰`,`الان نوبت «${cb.t}» (${CT[cb.c]||''}) است. با تمرکز کامل وارد این بازه شو!`,'sched')}
     const hmNow=fa(String(now.getHours()).padStart(2,'0'))+':'+fa(String(now.getMinutes()).padStart(2,'0')),pt=getPrayTimes(now,S.city||0);
     if(hmNow===pt.sobh)sendNotif(`وقت اذان صبح به افق ${pt.name}`,'صبح بخیر! روزت را با آرامش نماز صبح و یک شروع پرانرژی آغاز کن.','prayer');
