@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-qEzQUqLqULJNfGVVa/XlpNNrp9E1q3+HipSYhiWSH5U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GJSnhHznYbgCneBR+N8Y7jDDbSjlwPeZGeanDcJomzc='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>پلنر هفتگی</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -5332,7 +5332,40 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
         </div>
       </div>`;
     }else{
-      diagHtml=`<div class="mu" style="margin:6px 0 8px">📌 ثبت روزانه خودکار فعال است. از امروز به بعد هر روز ارزش ثروت شما در سه مقیاس <b>تومان، گرم طلا ۱۸ و تتر</b> ثبت می‌شود و روی این نمودار رسم می‌گردد (یا با دکمه «+ ثبت سابقه» می‌توانید نقطه شروع را هم وارد کنید).</div>`;
+      diagHtml=`<div class="mu" style="margin:6px 0 8px">📌 ثبت روزانه خودکار فعال است. هر روز ارزش ثروت شما در سه مقیاس <b>تومان، گرم طلا ۱۸ و تتر</b> ثبت می‌شود و روی این نمودار رسم می‌گردد (یا با دکمه «+ ثبت سابقه» می‌توانید نقطه شروع را هم وارد کنید).</div>`;
+    }
+
+    // توصیه هوشمند ضد تورم (تبدیل تومان به طلا/تتر یا بالعکس)
+    const mkt=MKT(),g18=Number(mkt.g18)||0,usdt=Number(mkt.usdt)||0;
+    const cashSum=Math.max(0,Number(nw.cashSum)||0);
+    const totPosAssets=Math.max(1,Number(nw.totalAssets)||1);
+    const cashShare=Math.round((cashSum/totPosAssets)*100);
+    const goldVal=sm_((B.assets||[]).filter(a=>['g18','coin','hcoin','qcoin'].includes(a.id)||/طلا|سکه/.test(a.n||'')).map(a=>(a.q||0)*(a.p||0)));
+    const usdtVal=sm_((B.assets||[]).filter(a=>['usdt','btc'].includes(a.id)||/تتر|دلار|بیت/.test(a.n||'')).map(a=>(a.q||0)*(a.p||0)));
+    const curK=hs.y+'-'+hs.m;
+    const nearCommitments=sm_((B.inst||[]).filter(i=>!(i.paid&&i.paid[curK])).map(i=>getInsAm(i,curK)))+sm_((B.chks||[]).filter(c=>c.st==='pending'&&c.tp==='out').map(c=>c.a||0));
+    const surplusCash=cashSum-nearCommitments;
+    const adviceList=[];
+    if(surplusCash>=2000000&&cashShare>=25){
+      const sugGold=Math.round(surplusCash*0.6),sugUsdt=surplusCash-sugGold;
+      adviceList.push(`🔄 <b>تبدیل نقدینگی مازاد به دارایی ضدتورم:</b> هم‌اکنون <b>${fa(cashShare)}٪</b> از کل دارایی شما (${pmo(cashSum)} ت) به‌صورت نقد/تومان راکد است و پس از کسر تعهدات و اقساط پیش‌رو (${pmo(nearCommitments)} ت)، حدود <b>${pmo(surplusCash)} تومان</b> مازاد دارید. پیشنهاد: حدود <b>${pmo(sugGold)} ت</b> (${g18>0?fa(+(sugGold/g18).toFixed(2)):'—'} گرم طلا ۱۸) و <b>${pmo(sugUsdt)} ت</b> (${usdt>0?fa(Math.round(sugUsdt/usdt)):'—'} تتر) تبدیل کنید تا تورم آن را فرسایش ندهد.`);
+    }else if(cashSum<nearCommitments&&nearCommitments>0&&(goldVal+usdtVal)>0){
+      const deficit=nearCommitments-cashSum;
+      const preferSell=(usdtVal>=goldVal&&usdtVal>0)?`تتر (حدود ${usdt>0?fa(Math.ceil(deficit/usdt)):'—'} USDT)`:`طلا/سکه (حدود ${g18>0?fa(+(deficit/g18).toFixed(2)):'—'} گرم طلا ۱۸)`;
+      adviceList.push(`💧 <b>مدیریت نقدینگی و جلوگیری از فروش هیجانی:</b> موجودی تومانی شما (${pmo(cashSum)} ت) از تعهدات و اقساط پیش‌رو (${pmo(nearCommitments)} ت) حدود <b>${pmo(deficit)} تومان</b> کمتر است. به‌جای استقراض یا دیرکرد، به‌موقع بخشی از <b>${preferSell}</b> را به تومان نقد کنید.`);
+    }else if(goldVal>0&&usdtVal===0&&totPosAssets>5000000){
+      adviceList.push(`⚖️ <b>متوازن‌سازی ارزی و طلایی:</b> تمام پوشش تورمی شما روی طلا متمرکز است و سهم تتر (دلار دیجیتال) ۰٪ است. برای کاهش نوسان و نقدشوندگی آنی، ۲۰٪ تا ۳۰٪ از خریدهای بعدی را به <b>تتر (USDT)</b> اختصاص دهید.`);
+    }else if(usdtVal>0&&goldVal===0&&totPosAssets>5000000){
+      adviceList.push(`⚖️ <b>پوشش تورم جهانی در کنار دلار:</b> پوشش شما فقط روی تتر است؛ در میان‌مدت طلا هم از تورم ریالی و هم از رشد انس جهانی سود می‌برد. نگهداری ترکیبی <b>۶۰٪ طلا + ۴۰٪ تتر</b> سپر تورمی متعادل‌تری می‌سازد.`);
+    }else{
+      adviceList.push(`✅ <b>توازن بهینه نقدینگی و دارایی:</b> سهم نقدینگی شما (${fa(cashShare)}٪) متناسب با تعهدات جاری است و ترکیب دارایی‌های ضدتورم شما در وضعیت متعادلی قرار دارد.`);
+    }
+    if(series.length>=2&&first&&last&&first.g18>0&&last.g18>0&&first.usdt>0&&last.usdt>0){
+      const gRet=((last.g18-first.g18)/first.g18)*100,uRet=((last.usdt-first.usdt)/first.usdt)*100;
+      if(Math.abs(gRet-uRet)>=2.5){
+        const winner=gRet>uRet?`طلای ۱۸ عیار (${gRet>=0?'+':''}${fa(Math.round(gRet*10)/10)}٪ در برابر ${uRet>=0?'+':''}${fa(Math.round(uRet*10)/10)}٪ تتر)`:`تتر (${uRet>=0?'+':''}${fa(Math.round(uRet*10)/10)}٪ در برابر ${gRet>=0?'+':''}${fa(Math.round(gRet*10)/10)}٪ طلا)`;
+        adviceList.push(`📡 <b>مقایسه بازدهی سپرهای تورمی در این بازه:</b> در این دوره <b>${winner}</b> عملکرد قوی‌تری داشته است.`);
+      }
     }
 
     let svgHtml='';
@@ -5370,26 +5403,31 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
       </svg></div>`;
     }
 
-    return `<div class="cd">
+    return `<div class="cd" id="nwTrendCard">
       <div class="row sb fw" style="margin-bottom:8px">
         <h2 style="margin:0">📈 نمودار روند روزانه ثروت و سنجش اثر تورم (${unitName})</h2>
         <div class="row" style="margin:0;gap:5px">
           <div class="nw-sw" style="margin:0;background:var(--sf2);border:1px solid var(--bd2)">
-            <button class="${nwUnit==='toman'?'p':''}" data-a="bNwUnit" data-v="toman" style="color:${nwUnit==='toman'?'#fff':'var(--tx)'}">تومان</button>
-            <button class="${nwUnit==='gold'?'p':''}" data-a="bNwUnit" data-v="gold" style="color:${nwUnit==='gold'?'#fff':'var(--tx)'}">گرم طلا ۱۸</button>
-            <button class="${nwUnit==='usdt'?'p':''}" data-a="bNwUnit" data-v="usdt" style="color:${nwUnit==='usdt'?'#fff':'var(--tx)'}">تتر</button>
+            <button type="button" class="${nwUnit==='toman'?'p':''}" data-a="bNwUnit" data-v="toman" data-keep-scroll="nwTrendCard" style="color:${nwUnit==='toman'?'#fff':'var(--tx)'}">تومان</button>
+            <button type="button" class="${nwUnit==='gold'?'p':''}" data-a="bNwUnit" data-v="gold" data-keep-scroll="nwTrendCard" style="color:${nwUnit==='gold'?'#fff':'var(--tx)'}">گرم طلا ۱۸</button>
+            <button type="button" class="${nwUnit==='usdt'?'p':''}" data-a="bNwUnit" data-v="usdt" data-keep-scroll="nwTrendCard" style="color:${nwUnit==='usdt'?'#fff':'var(--tx)'}">تتر</button>
           </div>
-          <select data-a="bNwRange" style="width:auto;padding:3px 7px;font-size:0.7188rem">
+          <select data-a="bNwRange" data-keep-scroll="nwTrendCard" style="width:auto;padding:3px 7px;font-size:0.7188rem">
             <option value="14" ${nwTrendRange==='14'?'selected':''}>۱۴ روز</option>
             <option value="30" ${nwTrendRange==='30'?'selected':''}>۳۰ روز</option>
             <option value="90" ${nwTrendRange==='90'?'selected':''}>۹۰ روز</option>
             <option value="all" ${nwTrendRange==='all'?'selected':''}>کل تاریخچه</option>
           </select>
-          <button data-a="bNwSeed" style="font-size:0.7188rem;padding:4px 8px" title="ثبت دستی ارزش ثروت در یک تاریخ قبلی">+ ثبت سابقه</button>
+          <button type="button" data-a="bNwSeed" data-keep-scroll="nwTrendCard" style="font-size:0.7188rem;padding:4px 8px" title="ثبت دستی ارزش ثروت در یک تاریخ قبلی">+ ثبت سابقه</button>
         </div>
       </div>
       ${diagHtml}
       ${svgHtml}
+      <div style="margin-top:10px;background:color-mix(in srgb,var(--ac) 7%,var(--sf2));border:1px solid color-mix(in srgb,var(--ac) 22%,var(--bd2));border-radius:14px;padding:10px 12px">
+        <div style="font-size:0.7812rem;font-weight:800;color:var(--ac);margin-bottom:5px">🧭 توصیه هوشمند ضدتورم و مدیریت نقدینگی:</div>
+        ${adviceList.map(x=>`<div style="font-size:0.7812rem;line-height:1.7;margin-bottom:4px">• ${x}</div>`).join('')}
+        <div class="mu" style="font-size:0.6875rem;margin-top:4px;border-top:1px dashed var(--bd2);padding-top:4px">⏱ نحوه ثبت قیمت روزانه: در طول هر روز، آخرین نرخ دریافت‌شده تا پایان همان روز (ساعت ۲۳:۵۹) به‌عنوان <b>قیمت بسته شدن (Close)</b> آن روز تثبیت می‌شود و از روز بعد وارد تاریخچه غیرقابل تغییر نمودار می‌گردد.</div>
+      </div>
     </div>`;
   }
 
@@ -6129,7 +6167,13 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
     const a=b.dataset.a,B=ensureWealthDB(),k=hs.y+'-'+hs.m;
     if(a==='wSubBtn'){wSub=b.dataset.v;render()}
     else if(a==='bTagFlt'){const inp=q('[data-f=bq]');if(inp){inp.value=b.dataset.v||'';inp.dispatchEvent(new Event('input',{bubbles:true}))}}
-    else if(a==='bNwUnit'){nwUnit=b.dataset.v;localStorage.setItem('wp26_nw_unit',nwUnit);render()}
+    else if(a==='bNwUnit'){
+      const prevTop=b.getBoundingClientRect().top;
+      nwUnit=b.dataset.v;localStorage.setItem('wp26_nw_unit',nwUnit);
+      render();
+      const card=$('nwTrendCard');
+      if(card){const newBtn=card.querySelector(`[data-a="bNwUnit"][data-v="${nwUnit}"]`)||card;window.scrollBy(0,newBtn.getBoundingClientRect().top-prevTop)}
+    }
     else if(a==='bNwSeed'){
       const daysAgo=+(prompt('این سابقه مربوط به چند روز قبل است؟ (مثلاً: 7 برای هفته قبل، 30 برای ماه قبل):','30')||0);
       if(!(daysAgo>0))return;
@@ -6330,7 +6374,12 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
   });
   document.addEventListener('change',e=>{
     if(e.target.dataset.f==='asbuy')render();
-    else if(e.target.dataset.a==='bNwRange'){nwTrendRange=e.target.value||'30';render()}
+    else if(e.target.dataset.a==='bNwRange'){
+      const prevTop=e.target.getBoundingClientRect().top;
+      nwTrendRange=e.target.value||'30';render();
+      const sel=document.querySelector('[data-a="bNwRange"]');
+      if(sel)window.scrollBy(0,sel.getBoundingClientRect().top-prevTop);
+    }
   });
 })();
 (function(){
