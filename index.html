@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-vdRQFfZWRcTybzs5Wmt7XCgWRTQZrDAQ9/tYbav/ovU='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-AxopBFScUyscBWnIcdpnKlCfKBU9q5QV7WPeIOkgic4='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>پلنر هفتگی</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -2065,7 +2065,7 @@ async function fetchLiveRates(){
   if(gen!==_syncSessionGen)return;
   m.ts=new Date().toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'});
   syncAssetsFromMkt(BD());
-  save();render();
+  try{localStorage.setItem('wp26',JSON.stringify(S))}catch(e){}render();
   if(msg)msg.textContent=got?`دریافت شد: طلا ${fa(m.g18)} | تتر ${fa(m.usdt)} | امامی ${fa(m.coin)}`:'عدم دریافت (کلید API یا اتصال را بررسی کنید).';
 }
 function toggleNoise(){
@@ -2934,7 +2934,7 @@ else if(f=='plan')render()});
 $('pv').onclick=()=>{ws=new Date(ws.getTime()-7*864e5);render()};
 $('nx').onclick=()=>{ws=new Date(ws.getTime()+7*864e5);render()};
 $('td').onclick=()=>{ws=sat(new Date);di=((new Date().getDay()+1)%7);render()};
-const setTh=t=>{document.documentElement.dataset.theme=t;S.th=t;save();$('th').textContent=t=='dark'?'روشن':'تیره'};
+const setTh=(t,skipSync)=>{document.documentElement.dataset.theme=t;S.th=t;if(skipSync){try{localStorage.setItem('wp26',JSON.stringify(S))}catch(e){}}else save();$('th').textContent=t=='dark'?'روشن':'تیره'};
 $('th').onclick=()=>setTh(S.th=='dark'?'light':'dark');
 function syncNtfBadge(){
   const on=isNotifEnabled();
@@ -2981,7 +2981,7 @@ $('lckBtn').onclick=async()=>{
 $('pwBtn').onclick=()=>{$('pwNew').value='';$('pwNew').placeholder=localStorage.getItem('wp26_pin')?'رمز جدید (خالی بگذارید = حذف رمز فعلی)...':'رمز عبور جدید...';pwMdl.classList.add('on')};
 $('pwSave').onclick=async()=>{const v=$('pwNew').value.trim();if(v)localStorage.setItem('wp26_pin',await hashPinAsync(v));else localStorage.removeItem('wp26_pin');pwMdl.classList.remove('on');notifyMsg(v?'رمز عبور با PBKDF2 و Salt تصادفی ذخیره شد 🔒':'رمز حذف شد.')};
 $('pwLockNow').onclick=()=>{pwMdl.classList.remove('on');lckScreen.classList.add('on')};
-setTh(S.th||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+setTh(S.th||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'),true);
 booting=false;setTimeout(fetchLiveRates,300);
 function _enqueueGhOp(fn,skipIfBusy=false){
   if(skipIfBusy&&(_ghInFlight>0||_ghPending>0))return Promise.resolve();
@@ -2996,76 +2996,120 @@ function _enqueueGhOp(fn,skipIfBusy=false){
   _ghQueue=_ghQueue.then(run,run);
   return _ghQueue;
 }
-async function _pushCloudCore(gen,opId){
+async function _pushCloudCore(gen,opId,retry=0){
   const {u,r,t}=getGh();if(!u||!r||!t)return;
   const isStale=()=>gen!==_syncSessionGen||opId!==_ghOpSeq;
-  setSyStatus('wait','ذخیره...','در حال ذخیره...');
-  try{const url=`https://api.github.com/repos/${u}/${r}/contents/wp26-data.json`;let sha=localStorage.getItem('wp26_gh_sha')||'';
-  if(!sha){const chk=await fetchWithSession(url,{headers:{Authorization:`token ${t}`},cache:'no-store'});if(isStale())return;if(chk.status===200){const cj=await chk.json();if(isStale())return;sha=cj.sha;localStorage.setItem('wp26_gh_sha',sha)}}
-  const curHash=computeDataHash(S);
-  const payloadStr=await exportPayloadStr(false);
-  if(isStale())return;
-  const body={message:'Sync wp26',content:btoa(unescape(encodeURIComponent(payloadStr)))};if(sha)body.sha=sha;
-  const res=await fetchWithSession(url,{method:'PUT',headers:{Authorization:`token ${t}`,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'},body:JSON.stringify(body)});
-  if(gen!==_syncSessionGen)return;
-  if(res.ok){
-    let rj=null;try{rj=await res.json()}catch(je){}
+  setSyStatus('wait','ذخیره...','در حال ارسال به گیت‌هاب...');
+  try{
+    const url=`https://api.github.com/repos/${u}/${r}/contents/wp26-data.json`;
+    let sha=localStorage.getItem('wp26_gh_sha')||'';
+    if(!sha||retry>0){
+      const chk=await fetchWithSession(url+'?t='+Date.now(),{headers:{Authorization:`token ${t}`,Accept:'application/vnd.github.v3+json'},cache:'no-store'});
+      if(isStale())return;
+      if(chk.status===200){const cj=await chk.json();if(isStale())return;sha=cj.sha;localStorage.setItem('wp26_gh_sha',sha)}
+      else if(chk.status===404){sha='';localStorage.removeItem('wp26_gh_sha')}
+    }
+    const curHash=computeDataHash(S);
+    const payloadStr=await exportPayloadStr(false);
+    if(isStale())return;
+    const body={message:'Sync wp26',content:btoa(unescape(encodeURIComponent(payloadStr)))};if(sha)body.sha=sha;
+    const res=await fetchWithSession(url,{method:'PUT',headers:{Authorization:`token ${t}`,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'},body:JSON.stringify(body)});
     if(gen!==_syncSessionGen)return;
-    if(rj&&rj.content&&typeof rj.content.sha==='string'&&rj.content.sha.trim()){
-      localStorage.setItem('wp26_gh_sha',rj.content.sha.trim());
-      localStorage.setItem('wp26_gh_sync_hash',curHash);
-      if(opId===_ghOpSeq)setSyStatus('ok','همگام',getEncPass()?'رمزنگاری و ذخیره شد 🔒':'ذخیره شد');
+    if(res.ok){
+      let rj=null;try{rj=await res.json()}catch(je){}
+      if(gen!==_syncSessionGen)return;
+      if(rj&&rj.content&&typeof rj.content.sha==='string'&&rj.content.sha.trim()){
+        localStorage.setItem('wp26_gh_sha',rj.content.sha.trim());
+        localStorage.setItem('wp26_gh_sync_hash',curHash);
+        if(opId===_ghOpSeq)setSyStatus('ok','همگام ✓',getEncPass()?'رمزنگاری و همگام‌سازی شد 🔒':'همگام‌سازی ابری انجام شد ✓');
+      }else{
+        localStorage.removeItem('wp26_gh_sha');
+        if(opId===_ghOpSeq)setSyStatus('err','پاسخ ناقص','پاسخ گیت‌هاب فاقد SHA معتبر بود؛ دکمه دریافت را بزنید');
+      }
+    }else if((res.status===409||res.status===422)&&retry<1){
+      localStorage.removeItem('wp26_gh_sha');
+      return _pushCloudCore(gen,opId,retry+1);
     }else{
       localStorage.removeItem('wp26_gh_sha');
-      if(opId===_ghOpSeq)setSyStatus('err','پاسخ ناقص','پاسخ گیت‌هاب فاقد SHA معتبر بود؛ دکمه دریافت را بزنید');
+      const errTxt=res.status===401||res.status===403?'خطای دسترسی توکن (Token)':res.status===404?'مخزن یا مسیر پیدا نشد':'تداخل نسخه (دکمه دریافت را بزنید)';
+      if(opId===_ghOpSeq)setSyStatus('err','خطا',errTxt);
     }
-  }else{
-    localStorage.removeItem('wp26_gh_sha');
-    if(opId===_ghOpSeq)setSyStatus('err','تداخل','دکمه دریافت را بزنید');
-  }}catch(e){if((e&&e.name==='AbortError')||isStale())return;setSyStatus('err','آفلاین','ذخیره در دستگاه انجام شد')}
+  }catch(e){if((e&&e.name==='AbortError')||isStale())return;setSyStatus('err','آفلاین','ذخیره در دستگاه انجام شد')}
 }
 async function _pullCloudCore(silent,gen,opId){
   const {u,r,t}=getGh();if(!u||!r||!t)return;
   const isStale=()=>gen!==_syncSessionGen||opId!==_ghOpSeq;
-  setSyStatus('wait','دریافت...','در حال دریافت...');
-  try{const res=await fetchWithSession(`https://api.github.com/repos/${u}/${r}/contents/wp26-data.json`,{headers:{Authorization:`token ${t}`,Accept:'application/vnd.github.v3+json'},cache:'no-store'});
-  if(isStale())return;
-  if(res.status===200){
-    const d=await res.json();if(isStale())return;localStorage.setItem('wp26_gh_sha',d.sha);
-    const rawStr=decodeURIComponent(escape(atob(d.content.replace(/\s/g,''))));
-    const remote=await importPayloadStr(rawStr);
+  setSyStatus('wait','بررسی...','در حال دریافت از گیت‌هاب...');
+  try{
+    const res=await fetchWithSession(`https://api.github.com/repos/${u}/${r}/contents/wp26-data.json?t=${Date.now()}`,{headers:{Authorization:`token ${t}`,Accept:'application/vnd.github.v3+json'},cache:'no-store'});
     if(isStale())return;
-    const localHash=computeDataHash(S),remoteHash=computeDataHash(remote),lastHash=localStorage.getItem('wp26_gh_sync_hash')||'';
-    if(localHash===remoteHash){
-      localStorage.setItem('wp26_gh_sync_hash',remoteHash);
-      setSyStatus('ok','همگام','اطلاعات دستگاه و گیت‌هاب کاملاً یکسان است ✓');return;
-    }
-    const localChanged=!!(lastHash&&localHash!==lastHash);
-    const remoteChanged=!!(!lastHash||remoteHash!==lastHash);
-    if(localChanged&&!remoteChanged){
-      if(silent){setSyStatus('wait','ارسال لازم','تغییرات جدید روی دستگاه ثبت شده و نسخه گیت‌هاب قدیمی‌تر است؛ برای ذخیره ابری «ارسال» را بزنید.');return}
-      if(!confirm('⚠️ نسخه محلی شما تغییرات جدیدتری نسبت به گیت‌هاب دارد. آیا مطمئن هستید که می‌خواهید تغییرات محلی را با نسخه قدیمی‌تر گیت‌هاب جایگزین کنید؟')){
-        setSyStatus('wait','ارسال لازم','نسخه محلی حفظ شد؛ برای همگام‌سازی دکمه «ارسال» را بزنید.');return;
+    if(res.status===200){
+      const d=await res.json();if(isStale())return;
+      const prevSha=localStorage.getItem('wp26_gh_sha')||'';
+      localStorage.setItem('wp26_gh_sha',d.sha);
+      let b64=(d.content||'').replace(/\s/g,'');
+      if(!b64&&d.git_url){
+        const br=await fetchWithSession(d.git_url,{headers:{Authorization:`token ${t}`,Accept:'application/vnd.github.v3+json'},cache:'no-store'});
+        if(isStale())return;
+        if(br.ok){const bd=await br.json();if(isStale())return;b64=(bd.content||'').replace(/\s/g,'')}
       }
+      const rawStr=decodeURIComponent(escape(atob(b64)));
+      const remote=await importPayloadStr(rawStr);
+      if(isStale())return;
+      const localHash=computeDataHash(S),remoteHash=computeDataHash(remote),lastHash=localStorage.getItem('wp26_gh_sync_hash')||'';
+      if(localHash===remoteHash){
+        localStorage.setItem('wp26_gh_sync_hash',remoteHash);
+        setSyStatus('ok','همگام ✓','اطلاعات دستگاه و گیت‌هاب کاملاً یکسان است ✓');return;
+      }
+      const localTs=Number(S._updatedAt)||0,remoteTs=Number(remote._updatedAt)||0;
+      const localChanged=!!(lastHash&&localHash!==lastHash);
+      const remoteChanged=!!(!lastHash||remoteHash!==lastHash||d.sha!==prevSha);
+      if(localChanged&&!remoteChanged){
+        if(silent){
+          await _pushCloudCore(gen,opId,0);
+          return;
+        }
+        if(!confirm('⚠️ نسخه محلی شما تغییرات جدیدتری نسبت به گیت‌هاب دارد. آیا مطمئن هستید که می‌خواهید تغییرات محلی را با نسخه قدیمی‌تر گیت‌هاب جایگزین کنید؟')){
+          setSyStatus('wait','ارسال لازم','نسخه محلی حفظ شد؛ برای همگام‌سازی دکمه «ارسال» را بزنید.');return;
+        }
+      }
+      if(localChanged&&remoteChanged){
+        if(silent){
+          if(remoteTs>localTs+2000){
+            // نسخه ابری جدیدتر است -> اعمال خودکار روی دستگاه با حفظ Undo
+          }else if(localTs>remoteTs+2000){
+            await _pushCloudCore(gen,opId,0);
+            return;
+          }else{
+            setSyStatus('wait','تعارض','تغییرات هم‌زمان در دستگاه و گیت‌هاب شناسایی شد؛ «دریافت» یا «ارسال» را بزنید.');return;
+          }
+        }else{
+          const msg='⚠️ هم روی این دستگاه و هم در گیت‌هاب تغییرات جدید دارید. آیا می‌خواهید نسخه گیت‌هاب جایگزین شود؟ (نسخه فعلی دستگاه در Undo قابل بازگردانی خواهد بود)';
+          if(!confirm(msg)){setSyStatus('wait','لغو شد','نسخه محلی حفظ شد.');return}
+        }
+      }else if(!lastHash&&localTs>remoteTs+5000){
+        if(silent){
+          await _pushCloudCore(gen,opId,0);
+          return;
+        }
+        if(!confirm('⚠️ نسخه موجود روی دستگاه شما جدیدتر از نسخه گیت‌هاب است! آیا مطمئن هستید که نسخه گیت‌هاب جایگزین شود؟')){
+          setSyStatus('wait','لغو شد','نسخه محلی حفظ شد.');return;
+        }
+      }
+      if(isStale())return;
+      if(window.pushUndo)pushUndo('pullCloud');
+      S=remote;localStorage.setItem('wp26',JSON.stringify(S));
+      localStorage.setItem('wp26_gh_sync_hash',remoteHash);
+      if(S.th)setTh(S.th,true);render();
+      setSyStatus('ok','همگام ✓',getEncPass()?'همگام و رمزگشایی شد ✓':'آخرین تغییرات از گیت‌هاب دریافت شد ✓');
+      if(window.showToast)showToast('🔄 اطلاعات از گیت‌هاب همگام‌سازی شد',true);
     }
-    const localTs=Number(S._updatedAt)||0,remoteTs=Number(remote._updatedAt)||0;
-    const conflict=(localChanged&&remoteChanged)||(!lastHash&&localTs>0&&remoteTs>0&&localTs>remoteTs+5000);
-    if(conflict){
-      if(silent){setSyStatus('wait','تعارض','تغییرات هم‌زمان در دستگاه و گیت‌هاب شناسایی شد؛ «دریافت» یا «ارسال» را بزنید.');return}
-      const msg=localChanged&&remoteChanged
-        ?'⚠️ تعارض نسخه (بر اساس Hash محتوا): هم روی این دستگاه و هم در گیت‌هاب تغییرات جدید دارید. آیا می‌خواهید نسخه گیت‌هاب جایگزین شود؟ (نسخه فعلی دستگاه در Undo قابل بازگردانی خواهد بود)'
-        :'⚠️ نسخه موجود روی دستگاه شما جدیدتر از نسخه گیت‌هاب است! آیا مطمئن هستید که نسخه گیت‌هاب جایگزین شود؟';
-      if(!confirm(msg)){setSyStatus('wait','لغو شد','نسخه محلی حفظ شد.');return}
+    else if(res.status===404)await _pushCloudCore(gen,opId,0);
+    else if(!isStale()){
+      const errTxt=res.status===401||res.status===403?'توکن گیت‌هاب نامعتبر است':`خطای گیت‌هاب (${res.status})`;
+      setSyStatus('err','خطا',errTxt);
     }
-    if(isStale())return;
-    if(window.pushUndo)pushUndo('pullCloud');
-    S=remote;localStorage.setItem('wp26',JSON.stringify(S));
-    localStorage.setItem('wp26_gh_sync_hash',remoteHash);
-    if(S.th)setTh(S.th);render();
-    setSyStatus('ok','همگام',getEncPass()?'همگام و رمزگشایی شد ✓':'همگام شد');
-    if(!silent&&window.showToast)showToast('نسخه گیت‌هاب دریافت شد (در صورت نیاز قابل بازگردانی است)',true);
-  }
-  else if(res.status===404)await _pushCloudCore(gen,opId);else if(!isStale())setSyStatus('err','خطا','خطا در گیت‌هاب')}catch(e){if((e&&e.name==='AbortError')||isStale())return;setSyStatus('err','آفلاین',silent?'':(e&&e.message?e.message:'آفلاین'))}
+  }catch(e){if((e&&e.name==='AbortError')||isStale())return;setSyStatus('err','آفلاین',silent?'':(e&&e.message?e.message:'آفلاین'))}
 }
 function pullCloud(silent){return _enqueueGhOp((gen,opId)=>_pullCloudCore(silent,gen,opId),!!silent)}
 function pushCloud(){return _enqueueGhOp((gen,opId)=>_pushCloudCore(gen,opId),false)}
@@ -3093,6 +3137,7 @@ if(getGh().t)pullCloud(true);else setSyStatus('','محلی','همگام‌ساز
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&getGh().t)pullCloud(true)});
 window.addEventListener('focus',()=>{if(getGh().t)pullCloud(true)});
 window.addEventListener('online',()=>{if(getGh().t)pullCloud(true)});
+setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFlight&&!_ghPending)pullCloud(true)},45000);
 (function(){
   // افزودن دکمه تلگرام به نوار ابزار بالای صفحه
   const wkBar=document.querySelector('header .wk');
@@ -4151,7 +4196,7 @@ window.addEventListener('online',()=>{if(getGh().t)pullCloud(true)});
     }
   });
   Object.keys(S).forEach(k=>{if(/^\d{4}-\d{2}-\d{2}$/.test(k))applyDefaultSchedule(S[k])});
-  save();render();
+  try{localStorage.setItem('wp26',JSON.stringify(S))}catch(e){}render();
 })();
 (function(){
   $('agMdl').onclick=e=>{if(e.target===$('agMdl'))$('agMdl').classList.remove('on')};
