@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-ON1tk0Hp9wBMWbPhoNDY0DoDVi1zWvYlBb4KfZroYT4='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-ndkAZrmJz08YalKXvlHdjzNOMxe36aqmXeelr2b1sGk='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>پلنر هفتگی</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -1673,6 +1673,63 @@ button.p.btn-plus{
   .tx-acts{order:5;width:100%;justify-content:flex-end;gap:6px;padding-top:5px;border-top:1px dashed var(--bd2)}
   .tx-acts button{min-height:30px!important;padding:3px 9px!important;font-size:0.7188rem!important;background:var(--sf)!important;border:1px solid var(--bd2)!important;border-radius:8px!important}
 }
+
+/* ==================== طراحی گرافیکی و موبایل‌محور نمودار روند روزانه ثروت (v60) ==================== */
+#nwTrendCard{
+  position:relative;overflow:hidden;
+  border-inline-start:4px solid var(--nwc,#2563eb)!important;
+  background:linear-gradient(155deg,color-mix(in srgb,var(--nwc,#2563eb) 8%,var(--sf)),var(--sf))!important;
+}
+#nwTrendCard::before{
+  content:"";position:absolute;top:-50px;left:-50px;width:160px;height:160px;border-radius:50%;
+  background:radial-gradient(circle,color-mix(in srgb,var(--nwc,#2563eb) 18%,transparent),transparent 70%);
+  pointer-events:none;
+}
+.nw-hdr{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:10px}
+.nw-ctrl-bar{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.nw-unit-seg{
+  display:inline-flex;gap:3px;padding:3px;border-radius:12px;
+  background:var(--sf2);border:1px solid var(--bd2);
+}
+.nw-unit-seg button{
+  padding:5px 11px!important;font-size:0.75rem!important;font-weight:700!important;
+  border-radius:9px!important;background:transparent!important;color:var(--mu)!important;min-height:30px!important;
+}
+.nw-unit-seg button.on{
+  background:var(--nwc,#2563eb)!important;color:#fff!important;
+  box-shadow:0 4px 12px color-mix(in srgb,var(--nwc,#2563eb) 38%,transparent)!important;
+}
+.nw-kpi-strip{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:10px;
+}
+.nw-mini-kpi{
+  background:var(--sf2);border:1px solid var(--bd2);border-radius:14px;padding:9px 10px;
+  display:flex;flex-direction:column;gap:2px;
+}
+.nw-mini-kpi small{font-size:0.6875rem;color:var(--mu);font-weight:600}
+.nw-mini-kpi b{font-size:0.875rem;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.35}
+.nw-chart-box{
+  background:linear-gradient(180deg,color-mix(in srgb,var(--nwc,#2563eb) 6%,var(--sf2)),var(--sf));
+  border:1px solid var(--bd2);border-radius:18px;padding:10px 8px 4px;margin:8px 0;
+}
+.nw-chart-box svg{width:100%;height:auto;display:block;direction:ltr}
+.nw-adv-box{
+  margin-top:10px;border-radius:16px;padding:12px 13px;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--ac) 9%,var(--sf2)),var(--sf2));
+  border:1px solid color-mix(in srgb,var(--ac) 24%,var(--bd2));
+}
+.nw-adv-hdr{font-size:0.8125rem;font-weight:800;color:var(--ac);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+@media(max-width:640px){
+  .nw-hdr{flex-direction:column;align-items:stretch;gap:8px}
+  .nw-ctrl-bar{width:100%;justify-content:space-between}
+  .nw-unit-seg{flex:1 1 100%;display:grid;grid-template-columns:repeat(3,1fr)}
+  .nw-unit-seg button{padding:6px 4px!important;font-size:0.75rem!important;min-height:34px!important;text-align:center}
+  .nw-ctrl-bar select,.nw-ctrl-bar > button{flex:1;min-height:34px!important;font-size:0.75rem!important}
+  .nw-kpi-strip{grid-template-columns:1fr;gap:6px}
+  .nw-mini-kpi{flex-direction:row;align-items:center;justify-content:space-between;padding:8px 11px}
+  .nw-chart-box{padding:8px 4px 2px;border-radius:15px}
+}
+
 </style>
 </head>
 <body>
@@ -5386,7 +5443,7 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
     return {netWorth,totalAssets,totalLiabilities,cashSum,goldEq,usdtEq};
   }
 
-  function buildDailyWealthTrendCard(B,nw){
+  function buildDailyWealthTrendInner(B,nw){
     const hist=B.nwHist||{};
     const allKeys=Object.keys(hist).sort();
     const limit=nwTrendRange==='all'?allKeys.length:(+nwTrendRange||30);
@@ -5399,8 +5456,15 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
       return {k,lbl,val,t:Number(d.t)||0,g:Number(d.g)||0,u:Number(d.u)||0,g18:Number(d.g18)||0,usdt:Number(d.usdt)||0};
     });
     const first=series[0],last=series[series.length-1];
+    const lineCol=nwUnit==='gold'?'#d97706':nwUnit==='usdt'?'#0d9488':'#2563eb';
     const unitName=nwUnit==='gold'?'گرم طلا ۱۸':nwUnit==='usdt'?'تتر':'تومان';
     const fmtSeriesVal=v=>hideMoney?'••••••':(nwUnit==='gold'?`${fa(+(Number(v).toFixed(2)))} گرم`:nwUnit==='usdt'?`${fa(Math.round(v))} تتر`:`${mo(v)} ت`);
+
+    const kpiStrip=`<div class="nw-kpi-strip">
+      <div class="nw-mini-kpi"><small>💰 ارزش کل (تومان)</small><b style="color:#2563eb">${pmo(nw.netWorth)} <span class="mu" style="font-weight:500">ت</span></b></div>
+      <div class="nw-mini-kpi"><small>🟡 معادل طلای ۱۸ عیار</small><b style="color:#d97706">${hideMoney?'••••':fa(+(Number(nw.goldEq||0).toFixed(2)))} <span class="mu" style="font-weight:500">گرم</span></b></div>
+      <div class="nw-mini-kpi"><small>🟢 معادل تتر (USDT)</small><b style="color:#0d9488">${hideMoney?'••••':fa(Math.round(nw.usdtEq||0))} <span class="mu" style="font-weight:500">تتر</span></b></div>
+    </div>`;
 
     let diagHtml='';
     if(series.length>=2&&first&&last){
@@ -5418,16 +5482,16 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
       }else{
         verdict=`📊 تغییر بازه از <b>${first.lbl}</b> تا <b>${last.lbl}</b>: تومانی <b>${dT>=0?'+':''}${fa(pctT)}٪</b> | طلایی <b>${dG>=0?'+':''}${fa(pctG)}٪</b> | تتری <b>${dU>=0?'+':''}${fa(pctU)}٪</b>.`;
       }
-      diagHtml=`<div class="rx-box" style="margin:10px 0 8px;border-color:${dG>=0?'var(--ok)':'var(--er)'}">
+      diagHtml=`<div class="rx-box" style="margin:8px 0;border-color:${dG>=0?'var(--ok)':'var(--er)'}">
         <div style="font-size:0.8125rem;line-height:1.7">${verdict}</div>
-        <div class="row fw" style="margin:6px 0 0;gap:8px;font-size:0.75rem">
+        <div class="row fw" style="margin:6px 0 0;gap:6px;font-size:0.75rem">
           <span class="bdg ${dT>=0?'ok':'wn'}">تومان: <bdi dir="ltr">${dT>=0?'+':'−'}${pmo(Math.abs(dT))}</bdi> (${dT>=0?'+':''}${fa(pctT)}٪)</span>
           <span class="bdg ${dG>=0?'ok':'wn'}">طلا ۱۸: <bdi dir="ltr">${dG>=0?'+':'−'}${hideMoney?'••':fa(Math.abs(dG))}</bdi> گرم (${dG>=0?'+':''}${fa(pctG)}٪)</span>
           <span class="bdg ${dU>=0?'ok':'wn'}">تتر: <bdi dir="ltr">${dU>=0?'+':'−'}${hideMoney?'••':fa(Math.abs(dU))}</bdi> USDT (${dU>=0?'+':''}${fa(pctU)}٪)</span>
         </div>
       </div>`;
     }else{
-      diagHtml=`<div class="mu" style="margin:6px 0 8px">📌 ثبت روزانه خودکار فعال است. هر روز ارزش ثروت شما در سه مقیاس <b>تومان، گرم طلا ۱۸ و تتر</b> ثبت می‌شود و روی این نمودار رسم می‌گردد (یا با دکمه «+ ثبت سابقه» می‌توانید نقطه شروع را هم وارد کنید).</div>`;
+      diagHtml=`<div class="mu" style="margin:6px 0 8px">📌 ثبت روزانه خودکار فعال است. هر روز ارزش ثروت شما در سه مقیاس <b>تومان، گرم طلا ۱۸ و تتر</b> ثبت می‌شود و روی این نمودار رسم می‌گردد (با دکمه «+ ثبت سابقه» می‌توانید نقطه شروع هفته یا ماه قبل را هم وارد کنید).</div>`;
     }
 
     // توصیه هوشمند ضد تورم (تبدیل تومان به طلا/تتر یا بالعکس)
@@ -5465,65 +5529,93 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
 
     let svgHtml='';
     if(series.length>=1){
-      const W0=600,H=165,padL=18,padR=18,padT=24,padB=28;
+      const isMob=window.innerWidth<=640;
+      const W0=isMob?380:600,H=isMob?185:175,padL=16,padR=16,padT=28,padB=30;
       const vals=series.map(s=>s.val);
       let minV=Math.min(...vals),maxV=Math.max(...vals);
       if(minV===maxV){minV=minV*0.95-1;maxV=maxV*1.05+1}
       const span=Math.max(1e-6,maxV-minV);
       const getX=i=>series.length===1?W0/2:padL+(i*(W0-padL-padR)/(series.length-1));
       const getY=v=>padT+((maxV-v)/span)*(H-padT-padB);
-      const lineCol=nwUnit==='gold'?'#d97706':nwUnit==='usdt'?'#0d9488':'#2563eb';
       const pts=series.map((s,i)=>`${getX(i).toFixed(1)},${getY(s.val).toFixed(1)}`).join(' ');
       const areaPts=`${getX(0).toFixed(1)},${H-padB} ${pts} ${getX(series.length-1).toFixed(1)},${H-padB}`;
-      const stepLbl=Math.max(1,Math.ceil(series.length/6));
+      const stepLbl=Math.max(1,Math.ceil(series.length/(isMob?4:6)));
+      const fSize=isMob?'10.5':'9.5';
       const dots=series.map((s,i)=>{
         const cx=getX(i).toFixed(1),cy=getY(s.val).toFixed(1);
+        const isLast=(i===series.length-1);
         const tip=`📅 ${s.lbl}
 💰 تومان: ${pmo(s.t)} ت
 🟡 معادل طلا ۱۸: ${hideMoney?'••':fa(s.g)} گرم
 🟢 معادل تتر: ${hideMoney?'••':fa(s.u)} USDT`;
-        const showLbl=(i===0||i===series.length-1||i%stepLbl===0);
+        const showLbl=(i===0||isLast||i%stepLbl===0);
         return `<g data-tip="${esc(tip)}">
-          <circle class="ch-dot" cx="${cx}" cy="${cy}" r="${series.length<=15?4.5:3.2}" fill="${lineCol}" stroke="var(--sf)" stroke-width="1.8"/>
-          ${showLbl?`<text x="${cx}" y="${H-8}" text-anchor="middle" font-size="9.5" fill="var(--mu)">${s.lbl}</text>`:''}
+          ${isLast?`<circle cx="${cx}" cy="${cy}" r="${isMob?9:8}" fill="${lineCol}" opacity="0.22"/>`:''}
+          <circle class="ch-dot" cx="${cx}" cy="${cy}" r="${isLast?(isMob?5.5:5):(series.length<=15?4.5:3.3)}" fill="${lineCol}" stroke="var(--sf)" stroke-width="2"/>
+          ${showLbl?`<text x="${cx}" y="${H-8}" text-anchor="middle" font-size="${fSize}" font-weight="${isLast?'700':'500'}" fill="${isLast?lineCol:'var(--mu)'}">${s.lbl}</text>`:''}
         </g>`;
       }).join('');
-      const topLbl=first&&last?`<text x="${padL}" y="14" font-size="10" font-weight="700" fill="var(--mu)">شروع: ${fmtSeriesVal(first.val)}</text><text x="${W0-padR}" y="14" text-anchor="end" font-size="10" font-weight="800" fill="${lineCol}">امروز: ${fmtSeriesVal(last.val)}</text>`:'';
-      svgHtml=`<div class="fin-svg-wrap"><svg viewBox="0 0 ${W0} ${H}" width="100%" style="min-width:340px;direction:ltr">
+      const midY=((padT+H-padB)/2).toFixed(1);
+      const topLbl=first&&last?`<text x="${padL}" y="15" font-size="${isMob?'10.5':'10'}" font-weight="700" fill="var(--mu)">شروع: ${fmtSeriesVal(first.val)}</text><text x="${W0-padR}" y="15" text-anchor="end" font-size="${isMob?'11':'10.5'}" font-weight="800" fill="${lineCol}">امروز: ${fmtSeriesVal(last.val)}</text>`:'';
+      svgHtml=`<div class="nw-chart-box"><svg viewBox="0 0 ${W0} ${H}">
+        <defs>
+          <linearGradient id="nwAreaGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${lineCol}" stop-opacity="0.34"/>
+            <stop offset="100%" stop-color="${lineCol}" stop-opacity="0.02"/>
+          </linearGradient>
+        </defs>
         <line x1="${padL}" x2="${W0-padR}" y1="${H-padB}" y2="${H-padB}" stroke="var(--bd2)" stroke-width="1"/>
-        <line x1="${padL}" x2="${W0-padR}" y1="${padT}" y2="${padT}" stroke="var(--bd2)" stroke-width="1" stroke-dasharray="3,3"/>
+        <line x1="${padL}" x2="${W0-padR}" y1="${midY}" y2="${midY}" stroke="var(--bd2)" stroke-width="1" stroke-dasharray="3,4"/>
+        <line x1="${padL}" x2="${W0-padR}" y1="${padT}" y2="${padT}" stroke="var(--bd2)" stroke-width="1" stroke-dasharray="3,4"/>
         ${topLbl}
-        ${series.length>=2?`<polygon points="${areaPts}" fill="${lineCol}" opacity="0.14"/><polyline points="${pts}" fill="none" stroke="${lineCol}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>`:''}
+        ${series.length>=2?`<polygon points="${areaPts}" fill="url(#nwAreaGrad)"/><polyline points="${pts}" fill="none" stroke="${lineCol}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`:''}
         ${dots}
       </svg></div>`;
     }
 
-    return `<div class="cd" id="nwTrendCard">
-      <div class="row sb fw" style="margin-bottom:8px">
-        <h2 style="margin:0">📈 نمودار روند روزانه ثروت و سنجش اثر تورم (${unitName})</h2>
-        <div class="row" style="margin:0;gap:5px">
-          <div class="nw-sw" style="margin:0;background:var(--sf2);border:1px solid var(--bd2)">
-            <button type="button" class="${nwUnit==='toman'?'p':''}" data-a="bNwUnit" data-v="toman" data-keep-scroll="nwTrendCard" style="color:${nwUnit==='toman'?'#fff':'var(--tx)'}">تومان</button>
-            <button type="button" class="${nwUnit==='gold'?'p':''}" data-a="bNwUnit" data-v="gold" data-keep-scroll="nwTrendCard" style="color:${nwUnit==='gold'?'#fff':'var(--tx)'}">گرم طلا ۱۸</button>
-            <button type="button" class="${nwUnit==='usdt'?'p':''}" data-a="bNwUnit" data-v="usdt" data-keep-scroll="nwTrendCard" style="color:${nwUnit==='usdt'?'#fff':'var(--tx)'}">تتر</button>
+    return `<div class="nw-hdr">
+        <h2 style="margin:0">📈 روند روزانه ثروت و اثر تورم (${unitName})</h2>
+        <div class="nw-ctrl-bar">
+          <div class="nw-unit-seg">
+            <button type="button" class="${nwUnit==='toman'?'on':''}" data-a="bNwUnit" data-v="toman">تومان</button>
+            <button type="button" class="${nwUnit==='gold'?'on':''}" data-a="bNwUnit" data-v="gold">گرم طلا ۱۸</button>
+            <button type="button" class="${nwUnit==='usdt'?'on':''}" data-a="bNwUnit" data-v="usdt">تتر</button>
           </div>
-          <select data-a="bNwRange" data-keep-scroll="nwTrendCard" style="width:auto;padding:3px 7px;font-size:0.7188rem">
+          <select data-a="bNwRange" aria-label="بازه زمانی نمودار">
             <option value="14" ${nwTrendRange==='14'?'selected':''}>۱۴ روز</option>
             <option value="30" ${nwTrendRange==='30'?'selected':''}>۳۰ روز</option>
             <option value="90" ${nwTrendRange==='90'?'selected':''}>۹۰ روز</option>
             <option value="all" ${nwTrendRange==='all'?'selected':''}>کل تاریخچه</option>
           </select>
-          <button type="button" data-a="bNwSeed" data-keep-scroll="nwTrendCard" style="font-size:0.7188rem;padding:4px 8px" title="ثبت دستی ارزش ثروت در یک تاریخ قبلی">+ ثبت سابقه</button>
+          <button type="button" data-a="bNwSeed" title="ثبت دستی ارزش ثروت در یک تاریخ قبلی">+ ثبت سابقه</button>
         </div>
       </div>
+      ${kpiStrip}
       ${diagHtml}
       ${svgHtml}
-      <div style="margin-top:10px;background:color-mix(in srgb,var(--ac) 7%,var(--sf2));border:1px solid color-mix(in srgb,var(--ac) 22%,var(--bd2));border-radius:14px;padding:10px 12px">
-        <div style="font-size:0.7812rem;font-weight:800;color:var(--ac);margin-bottom:5px">🧭 توصیه هوشمند ضدتورم و مدیریت نقدینگی:</div>
+      <div class="nw-adv-box">
+        <div class="nw-adv-hdr">🧭 توصیه هوشمند ضدتورم و مدیریت نقدینگی</div>
         ${adviceList.map(x=>`<div style="font-size:0.7812rem;line-height:1.7;margin-bottom:4px">• ${x}</div>`).join('')}
-        <div class="mu" style="font-size:0.6875rem;margin-top:4px;border-top:1px dashed var(--bd2);padding-top:4px">⏱ نحوه ثبت قیمت روزانه: در طول هر روز، آخرین نرخ دریافت‌شده تا پایان همان روز (ساعت ۲۳:۵۹) به‌عنوان <b>قیمت بسته شدن (Close)</b> آن روز تثبیت می‌شود و از روز بعد وارد تاریخچه غیرقابل تغییر نمودار می‌گردد.</div>
-      </div>
-    </div>`;
+        <div class="mu" style="font-size:0.6875rem;margin-top:5px;border-top:1px dashed var(--bd2);padding-top:5px">⏱ قیمت بسته شدن روزانه: آخرین نرخ تا پایان هر روز (۲۳:۵۹) به‌عنوان قیمت پایانی همان روز در تاریخچه نمودار تثبیت می‌شود.</div>
+      </div>`;
+  }
+  function buildDailyWealthTrendCard(B,nw){
+    const lineCol=nwUnit==='gold'?'#d97706':nwUnit==='usdt'?'#0d9488':'#2563eb';
+    return `<div class="cd" id="nwTrendCard" style="--nwc:${lineCol}">${buildDailyWealthTrendInner(B,nw)}</div>`;
+  }
+  function refreshNwTrendCard(){
+    const card=$('nwTrendCard');
+    if(!card){render();return}
+    const B=ensureWealthDB(),nw=calcNetWorth();
+    const lineCol=nwUnit==='gold'?'#d97706':nwUnit==='usdt'?'#0d9488':'#2563eb';
+    card.style.setProperty('--nwc',lineCol);
+    card.innerHTML=buildDailyWealthTrendInner(B,nw);
+    // Sync top Net Worth banner in-place without scrolling
+    const nwValEl=document.querySelector('.nw-banner .nw-val');
+    if(nwValEl)nwValEl.textContent=fmtNwVal(nw.netWorth);
+    document.querySelectorAll('.nw-banner .nw-sw button').forEach(btn=>{
+      btn.classList.toggle('on',btn.dataset.v===nwUnit);
+    });
   }
 
   // تشخیص تاریخ شمسی در متن سررسید چک (مثل «۲۵ آبان» یا «1405/08/25») برای هشدار ۳ روز آینده
@@ -6263,11 +6355,9 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
     if(a==='wSubBtn'){wSub=b.dataset.v;render()}
     else if(a==='bTagFlt'){const inp=q('[data-f=bq]');if(inp){inp.value=b.dataset.v||'';inp.dispatchEvent(new Event('input',{bubbles:true}))}}
     else if(a==='bNwUnit'){
-      const prevTop=b.getBoundingClientRect().top;
       nwUnit=b.dataset.v;localStorage.setItem('wp26_nw_unit',nwUnit);
-      render();
-      const card=$('nwTrendCard');
-      if(card){const newBtn=card.querySelector(`[data-a="bNwUnit"][data-v="${nwUnit}"]`)||card;window.scrollBy(0,newBtn.getBoundingClientRect().top-prevTop)}
+      refreshNwTrendCard();
+      return;
     }
     else if(a==='bNwSeed'){
       const daysAgo=+(prompt('این سابقه مربوط به چند روز قبل است؟ (مثلاً: 7 برای هفته قبل، 30 برای ماه قبل):','30')||0);
@@ -6280,8 +6370,9 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
       const iso=new Date(Date.now()-Math.round(daysAgo)*864e5).toISOString().slice(0,10);
       B.nwHist=B.nwHist||{};
       B.nwHist[iso]={t:Math.round(tVal),g:+(tVal/g18Old).toFixed(3),u:Math.round(tVal/usdtOld),g18:Math.round(g18Old),usdt:Math.round(usdtOld)};
-      save();render();
+      save();refreshNwTrendCard();
       if(window.showToast)showToast('نقطه تاریخی در نمودار روند ثروت ثبت شد ✓');
+      return;
     }
     else if(a==='bCalcTab'){calcTab=b.dataset.v;render()}
     else if(a==='bTrdMode'){trdMode=b.dataset.v;render()}
@@ -6470,10 +6561,8 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
   document.addEventListener('change',e=>{
     if(e.target.dataset.f==='asbuy')render();
     else if(e.target.dataset.a==='bNwRange'){
-      const prevTop=e.target.getBoundingClientRect().top;
-      nwTrendRange=e.target.value||'30';render();
-      const sel=document.querySelector('[data-a="bNwRange"]');
-      if(sel)window.scrollBy(0,sel.getBoundingClientRect().top-prevTop);
+      nwTrendRange=e.target.value||'30';
+      refreshNwTrendCard();
     }
   });
 })();
