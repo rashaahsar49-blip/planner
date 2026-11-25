@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-N5XG35LxKUJ1S60+mYf7I5Keoq7rZF+jqEQak/ekfS4='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-m6HOO5vQsbr9MSIrokaG9DRM2E7zm0OCuuV/w6+ctXE='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>پلنر هفتگی</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -3417,20 +3417,21 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
       return r.ok;
     }catch(e){if(e&&e.name==='AbortError')return false;if(!silent)setTgMsg('خطا در ارسال به تلگرام');return false}
   };
-  // قالب‌بندی شکیل و گرافیکی پیام‌های ارسالی به تلگرام
+  // قالب فشرده، مینیمال و خوانا برای نمایش کامل در پاپ‌آپ تلگرام بدون نیاز به اسکرول
   function formatTgRichCard(title,body,kind='info'){
-    const cfg={
-      inst:{badge:'💳 یادآور قسط',bar:'▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬',tip:'💡 موجودی حساب را برای تسویه به‌موقع آماده کنید.'},
-      event:{badge:'🎯 تقویم رویداد',bar:'▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬',tip:'✨ برنامه و آمادگی‌های لازم را در اولویت قرار دهید.'},
-      sched:{badge:'⏳ تایم‌بلاک ۵ دقیقه‌ای',bar:'────────────────',tip:'🎯 ۵ دقیقه تا شروع؛ آماده تمرکز شوید.'},
-      prayer:{badge:'🕌 اوقات شرعی',bar:'────────────────',tip:'🕊️ لحظاتی برای آرامش و توجه.'},
-      pomo:{badge:'⏱️ تایمر تمرکز',bar:'────────────────',tip:'🧠 ریتم تمرکز را حفظ کنید.'},
-      ok:{badge:'🔔 اطلاع‌رسانی پلنر',bar:'────────────────',tip:'✅ ثبت و همگام‌سازی شد.'},
-      info:{badge:'✨ پلنر هوشمند',bar:'────────────────',tip:''}
-    }[kind]||{badge:'🔔 پلنر هوشمند',bar:'────────────────',tip:''};
-    const lines=String(body||'').split(/\n+/).filter(Boolean).map(ln=>`  ▫️ ${esc(ln)}`).join('\n');
-    const clk=new Date().toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'});
-    return `╔══════════════════════╗\n  <b>${cfg.badge}</b>\n╚══════════════════════╝\n📌 <b>${esc(title)}</b>\n<code>${cfg.bar}</code>\n${lines}${cfg.tip?`\n<code>${cfg.bar}</code>\n<i>${esc(cfg.tip)}</i>`:''}\n\n🕒 <code>${clk}</code> · <b>پلنر هفتگی</b>`;
+    const ic={
+      inst:'💳',
+      event:'🎯',
+      sched:'⏳',
+      prayer:'🕌',
+      pomo:'⏱️',
+      ok:'🔔',
+      info:'✨'
+    }[kind]||'🔔';
+    const rawLines=String(body||'').split(/\n+/).map(s=>s.trim()).filter(Boolean);
+    const cleanLines=rawLines.map(ln=>ln.replace(/^[⏰💳🗓🌙☀️📌📅⏳🏷🕒🔹▫️•]+\s*/,'').trim()).filter(Boolean);
+    const compactBody=cleanLines.slice(0,3).join(' · ');
+    return `${ic} <b>${esc(title)}</b>${compactBody?`\n${esc(compactBody)}`:''}`;
   }
   const origNotif=window.sendNotif;
   window.sendNotif=function(title,body,kind='info',force=false){
