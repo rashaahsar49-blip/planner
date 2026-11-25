@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-ndkAZrmJz08YalKXvlHdjzNOMxe36aqmXeelr2b1sGk='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-rgZIYw/E8jDxLuRHsSv3LaW+AQ78WfNxowue0SAWMII='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>پلنر هفتگی</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -1834,6 +1834,7 @@ button.p.btn-plus{
     <div class="mu" style="margin-bottom:6px">عملیات فوری تلگرام:</div>
     <div class="row fw">
       <button id="tgSendRep" class="f1">📊 ارسال گزارش امروز</button>
+      <button type="button" id="tgTestDue" class="f1" data-ev="testDueNotif">🔔 تست نوتیف قسط و رویداد</button>
       <button id="tgSendBkp" class="f1">📦 ارسال فایل بکاپ</button>
       <button id="tgPullUpdates" class="f1">📥 دریافت پیام‌های ربات</button>
     </div>
@@ -2946,8 +2947,9 @@ function checkDueReminders(now,forceCheck=false){
     }
   });
 
-  // ۲. اقساط پرداخت‌نشده که فردا سررسیدشان است -> شب قبل ساعت ۲۱:۰۰ (۹ شب)
-  if(h===21&&m===0){
+  // ۲. اقساط پرداخت‌نشده که فردا سررسیدشان است -> شب قبل ساعت ۲۱:۰۰ (۹ شب) یا هنگام بررسی دستی/باز شدن در شب بعد از ساعت ۲۱
+  const isInstallmentWindow = (h===21&&m===0) || (forceCheck && h>=21);
+  if(isInstallmentWindow){
     const tmr=new Date(now.getTime()+864e5);
     const tmrP=pp(tmr);
     const tmrK=tmrP.y+'-'+tmrP.m;
@@ -2989,7 +2991,24 @@ function checkDueReminders(now,forceCheck=false){
     });
     try{localStorage.setItem('wp26_due_sent',JSON.stringify(sentMap))}catch(e){}
   }
+  return dirty;
 }
+window.runDueCheckNow=function(forceInstallmentNow=false){
+  const now=new Date();
+  const sentMap=JSON.parse(localStorage.getItem('wp26_due_sent')||'{}');
+  if(forceInstallmentNow){
+    const tmr=new Date(now.getTime()+864e5),tmrP=pp(tmr),tmrK=tmrP.y+'-'+tmrP.m;
+    const dueTmr=((S.b&&S.b.inst)||[]).filter(ins=>ins&&Number(ins.d)===Number(tmrP.d)&&!(ins.paid&&ins.paid[tmrK]));
+    dueTmr.forEach(ins=>{delete sentMap[`inst_${tmrK}_${ins.d}_${ins.id||ins.t}`]});
+  }
+  const todayIso=now.toISOString().slice(0,10);
+  (S.cds||[]).forEach((ev,idx)=>{if(ev&&ev.dt===todayIso)delete sentMap[`ev_${todayIso}_${idx}_${(ev.t||'').slice(0,24)}`]});
+  try{localStorage.setItem('wp26_due_sent',JSON.stringify(sentMap))}catch(e){}
+  const fired=checkDueReminders(now,true);
+  if(!fired&&window.showToast){
+    showToast('بررسی شد: امروز رویدادی ثبت نشده یا قسطی فردا سررسید ندارد.');
+  }
+};
 setTimeout(()=>checkDueReminders(new Date(),true),1800);
 setInterval(()=>{
   upClock();const now=new Date();
@@ -9234,6 +9253,29 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
     else if(ev==='closeZen'){if(window.closeZen)closeZen()}
     else if(ev==='openZen'){$('zenScr').classList.add('on');if(window.upZenUI)upZenUI()}
     else if(ev==='openAg'){if(window.openLocalAgent)openLocalAgent()}
+    else if(ev==='testDueNotif'){
+      const now=new Date(),np=pp(now),tmr=new Date(now.getTime()+864e5),tmrP=pp(tmr);
+      const hasEv=(S.cds||[]).some(c=>c&&c.dt===now.toISOString().slice(0,10));
+      const tmrK=tmrP.y+'-'+tmrP.m;
+      const hasInst=((S.b&&S.b.inst)||[]).some(ins=>ins&&Number(ins.d)===Number(tmrP.d)&&!(ins.paid&&ins.paid[tmrK]));
+      if(!hasEv){
+        sendNotif(`رویداد امروز: جلسه بررسی و برنامه‌ریزی`,`📅 امروز (${fa(np.d)} ${PM[np.m-1]}) زمان اجرای رویدادهای ثبت‌شده در تقویم شماست.`,'event',true);
+        if(window.sendTgText)window.sendTgText(`🎯✨ <b>تست یادآور رویداد امروز</b> ✨🎯
+━━━━━━━━━━━━━━━━━━
+📌 <b>عنوان:</b> رویداد نمونه امروز
+📅 <b>تاریخ:</b> ${pfull(now)}`,true);
+      }
+      if(!hasInst){
+        sendNotif(`قسط فردا: قسط نمونه`,`💳 مبلغ: ${fa(2500000)} تومان
+🗓 سررسید: فردا ${fa(tmrP.d)} ${PM[tmrP.m-1]} (قسط ۱ از ۱۲)`,'inst',true);
+        if(window.sendTgText)window.sendTgText(`💳🌙 <b>تست یادآور شبانه قسط فردا</b> 🌙💳
+━━━━━━━━━━━━━━━━━━
+🏦 <b>عنوان قسط:</b> قسط نمونه
+💰 <b>مبلغ قسط:</b> <b>${fa(2500000)} تومان</b>
+🗓 <b>موعد پرداخت:</b> فردا ${fa(tmrP.d)} ${PM[tmrP.m-1]}`,true);
+      }
+      if(hasEv||hasInst)window.runDueCheckNow(true);
+    }
     else if(ev==='agCmd'){if(window.runLocalAgent)runLocalAgent(v)}
     else if(ev==='agRun'){if(window.runLocalAgent)runLocalAgent()}
     else if(ev==='fsz'){if(window.setFontScale)setFontScale(v)}
