@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wp26-planner-v74';
+const CACHE_NAME = 'wp26-planner-v75';
 const APP_SHELL = [
   './',
   './index.html'
