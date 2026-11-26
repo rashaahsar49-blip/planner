@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-ehGgviuZ4VtgYy9iuZc17r8n0GLw3I7d3UEUFRAN2VQ='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Kjewcug6XfQt4aQmo7ORmybMbBC5mW9EKBAbyr+Cosk='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>پلنر هفتگی</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -9605,7 +9605,7 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
     const B=(typeof window.ensureWealthDB==='function')?window.ensureWealthDB():BD();
     if(!B.customGroups)B.customGroups=[];
     if(!B.customCats)B.customCats=[];
-    if(typeof window.syncCustomCats==='function')window.if(window.syncCustomCats)window.syncCustomCats(B);
+    if(typeof window.syncCustomCats==='function')window.syncCustomCats(B);
     return B;
   }
 
@@ -9678,14 +9678,14 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
           ${qStr?`<small class="mu">(${g[3]==='in'?'درآمد':'هزینه'})</small>`:''}
           <span style="margin-right:auto;display:inline-flex;align-items:center;gap:4px">
             <button type="button" class="x" data-a="cpQuickSub" data-g="${esc(g[0])}" data-t="${esc(g[3])}" title="افزودن زیردسته در ${esc(g[1])}" style="font-size:0.6875rem;color:var(--ac);padding:2px 7px">+ زیردسته</button>
-            ${isCustomG?`<button type="button" class="x" data-a="cpDelGrp" data-g="${esc(g[0])}" title="حذف دسته اصلی" style="color:var(--er);padding:2px 6px">✕</button>`:''}
+            ${isCustomG?`<button type="button" class="x" data-a="cpEditGrp" data-g="${esc(g[0])}" title="تغییر نام دسته اصلی" style="padding:2px 6px">✎</button><button type="button" class="x" data-a="cpDelGrp" data-g="${esc(g[0])}" title="حذف دسته اصلی" style="color:var(--er);padding:2px 6px">✕</button>`:''}
           </span>
         </div>
         <div class="cp-chips">${items.map(it=>{
           const isCustC=customCatIds.has(it[0]);
           return `<span style="display:inline-flex;align-items:center;gap:2px">
             <button type="button" class="cp-chip ${curVal===it[0]?'on':''}" data-a="bCatPickSel" data-v="${esc(it[0])}">${esc(it[1])}</button>
-            ${isCustC?`<button type="button" class="x" data-a="cpDelSub" data-v="${esc(it[0])}" title="حذف زیردسته" style="padding:2px 5px;color:var(--er);font-size:0.6875rem">✕</button>`:''}
+            ${isCustC?`<button type="button" class="x" data-a="cpEditSub" data-v="${esc(it[0])}" title="تغییر نام زیردسته" style="padding:2px 5px;font-size:0.6875rem">✎</button><button type="button" class="x" data-a="cpDelSub" data-v="${esc(it[0])}" title="حذف زیردسته" style="padding:2px 5px;color:var(--er);font-size:0.6875rem">✕</button>`:''}
           </span>`;
         }).join('')}</div>
       </div>`;
@@ -9755,6 +9755,15 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
       updateCatBtn(cid);
       renderCatPicker();
       if(window.showToast)showToast(`دسته اصلی «${lbl}» ساخته شد ✓`);
+    }else if(a==='cpEditSub'){
+      const B=getSafeWealthDB(),cid=b.dataset.v,cat=(B.customCats||[]).find(x=>x.id===cid);if(!cat)return;
+      const next=prompt('نام جدید زیردسته:',cat.l);if(next===null)return;const lbl=next.trim();if(!lbl)return notifyMsg('نام زیردسته نمی‌تواند خالی باشد.');
+      cat.l=lbl;const grp=GR.find(g=>g[0]===cat.g);if(grp){const item=grp[4].find(x=>x[0]===cid);if(item)item[1]=lbl;}if(CC[cid])CC[cid].l=lbl;
+      save();if(typeof render==='function')render();renderCatPicker();if($('bcat')?.value===cid)updateCatBtn(cid);if(window.showToast)showToast('نام زیردسته ویرایش شد ✓');
+    }else if(a==='cpEditGrp'){
+      const B=getSafeWealthDB(),gid=b.dataset.g,grp=(B.customGroups||[]).find(x=>x.id===gid);if(!grp)return;
+      const next=prompt('نام جدید دسته اصلی:',grp.l);if(next===null)return;const lbl=next.trim();if(!lbl)return notifyMsg('نام دسته اصلی نمی‌تواند خالی باشد.');
+      grp.l=lbl;const live=GR.find(g=>g[0]===gid);if(live)live[1]=lbl;save();if(typeof render==='function')render();renderCatPicker();if(window.showToast)showToast('نام دسته اصلی ویرایش شد ✓');
     }else if(a==='cpDelSub'){
       const B=getSafeWealthDB(),cid=b.dataset.v;
       if(!confirm(`آیا زیردسته «${catL(cid)}» حذف شود؟`))return;
