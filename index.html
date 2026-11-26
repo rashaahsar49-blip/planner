@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-ZG4quaZO1A172chJLRaTRwmE0i2v/BljQxgj1vF4Gaw='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-ehGgviuZ4VtgYy9iuZc17r8n0GLw3I7d3UEUFRAN2VQ='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>پلنر هفتگی</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -5407,7 +5407,8 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
     return `${v<0?'−':''}${mo(Math.abs(v))} تومان`;
   }
 
-  function syncCustomCats(B){
+  window.syncCustomCats=function syncCustomCats(B){
+    B=B||BD();
     const cGrps=B.customGroups||[],cCats=B.customCats||[];
     // 1. Sync custom main groups into GR and GXs
     cGrps.forEach(cg=>{
@@ -5430,9 +5431,10 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
       if(targetGrp&&!targetGrp[4].some(x=>x[0]===c.id))targetGrp[4].push([c.id,c.l]);
       CC[c.id]={l:c.l,g:gid,t:tp};
     });
-  }
+  };
+  const syncCustomCats=window.syncCustomCats;
 
-  function ensureWealthDB(){
+  window.ensureWealthDB=function ensureWealthDB(){
     const B=BD();
     if(!B.accs||!B.accs.length){
       B.accs=[
@@ -5471,7 +5473,8 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
     syncAssetsFromMkt(B);
     (B.assets||[]).forEach(a=>{if(a.buyP===undefined)a.buyP=a.p||0});
     return B;
-  }
+  };
+  const ensureWealthDB=window.ensureWealthDB;
   ensureWealthDB();
 
   function getAccountBalances(){
@@ -6522,11 +6525,12 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
       }
     }
     else if(a==='bTxEdit'){
+      syncCustomCats(B);
       const tx=(B.tx[k]||[]).find(x=>x.id===b.dataset.id);if(!tx)return;
       $('edTxId').value=tx.id;
       $('edTxDay').value=tx.d;
       $('edTxAcc').innerHTML=B.accs.map(ac=>`<option value="${esc(ac.id)}" ${(tx.acc||'acc_main')===ac.id?'selected':''}>${esc(ac.n)}</option>`).join('');
-      $('edTxCat').innerHTML=GR.map(g=>`<optgroup label="${g[3]=='in'?'درآمد':'هزینه'} — ${g[1]}">${g[4].map(i=>`<option value="${esc(i[0])}" ${tx.c===i[0]?'selected':''}>${esc(i[1])}</option>`).join('')}</optgroup>`).join('');
+      $('edTxCat').innerHTML=GR.map(g=>`<optgroup label="${g[3]=='in'?'🟢 درآمد':'🔴 هزینه'} — ${esc(g[1])}">${g[4].map(i=>`<option value="${esc(i[0])}" ${tx.c===i[0]?'selected':''}>${esc(i[1])}</option>`).join('')}</optgroup>`).join('');
       $('edTxAm').value=tx.a;
       $('edTxWords').textContent=numWords(tx.a);
       $('edTxNote').value=tx.n||'';
@@ -9597,6 +9601,13 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
 (function initCatPicker(){
   let cpType='ex',cpCreateMode='',cpTargetGrp='';
   const GRP_COLORS=['#2563eb','#0d9488','#7c3aed','#f59e0b','#ec4899','#10b981','#0284c7','#e11d48','#6366f1','#d97706'];
+  function getSafeWealthDB(){
+    const B=(typeof window.ensureWealthDB==='function')?window.ensureWealthDB():BD();
+    if(!B.customGroups)B.customGroups=[];
+    if(!B.customCats)B.customCats=[];
+    if(typeof window.syncCustomCats==='function')window.if(window.syncCustomCats)window.syncCustomCats(B);
+    return B;
+  }
 
   function updateCatBtn(cid){
     const inp=$('bcat'),btn=$('bcatBtn');
@@ -9646,7 +9657,7 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
 
   function renderCatPicker(){
     const body=$('cpBody');if(!body)return;
-    const B=ensureWealthDB();
+    const B=getSafeWealthDB();
     const customCatIds=new Set((B.customCats||[]).map(x=>x.id));
     const customGrpIds=new Set((B.customGroups||[]).map(x=>x.id));
     const qStr=($('cpSrch')?.value||'').trim().toLowerCase();
@@ -9696,6 +9707,7 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
     const b=e.target.closest('[data-a]');if(!b)return;
     const a=b.dataset.a;
     if(a==='bCatPickOpen'){
+      e.stopPropagation();
       window.openCatManagerModal('');
       setTimeout(()=>$('cpSrch')?.focus(),60);
     }else if(a==='bCatPickTab'){
@@ -9713,20 +9725,21 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
       cpCreateMode='sub';
       renderCatPicker();
     }else if(a==='cpSaveSub'){
-      const B=ensureWealthDB();
+      const B=getSafeWealthDB();
       const gid=$('cpNewSubGrp')?.value||(cpType==='in'?'oi':'oth');
       const lbl=($('cpNewSubName')?.value||'').trim();
       if(!lbl)return notifyMsg('نام زیردسته را وارد کنید.');
       const cid='cc_'+Date.now();
       B.customCats.push({id:cid,l:lbl,t:cpType,g:gid});
-      syncCustomCats(B);
+      if(window.syncCustomCats)window.syncCustomCats(B);
       save();
       cpCreateMode='';
+      if(typeof render==='function')render();
       updateCatBtn(cid);
       renderCatPicker();
       if(window.showToast)showToast(`زیردسته «${lbl}» در «${(GR.find(x=>x[0]===gid)||['',''])[1]}» ساخته شد ✓`);
     }else if(a==='cpSaveGrp'){
-      const B=ensureWealthDB();
+      const B=getSafeWealthDB();
       const lbl=($('cpNewGrpName')?.value||'').trim();
       const col=$('cpNewGrpCol')?.value||'#0284c7';
       if(!lbl)return notifyMsg('نام دسته اصلی را وارد کنید.');
@@ -9734,25 +9747,26 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
       const cid='cc_'+(Date.now()+1);
       B.customGroups.push({id:gid,l:lbl,c:col,t:cpType});
       B.customCats.push({id:cid,l:lbl,t:cpType,g:gid});
-      syncCustomCats(B);
+      if(window.syncCustomCats)window.syncCustomCats(B);
       save();
       cpCreateMode='';
       cpTargetGrp=gid;
+      if(typeof render==='function')render();
       updateCatBtn(cid);
       renderCatPicker();
       if(window.showToast)showToast(`دسته اصلی «${lbl}» ساخته شد ✓`);
     }else if(a==='cpDelSub'){
-      const B=ensureWealthDB(),cid=b.dataset.v;
+      const B=getSafeWealthDB(),cid=b.dataset.v;
       if(!confirm(`آیا زیردسته «${catL(cid)}» حذف شود؟`))return;
       if(window.pushUndo)pushUndo('cpDelSub');
       B.customCats=(B.customCats||[]).filter(x=>x.id!==cid);
       GR.forEach(g=>{g[4]=g[4].filter(it=>it[0]!==cid)});
       delete CC[cid];
       if($('bcat')?.value===cid)updateCatBtn(cpType==='in'?'sal':'sup');
-      save();renderCatPicker();
+      save();if(typeof render==='function')render();renderCatPicker();
       if(window.showToast)showToast('زیردسته حذف شد',true);
     }else if(a==='cpDelGrp'){
-      const B=ensureWealthDB(),gid=b.dataset.g;
+      const B=getSafeWealthDB(),gid=b.dataset.g;
       const grpObj=GR.find(g=>g[0]===gid);
       if(!confirm(`آیا دسته اصلی «${grpObj?grpObj[1]:gid}» و زیردسته‌های آن حذف شوند؟`))return;
       if(window.pushUndo)pushUndo('cpDelGrp');
@@ -9763,7 +9777,7 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
       const gIdx=GR.findIndex(g=>g[0]===gid);if(gIdx>=0)GR.splice(gIdx,1);
       const gxIdx=GXs.findIndex(g=>g[0]===gid);if(gxIdx>=0)GXs.splice(gxIdx,1);
       if(removedCids.has($('bcat')?.value))updateCatBtn(cpType==='in'?'sal':'sup');
-      save();renderCatPicker();
+      save();if(typeof render==='function')render();renderCatPicker();
       if(window.showToast)showToast('دسته اصلی حذف شد',true);
     }else if(a==='bCatPickSel'){
       updateCatBtn(b.dataset.v);
