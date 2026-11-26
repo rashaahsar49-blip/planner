@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-dADr9yi9BDpPJDy2rT0mRuY0CKdxPPn3Auj95jW4YAQ='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-2sV5JT5uTfeXi6TaDgVRnfx0R0BDOKVsg12iMANRC2o='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>پلنر هفتگی</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -2016,15 +2016,18 @@ button.p.btn-plus{
   </div>
 </div>
 <div class="mdl-bg" id="catPickMdl" role="dialog" aria-modal="true">
-  <div class="cd mdl" style="max-width:520px;background:var(--sf)">
-    <div class="row sb"><h2 style="margin:0">📂 انتخاب سرفصل تراکنش</h2><button class="x" aria-label="بستن پنجره" data-cls="catPickMdl">✕</button></div>
+  <div class="cd mdl" style="max-width:560px;background:var(--sf)">
+    <div class="row sb"><h2 style="margin:0">📂 انتخاب و مدیریت سرفصل‌های تراکنش</h2><button class="x" aria-label="بستن پنجره" data-cls="catPickMdl">✕</button></div>
     <div class="cp-tabs" id="cpTabs">
       <button type="button" data-a="bCatPickTab" data-v="ex" class="on">🔴 هزینه‌ها</button>
       <button type="button" data-a="bCatPickTab" data-v="in">🟢 درآمدها</button>
     </div>
-    <div class="row" style="margin-bottom:10px">
-      <input type="text" id="cpSrch" placeholder="🔍 جستجوی سریع سرفصل (مثلاً: کافه، بنزین، حقوق)..." autocomplete="off">
+    <div class="row fw" style="margin-bottom:8px;gap:6px">
+      <input type="text" id="cpSrch" class="f1" style="min-width:160px" placeholder="🔍 جستجوی سرفصل یا دسته اصلی..." autocomplete="off">
+      <button type="button" class="p" data-a="cpToggleMode" data-v="child" style="white-space:nowrap;font-size:0.75rem">+ زیردسته جدید</button>
+      <button type="button" data-a="cpToggleMode" data-v="group" style="white-space:nowrap;font-size:0.75rem">+ دسته اصلی جدید</button>
     </div>
+    <div id="cpFormBox" style="display:none;background:var(--sf2);border:1.5px solid var(--ac);border-radius:15px;padding:11px;margin-bottom:10px"></div>
     <div class="cp-body" id="cpBody"></div>
   </div>
 </div>
@@ -4979,21 +4982,8 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
       menu.style.setProperty('z-index','2147483000','important');
     };
     const closeMenu=()=>{menu.classList.remove('on');btn.classList.remove('open');btn.setAttribute('aria-expanded','false')};
-    btn.addEventListener('click',e=>{
-      e.preventDefault();e.stopPropagation();
-      const opening=!menu.classList.contains('on');
-      if(opening){
-        if(mobileMenu()){
-          if(menu.parentElement!==document.body)document.body.appendChild(menu);
-          placeMobileMenu();
-        }
-        menu.classList.add('on');btn.classList.add('open');btn.setAttribute('aria-expanded','true');
-      }else closeMenu();
-    });
-    document.addEventListener('click',e=>{
-      if(e.target.closest('#moreMenu')||e.target.closest('#moreBtn'))return;
-      closeMenu();
-    });
+    window._placeMobileMoreMenu=placeMobileMenu;
+    window._closeMoreMenu=closeMenu;
     menu.addEventListener('click',e=>e.stopPropagation());
     window.addEventListener('resize',()=>{if(mobileMenu()){if(menu.classList.contains('on'))placeMobileMenu()}else{closeMenu();if(menu.parentElement===document.body){wrap.appendChild(menu);['position','left','right','top','width','max-height','overflow-y','overscroll-behavior','z-index'].forEach(k=>menu.style.removeProperty(k))}}});
     window.addEventListener('scroll',()=>{if(menu.classList.contains('on')&&mobileMenu())closeMenu()},true);
@@ -9228,30 +9218,43 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
     item.addEventListener('click',()=>{menu.classList.remove('on');btn.classList.remove('open')});
   });
 
-  // باز و بسته کردن منو همراه با به‌روزرسانی وضعیت‌ها
-  btn.onclick=e=>{
-    e.stopPropagation();
-    const willOpen=!menu.classList.contains('on');
+  // باز و بسته کردن منو همراه با به‌روزرسانی وضعیت‌ها (موبایل و دسکتاپ)
+  const isMobView=()=>window.matchMedia('(max-width:640px)').matches;
+  const wrapEl=$('moreMenuWrap');
+  const setMenuOpen=(willOpen)=>{
     menu.classList.toggle('on',willOpen);
     btn.classList.toggle('open',willOpen);
+    btn.setAttribute('aria-expanded',willOpen?'true':'false');
     if(willOpen){
       syncMenuState();
-      // On mobile, escape the horizontally scrollable header so the popover is never clipped.
-      if(window.matchMedia('(max-width:640px)').matches){
+      if(isMobView()){
+        if(menu.parentElement!==document.body)document.body.appendChild(menu);
         const r=btn.getBoundingClientRect();
         const w=menu.getBoundingClientRect().width||Math.min(window.innerWidth*.92,306);
         const left=Math.max(10,Math.min(r.right-w,window.innerWidth-w-10));
         const top=Math.max(10,r.bottom+8);
-        menu.style.position='fixed';
-        menu.style.left=left+'px';
-        menu.style.right='auto';
-        menu.style.top=top+'px';
-        menu.style.maxHeight='calc(100dvh - '+(top+12)+'px)';
-        menu.style.overflowY='auto';
+        menu.style.setProperty('position','fixed','important');
+        menu.style.setProperty('left',left+'px','important');
+        menu.style.setProperty('right','auto','important');
+        menu.style.setProperty('top',top+'px','important');
+        menu.style.setProperty('max-height','calc(100dvh - '+(top+12)+'px)','important');
+        menu.style.setProperty('overflow-y','auto','important');
+        menu.style.setProperty('z-index','2147483000','important');
+      }else if(wrapEl&&menu.parentElement===document.body){
+        wrapEl.appendChild(menu);
+        ['position','left','right','top','max-height','overflow-y','z-index'].forEach(k=>menu.style.removeProperty(k));
       }
     }
   };
-  document.addEventListener('click',()=>{menu.classList.remove('on');btn.classList.remove('open')});
+  btn.onclick=e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    setMenuOpen(!menu.classList.contains('on'));
+  };
+  document.addEventListener('click',e=>{
+    if(e.target.closest('#moreMenu')||e.target.closest('#moreBtn'))return;
+    setMenuOpen(false);
+  });
   syncMenuState();
 })();
 // ==================== موتور انیمیشن زنده برای تمام نمودارها و نوارهای پیشرفت برنامه ====================
@@ -9759,7 +9762,9 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
 })();
 
 (function initCatPicker(){
-  let cpType='ex';
+  let cpType='ex',cpFormMode='',cpTargetCatOrGrp='';
+  const PAL=['#2563eb','#0d9488','#7c3aed','#f59e0b','#ec4899','#10b981','#0284c7','#e11d48','#6366f1','#d97706'];
+
   function updateCatBtn(cid){
     const inp=$('bcat'),btn=$('bcatBtn');
     if(!inp||!CC[cid])return;
@@ -9779,19 +9784,78 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
     if(inp&&inp.value)updateCatBtn(inp.value);
   };
 
+  function collectParentCandidates(tp){
+    const out=[];
+    GR.filter(g=>g[3]===tp).forEach(g=>{
+      // Add main group's first item as group anchor and each subcategory under it
+      g[4].forEach(it=>{
+        if(CC[it[0]])out.push({id:it[0],lbl:`${g[1]} › ${catL(it[0])}`});
+      });
+    });
+    return out;
+  }
+
+  function renderCpForm(){
+    const box=$('cpFormBox');if(!box)return;
+    if(!cpFormMode){box.style.display='none';box.innerHTML='';return}
+    box.style.display='block';
+    const tpLbl=cpType==='in'?'🟢 درآمد':'🔴 هزینه';
+    if(cpFormMode==='child'){
+      const cands=collectParentCandidates(cpType);
+      const defP=(cpTargetCatOrGrp&&cands.some(x=>x.id===cpTargetCatOrGrp))?cpTargetCatOrGrp:(cands[0]?.id||'oth');
+      box.innerHTML=`<div class="row sb" style="margin-bottom:7px"><b style="font-size:0.8125rem;color:var(--ac)">➕ ساخت زیردسته در هر دستهٔ دلخواه (${tpLbl})</b><button type="button" class="x" data-a="cpToggleMode" data-v="">✕</button></div>
+        <div class="row fw" style="margin-bottom:0">
+          <select id="cpParentSel" class="f1" style="min-width:165px">${cands.map(c=>`<option value="${esc(c.id)}" ${c.id===defP?'selected':''}>والد: ${esc(c.lbl)}</option>`).join('')}</select>
+          <input type="text" id="cpChildInp" class="f1" style="min-width:155px" maxlength="60" placeholder="نام زیردسته جدید (مثلاً: قهوه، قسط خودرو)...">
+          <button type="button" class="p" data-a="cpCreateChild">ایجاد زیردسته</button>
+        </div>`;
+      setTimeout(()=>$('cpChildInp')?.focus(),30);
+    }else if(cpFormMode==='group'){
+      box.innerHTML=`<div class="row sb" style="margin-bottom:7px"><b style="font-size:0.8125rem;color:var(--ac)">📁 ساخت دستهٔ اصلی جدید (${tpLbl})</b><button type="button" class="x" data-a="cpToggleMode" data-v="">✕</button></div>
+        <div class="row fw" style="margin-bottom:0">
+          <input type="text" id="cpGrpInp" class="f1" style="min-width:165px" maxlength="60" placeholder="نام دسته اصلی جدید (مثلاً: حیوان خانگی، پروژه)...">
+          <input type="color" id="cpGrpCol" value="${PAL[GR.length%PAL.length]}" title="رنگ دسته اصلی" style="width:42px;height:36px;padding:2px;border-radius:9px;border:1px solid var(--bd2);background:var(--sf);cursor:pointer;flex:none">
+          <button type="button" class="p" data-a="cpCreateGroup">ایجاد دسته اصلی</button>
+        </div>`;
+      setTimeout(()=>$('cpGrpInp')?.focus(),30);
+    }
+  }
+
   function renderCatPicker(){
     const body=$('cpBody');if(!body)return;
+    const B=BD();
+    const custList=Array.isArray(B.customCats)?B.customCats:[];
+    const custIds=new Set(custList.map(x=>x.id));
+    const custGids=new Set(custList.filter(x=>x.kind==='group'&&x.groupId).map(x=>x.groupId));
     const qStr=($('cpSrch')?.value||'').trim().toLowerCase();
     const curVal=$('bcat')?.value||'sup';
     document.querySelectorAll('#cpTabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===cpType));
+    renderCpForm();
     const groups=GR.filter(g=>qStr?true:(g[3]===cpType));
     let out='';
     groups.forEach(g=>{
-      const items=g[4].filter(it=>!qStr||it[1].toLowerCase().includes(qStr)||g[1].toLowerCase().includes(qStr));
-      if(!items.length)return;
+      const grpMatch=qStr&&g[1].toLowerCase().includes(qStr);
+      const items=g[4].filter(it=>!qStr||grpMatch||catL(it[0]).toLowerCase().includes(qStr)||g[1].toLowerCase().includes(qStr));
+      if(!items.length&&!grpMatch)return;
+      const firstCatId=g[4][0]?.[0]||'';
+      const canDelGrp=custGids.has(g[0]);
       out+=`<div class="cp-grp-box">
-        <div class="cp-grp-hdr"><i style="background:${g[2]}"></i><span>${esc(g[1])}</span>${qStr?`<small class="mu" style="margin-right:auto">(${g[3]==='in'?'درآمد':'هزینه'})</small>`:''}</div>
-        <div class="cp-chips">${items.map(it=>`<button type="button" class="cp-chip ${curVal===it[0]?'on':''}" data-a="bCatPickSel" data-v="${esc(it[0])}">${esc(catL(it[0]))}</button>`).join('')}</div>
+        <div class="cp-grp-hdr">
+          <i style="background:${g[2]}"></i>
+          <span>${esc(g[1])}</span>
+          ${qStr?`<small class="mu">(${g[3]==='in'?'درآمد':'هزینه'})</small>`:''}
+          <span style="margin-right:auto;display:inline-flex;align-items:center;gap:4px">
+            <button type="button" class="x" data-a="cpQuickChild" data-p="${esc(firstCatId)}" data-t="${esc(g[3])}" style="font-size:0.6875rem;color:var(--ac);padding:2px 7px">+ زیردسته</button>
+            ${canDelGrp?`<button type="button" class="x" data-a="cpDelGrp" data-g="${esc(g[0])}" title="حذف دسته اصلی سفارشی" style="color:var(--er);padding:2px 6px">✕</button>`:''}
+          </span>
+        </div>
+        <div class="cp-chips">${items.map(it=>{
+          const isCust=custIds.has(it[0]);
+          return `<span style="display:inline-flex;align-items:center;gap:2px">
+            <button type="button" class="cp-chip ${curVal===it[0]?'on':''}" data-a="bCatPickSel" data-v="${esc(it[0])}">${esc(catL(it[0]))}</button>
+            ${isCust?`<button type="button" class="x" data-a="cpDelItem" data-v="${esc(it[0])}" title="حذف سرفصل سفارشی" style="padding:2px 5px;color:var(--er);font-size:0.6875rem">✕</button>`:''}
+          </span>`;
+        }).join('')}</div>
       </div>`;
     });
     body.innerHTML=out||'<div class="mu" style="text-align:center;padding:18px">سرفصلی با این عبارت پیدا نشد.</div>';
@@ -9803,17 +9867,84 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
     if(a==='bCatPickOpen'){
       const cur=$('bcat')?.value||'sup';
       cpType=isIn(cur)?'in':'ex';
+      cpFormMode='';
+      cpTargetCatOrGrp=cur;
       if($('cpSrch'))$('cpSrch').value='';
       renderCatPicker();
       $('catPickMdl')?.classList.add('on');
       setTimeout(()=>$('cpSrch')?.focus(),60);
     }else if(a==='bCatPickTab'){
       cpType=b.dataset.v||'ex';
+      cpTargetCatOrGrp='';
       renderCatPicker();
+    }else if(a==='cpToggleMode'){
+      const m=b.dataset.v||'';
+      cpFormMode=(cpFormMode===m&&m)?'':m;
+      if(!cpTargetCatOrGrp)cpTargetCatOrGrp=$('bcat')?.value||'sup';
+      renderCatPicker();
+    }else if(a==='cpQuickChild'){
+      cpType=b.dataset.t||cpType;
+      cpTargetCatOrGrp=b.dataset.p||'';
+      cpFormMode='child';
+      renderCatPicker();
+    }else if(a==='cpCreateChild'){
+      const lbl=($('cpChildInp')?.value||'').trim(),parentId=$('cpParentSel')?.value,parent=CC[parentId];
+      if(!lbl)return notifyMsg('نام زیردسته را وارد کنید.');
+      if(!parent)return notifyMsg('دستهٔ مادر انتخاب‌شده معتبر نیست.');
+      const B=BD();B.customCats=B.customCats||[];
+      if(B.customCats.length>=200)return notifyMsg('حداکثر ۲۰۰ سرفصل سفارشی قابل تعریف است.');
+      const cid='cc_'+Date.now().toString(36)+'_'+genRandHex(3);
+      B.customCats.push({id:cid,l:lbl,t:parent.t,kind:'child',parentId,groupId:parent.g});
+      if(typeof syncCustomCats==='function')syncCustomCats(B);
+      save();
+      if(typeof render==='function')render();
+      cpFormMode='';
+      updateCatBtn(cid);
+      renderCatPicker();
+      if(window.showToast)showToast(`زیردسته «${lbl}» ساخته شد ✓`);
+    }else if(a==='cpCreateGroup'){
+      const lbl=($('cpGrpInp')?.value||'').trim(),col=$('cpGrpCol')?.value||'#0284c7';
+      if(!lbl)return notifyMsg('نام دسته اصلی را وارد کنید.');
+      const B=BD();B.customCats=B.customCats||[];
+      if(B.customCats.length>=200)return notifyMsg('حداکثر ۲۰۰ سرفصل سفارشی قابل تعریف است.');
+      const cid='cc_'+Date.now().toString(36)+'_'+genRandHex(3),gid='cg_'+Date.now().toString(36)+'_'+genRandHex(2);
+      B.customCats.push({id:cid,l:lbl,t:cpType,kind:'group',groupId:gid,groupName:lbl,color:col});
+      if(typeof syncCustomCats==='function')syncCustomCats(B);
+      save();
+      if(typeof render==='function')render();
+      cpFormMode='';
+      updateCatBtn(cid);
+      renderCatPicker();
+      if(window.showToast)showToast(`دسته اصلی «${lbl}» ساخته شد ✓`);
+    }else if(a==='cpDelItem'){
+      const cid=b.dataset.v,B=BD();
+      if(!confirm(`زیردسته «${catL(cid)}» حذف شود؟`))return;
+      if(window.pushUndo)pushUndo('cpDelItem');
+      B.customCats=(B.customCats||[]).filter(x=>x.id!==cid&&x.parentId!==cid);
+      if(typeof syncCustomCats==='function')syncCustomCats(B);
+      if($('bcat')?.value===cid)updateCatBtn(cpType==='in'?'sal':'sup');
+      save();if(typeof render==='function')render();renderCatPicker();
+      if(window.showToast)showToast('حذف شد',true);
+    }else if(a==='cpDelGrp'){
+      const gid=b.dataset.g,B=BD();
+      const grpObj=GR.find(g=>g[0]===gid);
+      if(!confirm(`دسته اصلی «${grpObj?grpObj[1]:gid}» و سرفصل‌های وابسته به آن حذف شوند؟`))return;
+      if(window.pushUndo)pushUndo('cpDelGrp');
+      B.customCats=(B.customCats||[]).filter(x=>x.groupId!==gid);
+      if(typeof syncCustomCats==='function')syncCustomCats(B);
+      if(!CC[$('bcat')?.value])updateCatBtn(cpType==='in'?'sal':'sup');
+      save();if(typeof render==='function')render();renderCatPicker();
+      if(window.showToast)showToast('دسته اصلی حذف شد',true);
     }else if(a==='bCatPickSel'){
       updateCatBtn(b.dataset.v);
       $('catPickMdl')?.classList.remove('on');
       setTimeout(()=>$('bam')?.focus(),40);
+    }
+  });
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){
+      if(e.target?.id==='cpChildInp'){e.preventDefault();q('[data-a="cpCreateChild"]')?.click()}
+      else if(e.target?.id==='cpGrpInp'){e.preventDefault();q('[data-a="cpCreateGroup"]')?.click()}
     }
   });
   document.addEventListener('click',e=>{
@@ -9823,9 +9954,7 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
   });
   if($('cpSrch'))$('cpSrch').addEventListener('input',renderCatPicker);
   if($('catPickMdl'))$('catPickMdl').addEventListener('click',e=>{if(e.target===$('catPickMdl'))$('catPickMdl').classList.remove('on')});
-})();
-
-;(function(){
+})();;(function(){
   // ==================== v49: پایداری کامل تایمر با شناسه پایدار، محافظت قطعی از اولویت بالا و همزمانی یادداشت ====================
   const DOMAINS=[
     {id:'home',lbl:'خانه',tabs:['ov'],ic:'<svg class="nv-ic" viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V9.5z"/></svg>'},
