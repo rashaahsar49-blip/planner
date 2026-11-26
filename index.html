@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Q4YE18Dh8fqG1cVTDWxJiPcLhAh4LnVUrnF8kmMPOcs='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-aB/cqh8A4e04rQMlgJIzCDc/hplYEklWsj+fe12Kqjs='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>پلنر هفتگی</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -4959,15 +4959,44 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
   if(wkBar&&!$('moreMenuWrap')){
     const wrap=document.createElement('div');
     wrap.className='more-wrap';wrap.id='moreMenuWrap';
-    wrap.innerHTML=`<button id="moreBtn" aria-label="منوی ابزارها" title="ابزارها و تنظیمات"><span class="s-dot" id="moreDot"></span>⋯</button><div class="more-menu" id="moreMenu"></div>`;
+    wrap.innerHTML=`<button id="moreBtn" aria-label="منوی ابزارها" title="ابزارها و تنظیمات" aria-haspopup="true" aria-expanded="false"><span class="s-dot" id="moreDot"></span>⋯</button><div class="more-menu" id="moreMenu"></div>`;
     wkBar.appendChild(wrap);
-    const menu=$('moreMenu');
+    const menu=$('moreMenu'),btn=$('moreBtn');
     ['nrOpenBtn','tgOpenBtn','syBtn','ntfBtn','pwBtn','prtBtn','th'].forEach(id=>{
       const el=$(id);if(el)menu.appendChild(el);
     });
-    $('moreBtn').onclick=e=>{e.stopPropagation();menu.classList.toggle('on')};
-    document.addEventListener('click',()=>menu.classList.remove('on'));
-    menu.onclick=e=>e.stopPropagation();
+    const mobileMenu=()=>window.matchMedia('(max-width: 640px)').matches;
+    const placeMobileMenu=()=>{
+      const r=btn.getBoundingClientRect(),vw=document.documentElement.clientWidth;
+      menu.style.setProperty('position','fixed','important');
+      menu.style.setProperty('left','auto','important');
+      menu.style.setProperty('right',Math.max(8,vw-r.right)+'px','important');
+      menu.style.setProperty('top',Math.min(window.innerHeight-80,r.bottom+8)+'px','important');
+      menu.style.setProperty('width','min(92vw, 306px)','important');
+      menu.style.setProperty('max-height','min(72vh, 560px)','important');
+      menu.style.setProperty('overflow-y','auto','important');
+      menu.style.setProperty('overscroll-behavior','contain','important');
+      menu.style.setProperty('z-index','2147483000','important');
+    };
+    const closeMenu=()=>{menu.classList.remove('on');btn.classList.remove('open');btn.setAttribute('aria-expanded','false')};
+    btn.addEventListener('click',e=>{
+      e.preventDefault();e.stopPropagation();
+      const opening=!menu.classList.contains('on');
+      if(opening){
+        if(mobileMenu()){
+          if(menu.parentElement!==document.body)document.body.appendChild(menu);
+          placeMobileMenu();
+        }
+        menu.classList.add('on');btn.classList.add('open');btn.setAttribute('aria-expanded','true');
+      }else closeMenu();
+    });
+    document.addEventListener('click',e=>{
+      if(e.target.closest('#moreMenu')||e.target.closest('#moreBtn'))return;
+      closeMenu();
+    });
+    menu.addEventListener('click',e=>e.stopPropagation());
+    window.addEventListener('resize',()=>{if(mobileMenu()){if(menu.classList.contains('on'))placeMobileMenu()}else{closeMenu();if(menu.parentElement===document.body){wrap.appendChild(menu);['position','left','right','top','width','max-height','overflow-y','overscroll-behavior','z-index'].forEach(k=>menu.style.removeProperty(k))}}});
+    window.addEventListener('scroll',()=>{if(menu.classList.contains('on')&&mobileMenu())closeMenu()},true);
     setInterval(()=>{
       const d1=$('syDot'),d2=$('moreDot');
       if(d1&&d2)d2.className=d1.className;
