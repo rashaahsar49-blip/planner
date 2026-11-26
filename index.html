@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-0paKiaLwlhhvoLsxubNcB+JEduN6hyZQ55rKNVEbaPU='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Q4YE18Dh8fqG1cVTDWxJiPcLhAh4LnVUrnF8kmMPOcs='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>پلنر هفتگی</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -1785,6 +1785,9 @@ button.p.btn-plus{
   #toastBar{bottom:calc(67px + env(safe-area-inset-bottom,0px))!important}
   .modal,.mdl,.mdl-bg .cd{max-width:calc(100vw - 24px)!important}
   .mdl-bg{padding:12px!important}
+}
+@media(max-width:640px){
+  #moreMenu{position:fixed!important;z-index:10000!important;}
 }
 @media(max-width:380px){
   .w{padding-left:9px!important;padding-right:9px!important}
@@ -9196,7 +9199,22 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
     const willOpen=!menu.classList.contains('on');
     menu.classList.toggle('on',willOpen);
     btn.classList.toggle('open',willOpen);
-    if(willOpen)syncMenuState();
+    if(willOpen){
+      syncMenuState();
+      // On mobile, escape the horizontally scrollable header so the popover is never clipped.
+      if(window.matchMedia('(max-width:640px)').matches){
+        const r=btn.getBoundingClientRect();
+        const w=menu.getBoundingClientRect().width||Math.min(window.innerWidth*.92,306);
+        const left=Math.max(10,Math.min(r.right-w,window.innerWidth-w-10));
+        const top=Math.max(10,r.bottom+8);
+        menu.style.position='fixed';
+        menu.style.left=left+'px';
+        menu.style.right='auto';
+        menu.style.top=top+'px';
+        menu.style.maxHeight='calc(100dvh - '+(top+12)+'px)';
+        menu.style.overflowY='auto';
+      }
+    }
   };
   document.addEventListener('click',()=>{menu.classList.remove('on');btn.classList.remove('open')});
   syncMenuState();
