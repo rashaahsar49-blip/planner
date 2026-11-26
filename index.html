@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-aB/cqh8A4e04rQMlgJIzCDc/hplYEklWsj+fe12Kqjs='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-dADr9yi9BDpPJDy2rT0mRuY0CKdxPPn3Auj95jW4YAQ='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>پلنر هفتگی</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -2533,7 +2533,7 @@ function validatePlannerData(obj){
     if(B.debts!==undefined){if(!Array.isArray(B.debts))throw new Error('ساختار طلب و بدهی نامعتبر است.');nb.debts=B.debts.slice(0,500).filter(d=>_isPlainObj(d)).map(d=>({id:_sId(d.id,'d'),person:_sStr(d.person,100),tp:d.tp==='bedehi'?'bedehi':'talab',a:_sNum(d.a,0,1e14,0),note:_sStr(d.note,200),dt:_sStr(d.dt,40),done:d.done?1:0}))}
     if(B.recs!==undefined){if(!Array.isArray(B.recs))throw new Error('ساختار تکرارشونده‌ها نامعتبر است.');nb.recs=B.recs.slice(0,100).filter(r=>_isPlainObj(r)).map(r=>({id:_sId(r.id,'rc'),t:_sStr(r.t,100),c:_sId(r.c,'bill'),a:_sNum(r.a,0,1e14,0),d:Math.round(_sNum(r.d,1,31,1)),acc:_sId(r.acc||'acc_main','acc')}))}
     if(B.sGoals!==undefined){if(!Array.isArray(B.sGoals))throw new Error('ساختار اهداف پس‌انداز نامعتبر است.');nb.sGoals=B.sGoals.slice(0,100).filter(g=>_isPlainObj(g)).map(g=>({id:_sId(g.id,'sg'),t:_sStr(g.t,120),target:_sNum(g.target,0,1e14,0),saved:_sNum(g.saved,0,1e14,0),mTarget:_sNum(g.mTarget,0,1e14,0)}))}
-    if(B.customCats!==undefined){if(!Array.isArray(B.customCats))throw new Error('ساختار سرفصل‌های دلخواه نامعتبر است.');nb.customCats=B.customCats.slice(0,200).filter(c=>_isPlainObj(c)).map(c=>({id:_sId(c.id,'cc'),l:_sStr(c.l,60)||'سرفصل',t:c.t==='in'?'in':'ex',kind:['group','child'].includes(c.kind)?c.kind:'legacy',parentId:typeof c.parentId==='string'?_sId(c.parentId,'cc'):'',groupId:typeof c.groupId==='string'?_sId(c.groupId,'cg'):'',groupName:_sStr(c.groupName,60),color:/^#[0-9a-fA-F]{6}$/.test(c.color||'')?c.color:'#64748b'}))}
+    if(B.customCats!==undefined){if(!Array.isArray(B.customCats))throw new Error('ساختار سرفصل‌های دلخواه نامعتبر است.');nb.customCats=B.customCats.slice(0,200).filter(c=>_isPlainObj(c)).map(c=>({id:_sId(c.id,'cc'),l:_sStr(c.l,60)||'سرفصل',t:c.t==='in'?'in':'ex',kind:['group','child'].includes(c.kind)?c.kind:(c.parentId?'child':(c.groupId?'group':'legacy')),parentId:typeof c.parentId==='string'?_sId(c.parentId,'cc'):'',groupId:typeof c.groupId==='string'?_sId(c.groupId,'cg'):'',groupName:_sStr(c.groupName,60),color:/^#[0-9a-fA-F]{6}$/.test(c.color||'')?c.color:'#64748b'}))}
     if(B.trades!==undefined){
       if(!Array.isArray(B.trades))throw new Error('ساختار معاملات دارایی نامعتبر است.');
       nb.trades=B.trades.slice(0,500).filter(tr=>_isPlainObj(tr)&&['buy','sell','swap'].includes(tr.tp)).map(tr=>tr.tp==='swap'
@@ -5507,26 +5507,32 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
 
   function syncCustomCats(B){
     const list=Array.isArray(B.customCats)?B.customCats:[];
+    // نسخه‌های قدیمی ممکن است kind را نداشته باشند؛ از parentId/groupId نوع را بازیابی می‌کنیم.
+    const kindOf=c=>['group','child'].includes(c.kind)?c.kind:(c.parentId?'child':(c.groupId?'group':'legacy'));
     const customIds=new Set(list.map(c=>c.id));
-    const customGroupIds=new Set(list.filter(c=>c.kind==='group'&&c.groupId).map(c=>c.groupId));
-    // هر بار ساختار سفارشی را از داده ذخیره‌شده بازسازی می‌کنیم تا تکراری نشود.
+    const customGroupIds=new Set(list.filter(c=>kindOf(c)==='group'&&c.groupId).map(c=>c.groupId));
     for(const id of customIds)delete CC[id];
     for(let i=GR.length-1;i>=0;i--)if(customGroupIds.has(GR[i][0]))GR.splice(i,1);
-    // دسته‌های اصلی سفارشی
-    list.filter(c=>c.kind==='group').forEach(c=>{
+    // گروه‌های سفارشی؛ groupId پایدار است و نباید به متفرقه نگاشت شود.
+    list.filter(c=>kindOf(c)==='group').forEach(c=>{
       const gid=c.groupId||('cg_'+c.id);
       if(!GR.some(g=>g[0]===gid))GR.push([gid,c.groupName||c.l,c.color||'#64748b',c.t,[[c.id,c.l]]]);
       CC[c.id]={l:c.l,g:gid,t:c.t,parentId:null};
     });
-    // سرفصل‌های قدیمی (نسخه‌های قبلی) همچنان در متفرقه باقی می‌مانند.
-    list.filter(c=>!c.kind||c.kind==='legacy').forEach(c=>{
+    // فقط رکوردهای واقعاً قدیمی و فاقد هرگونه شناسه گروه در متفرقه قرار می‌گیرند.
+    list.filter(c=>kindOf(c)==='legacy').forEach(c=>{
       const gid=c.t==='in'?'oi':'oth',g=GR.find(x=>x[0]===gid);
       if(g&&!g[4].some(x=>x[0]===c.id))g[4].push([c.id,c.l]);
       CC[c.id]={l:c.l,g:gid,t:c.t,parentId:null};
     });
-    // زیردسته‌ها می‌توانند زیر هر سرفصل موجودی قرار بگیرند؛ حتی زیر زیردسته دیگر.
-    list.filter(c=>c.kind==='child').forEach(c=>{
-      const parent=CC[c.parentId],gid=parent?parent.g:(c.t==='in'?'oi':'oth'),g=GR.find(x=>x[0]===gid);
+    // زیردسته‌ها؛ در صورت نبود والد، از groupId ذخیره‌شده برای بازیابی گروه استفاده می‌کنیم.
+    list.filter(c=>kindOf(c)==='child').forEach(c=>{
+      const parent=CC[c.parentId];
+      let gid=parent?parent.g:(c.groupId|| (c.t==='in'?'oi':'oth'));
+      let g=GR.find(x=>x[0]===gid);
+      if(!g&&c.groupId){
+        g=[gid,c.groupName||'دستهٔ بازیابی‌شده',c.color||'#64748b',c.t,[]];GR.push(g);
+      }
       if(g){
         if(!g[4].some(x=>x[0]===c.id))g[4].push([c.id,c.l]);
         CC[c.id]={l:c.l,g:gid,t:g[3],parentId:parent?c.parentId:null};
