@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-ebHYLZz6hL3sZgDhHVsIHbQimG2oOsJeeDXomrdwvp4='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-y2ug8q/Wj9bQvaOCPbFuXG6r4BZEkowHT4xQi8YRN1Y='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>پلنر هفتگی</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -2076,26 +2076,11 @@ function syncAssetsFromMkt(B){
     if(pr>0)a.p=pr;
   });
 }
-async function fetchJsonSmart(url,hd={}){
-  try{
-    const r=await fetchWithSession(url,{headers:hd,cache:'no-store'});
-    if(r.ok)return {ok:true,data:await r.json(),via:'direct'};
-    return {ok:false,status:r.status,err:`HTTP ${r.status}`};
-  }catch(e){
-    if(e&&e.name==='AbortError')throw e;
-    // Fallback via public CORS relay if browser blocks cross-origin header on file:// or local origin
-    try{
-      const r2=await fetchWithSession('https://api.allorigins.win/raw?url='+encodeURIComponent(url),{cache:'no-store'});
-      if(r2.ok)return {ok:true,data:await r2.json(),via:'relay'};
-    }catch(e2){if(e2&&e2.name==='AbortError')throw e2}
-    return {ok:false,status:0,err:e&&e.message?e.message:'خطای شبکه / CORS'};
-  }
-}
 async function fetchLiveRates(){
   const m=MKT(),cfg=S.mktCfg,btn=$('mktRefBtn'),msg=$('apiTestMsg');
   const gen=_syncSessionGen;
   if(btn)btn.textContent='...';if(msg)msg.textContent='در حال دریافت از وب‌سرویس...';
-  let got=false,div=cfg.unit==='rial'?10:1,srcInfo='',apiErr='';
+  let got=false,div=cfg.unit==='rial'?10:1,errMsg='';
   try{
     let u='';const apiKey=getMktKey();
     if(cfg.prov==='brs')u=apiKey?`https://BrsApi.ir/Api/Market/Gold_Currency.php?key=${encodeURIComponent(apiKey)}`:'https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency.json';
@@ -2109,60 +2094,51 @@ async function fetchLiveRates(){
           const approvedOrigin=localStorage.getItem('wp26_mkt_approved_origin')||'';
           if((isHttps||isLocal)&&!parsedU.username&&!parsedU.password&&approvedOrigin&&parsedU.origin===approvedOrigin){
             u=rawUrl.replace('{KEY}',encodeURIComponent(apiKey||''));
-          }else{apiErr='لینک API سفارشی تایید نشد (باید HTTPS باشد)'}
-        }catch(e){apiErr='فرمت لینک API نامعتبر است'}
-      }else{apiErr='لینک API سفارشی خالی است'}
+          }
+        }catch(e){}
+      }
     }
     if(u){
       const hd={};if(cfg.prov==='custom'&&apiKey&&!(cfg.url||'').includes('{KEY}'))hd['Authorization']=`Bearer ${apiKey}`;
-      const res=await fetchJsonSmart(u,hd);
+      const res=await fetchWithSession(u,{headers:hd,cache:'no-store'});
       if(gen!==_syncSessionGen)return;
-      if(res.ok&&res.data){
-        const dt=res.data;
-        if(dt.error||dt.status==='error'||dt.ok===false){
-          apiErr=String(dt.message||dt.error||'کلید API نامعتبر یا منقضی است');
-        }else{
-          const sc=scanJsonRates(dt);
-          let gv=cfg.pathG?cleanNum(getByPath(dt,cfg.pathG)):sc.g18;
-          let uv=cfg.pathU?cleanNum(getByPath(dt,cfg.pathU)):sc.usdt;
-          let cv=cfg.pathC?cleanNum(getByPath(dt,cfg.pathC)):sc.coin;
-          let hv=cfg.pathH?cleanNum(getByPath(dt,cfg.pathH)):sc.hcoin;
-          let qv=cfg.pathQ?cleanNum(getByPath(dt,cfg.pathQ)):sc.qcoin;
-          if(sc.oz>0)m.oz=Math.round(sc.oz);
-          if(gv>0){m.g18=Math.round(gv/div);got=true}
-          if(uv>0){m.usdt=Math.round(uv/div);got=true}
-          const normCoin=v=>{const x=Math.round(v/div);return (x>0&&x<1000000)?Math.round(v*1000):x};
-          if(cv>0){m.coin=normCoin(cv);got=true}
-          if(hv>0){m.hcoin=normCoin(hv);got=true}
-          if(qv>0){m.qcoin=normCoin(qv);got=true}
-          if(got)srcInfo=cfg.prov==='brs'?'BrsApi':cfg.prov==='navasan'?'Navasan':'API سفارشی';
-          else apiErr='پاسخ دریافت شد اما فیلد قیمت طلا/تتر در JSON پیدا نشد (مسیر فیلد JSON را بررسی کنید)';
-        }
+      if(res.ok){
+        const dt=await res.json();if(gen!==_syncSessionGen)return;
+        const sc=scanJsonRates(dt);
+        let gv=cfg.pathG?cleanNum(getByPath(dt,cfg.pathG)):sc.g18;
+        let uv=cfg.pathU?cleanNum(getByPath(dt,cfg.pathU)):sc.usdt;
+        let cv=cfg.pathC?cleanNum(getByPath(dt,cfg.pathC)):sc.coin;
+        let hv=cfg.pathH?cleanNum(getByPath(dt,cfg.pathH)):sc.hcoin;
+        let qv=cfg.pathQ?cleanNum(getByPath(dt,cfg.pathQ)):sc.qcoin;
+        if(sc.oz>0)m.oz=Math.round(sc.oz);
+        if(gv>0){m.g18=Math.round(gv/div);got=true}
+        if(uv>0){m.usdt=Math.round(uv/div);got=true}
+        const normCoin=v=>{const x=Math.round(v/div);return (x>0&&x<1000000)?Math.round(v*1000):x};
+        if(cv>0){m.coin=normCoin(cv);got=true}
+        if(hv>0){m.hcoin=normCoin(hv);got=true}
+        if(qv>0){m.qcoin=normCoin(qv);got=true}
+        if(!got)errMsg='پاسخ دریافت شد اما فیلدهای قیمت پیدا نشدند.';
       }else{
-        apiErr=res.err||'خطای اتصال به سرور API';
+        errMsg=`خطای سرور API (${res.status})`;
       }
     }
-    if(!got){
-      const r1=await fetchJsonSmart('https://api.tetherland.com/currencies');
+    if(!got||cfg.prov==='free'){
+      const r1=await fetchWithSession('https://api.tetherland.com/currencies',{cache:'no-store'}).catch(()=>null);
       if(gen!==_syncSessionGen)return;
-      if(r1.ok&&r1.data){const pr=cleanNum(r1.data?.data?.currencies?.USDT?.price);if(pr>0){m.usdt=Math.round(pr);got=true;srcInfo=srcInfo||'سرویس جایگزین'}}
-      const r2=await fetchJsonSmart('https://api.binance.com/api/v3/ticker/price?symbol=PAXGUSDT');
+      if(r1&&r1.ok){const d1=await r1.json();if(gen!==_syncSessionGen)return;const pr=cleanNum(d1?.data?.currencies?.USDT?.price);if(pr>0){m.usdt=Math.round(pr);got=true}}
+      const r2=await fetchWithSession('https://api.binance.com/api/v3/ticker/price?symbol=PAXGUSDT',{cache:'no-store'}).catch(()=>null);
       if(gen!==_syncSessionGen)return;
-      if(r2.ok&&r2.data&&r2.data.price){m.oz=Math.round(+r2.data.price);if(m.usdt>0){m.g18=Math.round((+r2.data.price*m.usdt*.75)/31.1035);got=true;srcInfo=srcInfo||'سرویس جایگزین'}}
+      if(r2&&r2.ok){const d2=await r2.json();if(gen!==_syncSessionGen)return;if(d2&&d2.price){m.oz=Math.round(+d2.price);if(m.usdt>0){m.g18=Math.round((+d2.price*m.usdt*.75)/31.1035);got=true}}}
     }
-    const rb=await fetchJsonSmart('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT');
+    const rb=await fetchWithSession('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT',{cache:'no-store'}).catch(()=>null);
     if(gen!==_syncSessionGen)return;
-    if(rb.ok&&rb.data&&rb.data.price&&m.usdt>0)m.btc=Math.round(+rb.data.price*m.usdt);
-  }catch(e){if(e&&e.name==='AbortError')return}
+    if(rb&&rb.ok){const db=await rb.json();if(gen!==_syncSessionGen)return;if(db&&db.price&&m.usdt>0)m.btc=Math.round(+db.price*m.usdt)}
+  }catch(e){if(e&&e.name==='AbortError')return;errMsg='خطا در اتصال (CORS یا شبکه)'}
   if(gen!==_syncSessionGen)return;
   m.ts=new Date().toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'});
   syncAssetsFromMkt(BD());
   try{localStorage.setItem('wp26',JSON.stringify(S))}catch(e){}render();
-  const statusStr=got
-    ?`✅ بروز شد (${srcInfo}${apiErr?' · خطای API اصلی: '+apiErr:''}): طلا ${fa(m.g18)} | تتر ${fa(m.usdt)} | امامی ${fa(m.coin)}`
-    :`❌ عدم دریافت (${apiErr||'اتصال اینترنت یا کلید API را بررسی کنید'})`;
-  if(msg)msg.textContent=statusStr;
-  if(window.showToast)showToast(statusStr);
+  if(msg)msg.textContent=got?`دریافت شد: طلا ${fa(m.g18)} | تتر ${fa(m.usdt)} | امامی ${fa(m.coin)}`:`عدم دریافت (${errMsg||'کلید API یا اتصال را بررسی کنید'}).`;
 }
 function toggleNoise(){
   if(noiseNode){try{noiseNode.stop();noiseCtx.close()}catch(e){}noiseNode=null;noiseCtx=null;render();return}
