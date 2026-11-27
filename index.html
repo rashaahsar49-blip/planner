@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-vq3qfBukLHyMKg9DFQcYP1Bihu60F7AKNwuXWYnUbyY='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-/omV51YK/LbSIgFX3AnEY3Y1Mgo87rkm5cJnPhBuhoE='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>پلنر هفتگی</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -2533,7 +2533,8 @@ function validatePlannerData(obj){
     if(B.debts!==undefined){if(!Array.isArray(B.debts))throw new Error('ساختار طلب و بدهی نامعتبر است.');nb.debts=B.debts.slice(0,500).filter(d=>_isPlainObj(d)).map(d=>({id:_sId(d.id,'d'),person:_sStr(d.person,100),tp:d.tp==='bedehi'?'bedehi':'talab',a:_sNum(d.a,0,1e14,0),note:_sStr(d.note,200),dt:_sStr(d.dt,40),done:d.done?1:0}))}
     if(B.recs!==undefined){if(!Array.isArray(B.recs))throw new Error('ساختار تکرارشونده‌ها نامعتبر است.');nb.recs=B.recs.slice(0,100).filter(r=>_isPlainObj(r)).map(r=>({id:_sId(r.id,'rc'),t:_sStr(r.t,100),c:_sId(r.c,'bill'),a:_sNum(r.a,0,1e14,0),d:Math.round(_sNum(r.d,1,31,1)),acc:_sId(r.acc||'acc_main','acc')}))}
     if(B.sGoals!==undefined){if(!Array.isArray(B.sGoals))throw new Error('ساختار اهداف پس‌انداز نامعتبر است.');nb.sGoals=B.sGoals.slice(0,100).filter(g=>_isPlainObj(g)).map(g=>({id:_sId(g.id,'sg'),t:_sStr(g.t,120),target:_sNum(g.target,0,1e14,0),saved:_sNum(g.saved,0,1e14,0),mTarget:_sNum(g.mTarget,0,1e14,0)}))}
-    if(B.customCats!==undefined){if(!Array.isArray(B.customCats))throw new Error('ساختار سرفصل‌های دلخواه نامعتبر است.');nb.customCats=B.customCats.slice(0,100).filter(c=>_isPlainObj(c)).map(c=>({id:_sId(c.id,'cc'),l:_sStr(c.l,60)||'سرفصل',t:c.t==='in'?'in':'ex'}if(B.trades!==undefined){
+    if(B.customCats!==undefined){if(!Array.isArray(B.customCats))throw new Error('ساختار سرفصل‌های دلخواه نامعتبر است.');nb.customCats=B.customCats.slice(0,100).filter(c=>_isPlainObj(c)).map(c=>({id:_sId(c.id,'cc'),l:_sStr(c.l,60)||'سرفصل',t:c.t==='in'?'in':'ex'}))}
+    if(B.trades!==undefined){
       if(!Array.isArray(B.trades))throw new Error('ساختار معاملات دارایی نامعتبر است.');
       nb.trades=B.trades.slice(0,500).filter(tr=>_isPlainObj(tr)&&['buy','sell','swap'].includes(tr.tp)).map(tr=>tr.tp==='swap'
         ?{id:_sId(tr.id,'trd'),tp:'swap',dt:_sStr(tr.dt,40),fromAs:_sId(tr.fromAs,'as'),toAs:_sId(tr.toAs,'as'),fromQty:_sNum(tr.fromQty,0,1e12,0),toQty:_sNum(tr.toQty,0,1e12,0)}
