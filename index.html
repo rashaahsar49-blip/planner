@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-2sV5JT5uTfeXi6TaDgVRnfx0R0BDOKVsg12iMANRC2o='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-vq3qfBukLHyMKg9DFQcYP1Bihu60F7AKNwuXWYnUbyY='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>پلنر هفتگی</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -2016,18 +2016,15 @@ button.p.btn-plus{
   </div>
 </div>
 <div class="mdl-bg" id="catPickMdl" role="dialog" aria-modal="true">
-  <div class="cd mdl" style="max-width:560px;background:var(--sf)">
-    <div class="row sb"><h2 style="margin:0">📂 انتخاب و مدیریت سرفصل‌های تراکنش</h2><button class="x" aria-label="بستن پنجره" data-cls="catPickMdl">✕</button></div>
+  <div class="cd mdl" style="max-width:520px;background:var(--sf)">
+    <div class="row sb"><h2 style="margin:0">📂 انتخاب سرفصل تراکنش</h2><button class="x" aria-label="بستن پنجره" data-cls="catPickMdl">✕</button></div>
     <div class="cp-tabs" id="cpTabs">
       <button type="button" data-a="bCatPickTab" data-v="ex" class="on">🔴 هزینه‌ها</button>
       <button type="button" data-a="bCatPickTab" data-v="in">🟢 درآمدها</button>
     </div>
-    <div class="row fw" style="margin-bottom:8px;gap:6px">
-      <input type="text" id="cpSrch" class="f1" style="min-width:160px" placeholder="🔍 جستجوی سرفصل یا دسته اصلی..." autocomplete="off">
-      <button type="button" class="p" data-a="cpToggleMode" data-v="child" style="white-space:nowrap;font-size:0.75rem">+ زیردسته جدید</button>
-      <button type="button" data-a="cpToggleMode" data-v="group" style="white-space:nowrap;font-size:0.75rem">+ دسته اصلی جدید</button>
+    <div class="row" style="margin-bottom:10px">
+      <input type="text" id="cpSrch" placeholder="🔍 جستجوی سریع سرفصل (مثلاً: کافه، بنزین، حقوق)..." autocomplete="off">
     </div>
-    <div id="cpFormBox" style="display:none;background:var(--sf2);border:1.5px solid var(--ac);border-radius:15px;padding:11px;margin-bottom:10px"></div>
     <div class="cp-body" id="cpBody"></div>
   </div>
 </div>
@@ -2536,8 +2533,7 @@ function validatePlannerData(obj){
     if(B.debts!==undefined){if(!Array.isArray(B.debts))throw new Error('ساختار طلب و بدهی نامعتبر است.');nb.debts=B.debts.slice(0,500).filter(d=>_isPlainObj(d)).map(d=>({id:_sId(d.id,'d'),person:_sStr(d.person,100),tp:d.tp==='bedehi'?'bedehi':'talab',a:_sNum(d.a,0,1e14,0),note:_sStr(d.note,200),dt:_sStr(d.dt,40),done:d.done?1:0}))}
     if(B.recs!==undefined){if(!Array.isArray(B.recs))throw new Error('ساختار تکرارشونده‌ها نامعتبر است.');nb.recs=B.recs.slice(0,100).filter(r=>_isPlainObj(r)).map(r=>({id:_sId(r.id,'rc'),t:_sStr(r.t,100),c:_sId(r.c,'bill'),a:_sNum(r.a,0,1e14,0),d:Math.round(_sNum(r.d,1,31,1)),acc:_sId(r.acc||'acc_main','acc')}))}
     if(B.sGoals!==undefined){if(!Array.isArray(B.sGoals))throw new Error('ساختار اهداف پس‌انداز نامعتبر است.');nb.sGoals=B.sGoals.slice(0,100).filter(g=>_isPlainObj(g)).map(g=>({id:_sId(g.id,'sg'),t:_sStr(g.t,120),target:_sNum(g.target,0,1e14,0),saved:_sNum(g.saved,0,1e14,0),mTarget:_sNum(g.mTarget,0,1e14,0)}))}
-    if(B.customCats!==undefined){if(!Array.isArray(B.customCats))throw new Error('ساختار سرفصل‌های دلخواه نامعتبر است.');nb.customCats=B.customCats.slice(0,200).filter(c=>_isPlainObj(c)).map(c=>({id:_sId(c.id,'cc'),l:_sStr(c.l,60)||'سرفصل',t:c.t==='in'?'in':'ex',kind:['group','child'].includes(c.kind)?c.kind:(c.parentId?'child':(c.groupId?'group':'legacy')),parentId:typeof c.parentId==='string'?_sId(c.parentId,'cc'):'',groupId:typeof c.groupId==='string'?_sId(c.groupId,'cg'):'',groupName:_sStr(c.groupName,60),color:/^#[0-9a-fA-F]{6}$/.test(c.color||'')?c.color:'#64748b'}))}
-    if(B.trades!==undefined){
+    if(B.customCats!==undefined){if(!Array.isArray(B.customCats))throw new Error('ساختار سرفصل‌های دلخواه نامعتبر است.');nb.customCats=B.customCats.slice(0,100).filter(c=>_isPlainObj(c)).map(c=>({id:_sId(c.id,'cc'),l:_sStr(c.l,60)||'سرفصل',t:c.t==='in'?'in':'ex'}if(B.trades!==undefined){
       if(!Array.isArray(B.trades))throw new Error('ساختار معاملات دارایی نامعتبر است.');
       nb.trades=B.trades.slice(0,500).filter(tr=>_isPlainObj(tr)&&['buy','sell','swap'].includes(tr.tp)).map(tr=>tr.tp==='swap'
         ?{id:_sId(tr.id,'trd'),tp:'swap',dt:_sStr(tr.dt,40),fromAs:_sId(tr.fromAs,'as'),toAs:_sId(tr.toAs,'as'),fromQty:_sNum(tr.fromQty,0,1e12,0),toQty:_sNum(tr.toQty,0,1e12,0)}
@@ -2875,7 +2871,7 @@ else if(f=='asq'){const as=B.assets.find(x=>x.id==t.dataset.id);if(as){as.q=Math
 else if(f=='asp'){const as=B.assets.find(x=>x.id==t.dataset.id);if(as){as.p=Math.max(0,+t.value||0);if(['g18','usdt','coin','hcoin','qcoin','btc'].includes(as.id))MKT()[as.id]=as.p;save()}}});
 document.addEventListener('change',e=>{const f=e.target.dataset.f;if(f=='bl'||f=='bg'||f=='asq'||f=='asp'||f=='insam')rr()});
 const GR_RAW=[
-['food','خوراک و روزمره','#f59e0b','ex','sup:سوپرمارکت|brd:نان|frt:میوه و سبزیجات|snk:تنقلات|rest:رستوران|cafe:کافه|fdo:سفارش آنلاین|food:سایر خوراک'],
+['food','خوراک و روزمره','#f59e0b','ex','sup:سوپرمارکت|brd:نان|frt:میوه|veg:سبزیجات و صیفی‌جات|snk:تنقلات|rest:رستوران|cafe:کافه|fdo:سفارش آنلاین|food:سایر خوراک'],
 ['trans','حمل‌ونقل','#3b82f6','ex','taxi:اسنپ و تپسی|bus:مترو و اتوبوس|fuel:بنزین|park:پارکینگ|csv:تعمیر خودرو|trans:سایر رفت‌وآمد'],
 ['bill','مسکن و قبوض','#6366f1','ex','rent:اجاره/قسط مسکن|elec:برق|wtr:آب|gas:گاز|chg:شارژ ساختمان|bill:سایر قبوض'],
 ['net','دیجیتال و اشتراک','#0d9488','ex','inet:اینترنت خانگی|mob:شارژ و بسته|sub:اشتراک‌ها|ai:ابزار هوش مصنوعی|net:سایر دیجیتال'],
@@ -2883,7 +2879,7 @@ const GR_RAW=[
 ['health','سلامت و ورزش','#10b981','ex','doc:ویزیت و درمان|drg:دارو|gym:باشگاه و ورزش|health:سایر سلامت'],
 ['fun','تفریح و فراغت','#eab308','ex','mov:سینما و رویداد|trv:سفر|out:گردش|fun:سایر تفریح'],
 ['edu','آموزش و رشد','#84cc16','ex','crs:دوره آموزشی|bk:کتاب|tui:شهریه|edu:سایر آموزش'],
-['fam','خانواده','#a855f7','ex','chd:فرزند|chr:نیکوکاری|pty:مهمانی|fam:سایر خانواده'],
+['fam','خانواده','#a855f7','ex','chd:فرزند|sp:همسر|chr:نیکوکاری|pty:مهمانی|fam:سایر خانواده'],
 ['fin','تعهدات مالی و وام','#64748b','ex','lon:قسط وام|dbt:بازپرداخت بدهی|tax:مالیات|fin:سایر مالی'],
 ['work','هزینه‌های شغلی','#d97706','ex','wtl:ابزار کار|ads:تبلیغات|work:سایر کاری'],
 ['oth','متفرقه','#94a3b8','ex','oth:سایر هزینه‌ها'],
@@ -2893,14 +2889,7 @@ const GR_RAW=[
 ['oi','سایر واریزی‌ها','#d97706','in','gin:هدیه نقدی|rfd:بازگشت وجه|oi:سایر درآمدها']];
 const GR=GR_RAW.map(g=>[g[0],g[1],g[2],g[3],g[4].split('|').map(s=>s.split(':'))]);
 const CC={};GR.forEach(g=>g[4].forEach(i=>CC[i[0]]={l:i[1],g:g[0],t:g[3]}));
-const isIn=c=>!!CC[c]&&CC[c].t=='in';
-let GXs=GR.filter(g=>g[3]=='ex');
-const catL=c=>{
-  const parts=[],seen=new Set();let cur=CC[c];
-  while(cur&&!seen.has(cur)){seen.add(cur);parts.unshift(cur.l);cur=cur.parentId?CC[cur.parentId]:null}
-  return parts.length?parts.join(' › '):c;
-};
-const gOf=c=>CC[c]?CC[c].g:'oth';
+const isIn=c=>!!CC[c]&&CC[c].t=='in',GXs=GR.filter(g=>g[3]=='ex'),catL=c=>CC[c]?CC[c].l:c,gOf=c=>CC[c]?CC[c].g:'oth';
 const clamp=(x,a=0,b=100)=>Math.max(a,Math.min(b,x)),pvM=(y,m,k=1)=>{m-=k;while(m<1){m+=12;y--}return{y,m}};
 function mdat(y,m){const pm=pvM(y,m,1),raw=BD().tx[y+'-'+m]||[],prevRaw=BD().tx[pm.y+'-'+pm.m]||[],carriedInc=prevRaw.filter(t=>isIn(t.c)&&t.forNext).map(t=>({...t,d:1,_fromPrev:true,_origD:t.d,_origK:pm.y+'-'+pm.m})),inc=raw.filter(t=>isIn(t.c)&&!t.forNext).concat(carriedInc),ex=raw.filter(t=>!isIn(t.c)),tx=raw.filter(t=>!(isIn(t.c)&&t.forNext)).concat(carriedInc);return{tx,inc,ex,I:sm_(inc.map(t=>t.a)),E:sm_(ex.map(t=>t.a)),n:ML(y,m),carriedInc}}
 const gs=(arr,gid)=>sm_(arr.filter(t=>gOf(t.c)==gid).map(t=>t.a)),dl=(a,b)=>b>0?Math.round(100*(a-b)/b):null;
@@ -5496,39 +5485,14 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
   }
 
   function syncCustomCats(B){
-    const list=Array.isArray(B.customCats)?B.customCats:[];
-    // نسخه‌های قدیمی ممکن است kind را نداشته باشند؛ از parentId/groupId نوع را بازیابی می‌کنیم.
-    const kindOf=c=>['group','child'].includes(c.kind)?c.kind:(c.parentId?'child':(c.groupId?'group':'legacy'));
-    const customIds=new Set(list.map(c=>c.id));
-    const customGroupIds=new Set(list.filter(c=>kindOf(c)==='group'&&c.groupId).map(c=>c.groupId));
-    for(const id of customIds)delete CC[id];
-    for(let i=GR.length-1;i>=0;i--)if(customGroupIds.has(GR[i][0]))GR.splice(i,1);
-    // گروه‌های سفارشی؛ groupId پایدار است و نباید به متفرقه نگاشت شود.
-    list.filter(c=>kindOf(c)==='group').forEach(c=>{
-      const gid=c.groupId||('cg_'+c.id);
-      if(!GR.some(g=>g[0]===gid))GR.push([gid,c.groupName||c.l,c.color||'#64748b',c.t,[[c.id,c.l]]]);
-      CC[c.id]={l:c.l,g:gid,t:c.t,parentId:null};
-    });
-    // فقط رکوردهای واقعاً قدیمی و فاقد هرگونه شناسه گروه در متفرقه قرار می‌گیرند.
-    list.filter(c=>kindOf(c)==='legacy').forEach(c=>{
-      const gid=c.t==='in'?'oi':'oth',g=GR.find(x=>x[0]===gid);
-      if(g&&!g[4].some(x=>x[0]===c.id))g[4].push([c.id,c.l]);
-      CC[c.id]={l:c.l,g:gid,t:c.t,parentId:null};
-    });
-    // زیردسته‌ها؛ در صورت نبود والد، از groupId ذخیره‌شده برای بازیابی گروه استفاده می‌کنیم.
-    list.filter(c=>kindOf(c)==='child').forEach(c=>{
-      const parent=CC[c.parentId];
-      let gid=parent?parent.g:(c.groupId|| (c.t==='in'?'oi':'oth'));
-      let g=GR.find(x=>x[0]===gid);
-      if(!g&&c.groupId){
-        g=[gid,c.groupName||'دستهٔ بازیابی‌شده',c.color||'#64748b',c.t,[]];GR.push(g);
-      }
-      if(g){
-        if(!g[4].some(x=>x[0]===c.id))g[4].push([c.id,c.l]);
-        CC[c.id]={l:c.l,g:gid,t:g[3],parentId:parent?c.parentId:null};
+    const list=B.customCats||[];
+    list.forEach(c=>{
+      if(!CC[c.id]){
+        const targetGrp=GR.find(g=>g[0]===(c.t==='in'?'oi':'oth'));
+        if(targetGrp&&!targetGrp[4].some(x=>x[0]===c.id))targetGrp[4].push([c.id,c.l]);
+        CC[c.id]={l:c.l,g:c.t==='in'?'oi':'oth',t:c.t};
       }
     });
-    GXs=GR.filter(g=>g[3]==='ex');
   }
 
   function ensureWealthDB(){
@@ -6041,19 +6005,9 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
     <div class="cd">
       <div class="row sb fw" style="margin-bottom:8px">
         <h2 style="margin:0">➕ ثبت دقیق تراکنش (همراه با انتخاب کارت و تگ #)</h2>
-        <button type="button" data-a="bAddCustomCat" style="font-size:0.7188rem">+ ساخت دسته / زیردسته</button>
+        <button data-a="bAddCustomCat" style="font-size:0.7188rem">+ افزودن سرفصل دلخواه</button>
       </div>
-      <div id="catMgrPanel" class="cat-mgr-panel" hidden>
-        <div class="row fw">
-          <select id="bcKind" aria-label="نوع سرفصل" style="min-width:135px"><option value="group">دسته اصلی جدید</option><option value="child">زیردسته جدید</option></select>
-          <select id="bcType" aria-label="نوع دسته" style="min-width:110px"><option value="ex">هزینه</option><option value="in">درآمد</option></select>
-          <select id="bcParent" aria-label="دسته مادر" style="display:none;min-width:180px" disabled>
-            ${GR.map(g=>`<optgroup label="${g[3]==='in'?'درآمد':'هزینه'} — ${esc(g[1])}">${g[4].map(it=>`<option value="${esc(it[0])}">${esc(catL(it[0]))}</option>`).join('')}</optgroup>`).join('')}
-          </select>
-          <input type="text" id="bcName" maxlength="60" placeholder="نام دسته یا زیردسته جدید..." class="f1" style="min-width:150px">
-          <button type="button" class="p" data-a="bCatCreate">ایجاد</button>
-        </div>
-        <div class="mu">برای زیردسته، دستهٔ مادر را انتخاب کن؛ می‌توانی زیر هر سرفصل موجود، حتی زیردسته‌های قبلی، سطح جدید بسازی.</div>
+      <div class="mu">برای زیردسته، دستهٔ مادر را انتخاب کن؛ می‌توانی زیر هر سرفصل موجود، حتی زیردسته‌های قبلی، سطح جدید بسازی.</div>
       </div>
       <div class="row fw">
         <input type="number" id="bdy" min="1" max="${n}" value="${cd||1}" style="width:62px" title="روز ماه">
@@ -6650,29 +6604,12 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
       $('txEditMdl').classList.add('on');
     }
     else if(a==='bAddCustomCat'){
-      const panel=$('catMgrPanel');if(panel){panel.hidden=!panel.hidden;if(!panel.hidden)$('bcName')?.focus()}
-      return;
-    }
-    else if(a==='bCatCreate'){
-      const lbl=($('bcName')?.value||'').trim(),kind=$('bcKind')?.value||'group';
-      if(!lbl)return notifyMsg('نام دسته یا زیردسته را وارد کنید.');
-      B.customCats=B.customCats||[];
-      if(B.customCats.length>=200)return notifyMsg('حداکثر ۲۰۰ سرفصل سفارشی قابل تعریف است.');
-      if(kind==='child'){
-        const parentId=$('bcParent')?.value,parent=CC[parentId];
-        if(!parent)return notifyMsg('ابتدا دستهٔ مادر معتبر را انتخاب کنید.');
-        if(Object.values(CC).some(c=>c.l.toLowerCase()===lbl.toLowerCase()&&c.parentId===parentId))return notifyMsg('این زیردسته زیر همین دسته از قبل وجود دارد.');
-        const cid='cc_'+Date.now().toString(36)+'_'+genRandHex(3);
-        B.customCats.push({id:cid,l:lbl,t:parent.t,kind:'child',parentId,groupId:parent.g});
-      }else{
-        const t=$('bcType')?.value==='in'?'in':'ex';
-        if(Object.values(CC).some(c=>c.l.toLowerCase()===lbl.toLowerCase()&&!c.parentId))return notifyMsg('دسته‌ای با این نام از قبل وجود دارد.');
-        const cid='cc_'+Date.now().toString(36)+'_'+genRandHex(3),gid='cg_'+Date.now().toString(36)+'_'+genRandHex(2);
-        B.customCats.push({id:cid,l:lbl,t,kind:'group',groupId:gid,groupName:lbl,color:t==='in'?'#0d9488':'#64748b'});
-      }
-      syncCustomCats(B);window._lastPickCat=B.customCats[B.customCats.length-1].id;
-      save();render();
-      if(window.showToast)showToast(`«${lbl}» با موفقیت ایجاد شد ✓`);
+      const lbl=prompt('نام سرفصل دلخواه (مثلاً: ترید، حیوان خانگی، کمیسیون):');if(!lbl||!lbl.trim())return;
+      const isIncome=confirm('آیا این سرفصل از نوع «درآمد» است؟\n(OK = درآمد | Cancel = هزینه)');
+      const cid='cc_'+Date.now();
+      B.customCats.push({id:cid,l:lbl.trim(),t:isIncome?'in':'ex'});
+      syncCustomCats(B);save();render();
+      if(window.showToast)showToast(`سرفصل «${lbl.trim()}» اضافه شد ✓`);
     }
     else if(a==='bAccAdd'){
       const n=prompt('نام کارت یا حساب جدید (مثلاً: بانک ملت، نقد...):');if(!n)return;
@@ -9762,9 +9699,7 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
 })();
 
 (function initCatPicker(){
-  let cpType='ex',cpFormMode='',cpTargetCatOrGrp='';
-  const PAL=['#2563eb','#0d9488','#7c3aed','#f59e0b','#ec4899','#10b981','#0284c7','#e11d48','#6366f1','#d97706'];
-
+  let cpType='ex';
   function updateCatBtn(cid){
     const inp=$('bcat'),btn=$('bcatBtn');
     if(!inp||!CC[cid])return;
@@ -9784,78 +9719,19 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
     if(inp&&inp.value)updateCatBtn(inp.value);
   };
 
-  function collectParentCandidates(tp){
-    const out=[];
-    GR.filter(g=>g[3]===tp).forEach(g=>{
-      // Add main group's first item as group anchor and each subcategory under it
-      g[4].forEach(it=>{
-        if(CC[it[0]])out.push({id:it[0],lbl:`${g[1]} › ${catL(it[0])}`});
-      });
-    });
-    return out;
-  }
-
-  function renderCpForm(){
-    const box=$('cpFormBox');if(!box)return;
-    if(!cpFormMode){box.style.display='none';box.innerHTML='';return}
-    box.style.display='block';
-    const tpLbl=cpType==='in'?'🟢 درآمد':'🔴 هزینه';
-    if(cpFormMode==='child'){
-      const cands=collectParentCandidates(cpType);
-      const defP=(cpTargetCatOrGrp&&cands.some(x=>x.id===cpTargetCatOrGrp))?cpTargetCatOrGrp:(cands[0]?.id||'oth');
-      box.innerHTML=`<div class="row sb" style="margin-bottom:7px"><b style="font-size:0.8125rem;color:var(--ac)">➕ ساخت زیردسته در هر دستهٔ دلخواه (${tpLbl})</b><button type="button" class="x" data-a="cpToggleMode" data-v="">✕</button></div>
-        <div class="row fw" style="margin-bottom:0">
-          <select id="cpParentSel" class="f1" style="min-width:165px">${cands.map(c=>`<option value="${esc(c.id)}" ${c.id===defP?'selected':''}>والد: ${esc(c.lbl)}</option>`).join('')}</select>
-          <input type="text" id="cpChildInp" class="f1" style="min-width:155px" maxlength="60" placeholder="نام زیردسته جدید (مثلاً: قهوه، قسط خودرو)...">
-          <button type="button" class="p" data-a="cpCreateChild">ایجاد زیردسته</button>
-        </div>`;
-      setTimeout(()=>$('cpChildInp')?.focus(),30);
-    }else if(cpFormMode==='group'){
-      box.innerHTML=`<div class="row sb" style="margin-bottom:7px"><b style="font-size:0.8125rem;color:var(--ac)">📁 ساخت دستهٔ اصلی جدید (${tpLbl})</b><button type="button" class="x" data-a="cpToggleMode" data-v="">✕</button></div>
-        <div class="row fw" style="margin-bottom:0">
-          <input type="text" id="cpGrpInp" class="f1" style="min-width:165px" maxlength="60" placeholder="نام دسته اصلی جدید (مثلاً: حیوان خانگی، پروژه)...">
-          <input type="color" id="cpGrpCol" value="${PAL[GR.length%PAL.length]}" title="رنگ دسته اصلی" style="width:42px;height:36px;padding:2px;border-radius:9px;border:1px solid var(--bd2);background:var(--sf);cursor:pointer;flex:none">
-          <button type="button" class="p" data-a="cpCreateGroup">ایجاد دسته اصلی</button>
-        </div>`;
-      setTimeout(()=>$('cpGrpInp')?.focus(),30);
-    }
-  }
-
   function renderCatPicker(){
     const body=$('cpBody');if(!body)return;
-    const B=BD();
-    const custList=Array.isArray(B.customCats)?B.customCats:[];
-    const custIds=new Set(custList.map(x=>x.id));
-    const custGids=new Set(custList.filter(x=>x.kind==='group'&&x.groupId).map(x=>x.groupId));
     const qStr=($('cpSrch')?.value||'').trim().toLowerCase();
     const curVal=$('bcat')?.value||'sup';
     document.querySelectorAll('#cpTabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===cpType));
-    renderCpForm();
     const groups=GR.filter(g=>qStr?true:(g[3]===cpType));
     let out='';
     groups.forEach(g=>{
-      const grpMatch=qStr&&g[1].toLowerCase().includes(qStr);
-      const items=g[4].filter(it=>!qStr||grpMatch||catL(it[0]).toLowerCase().includes(qStr)||g[1].toLowerCase().includes(qStr));
-      if(!items.length&&!grpMatch)return;
-      const firstCatId=g[4][0]?.[0]||'';
-      const canDelGrp=custGids.has(g[0]);
+      const items=g[4].filter(it=>!qStr||it[1].toLowerCase().includes(qStr)||g[1].toLowerCase().includes(qStr));
+      if(!items.length)return;
       out+=`<div class="cp-grp-box">
-        <div class="cp-grp-hdr">
-          <i style="background:${g[2]}"></i>
-          <span>${esc(g[1])}</span>
-          ${qStr?`<small class="mu">(${g[3]==='in'?'درآمد':'هزینه'})</small>`:''}
-          <span style="margin-right:auto;display:inline-flex;align-items:center;gap:4px">
-            <button type="button" class="x" data-a="cpQuickChild" data-p="${esc(firstCatId)}" data-t="${esc(g[3])}" style="font-size:0.6875rem;color:var(--ac);padding:2px 7px">+ زیردسته</button>
-            ${canDelGrp?`<button type="button" class="x" data-a="cpDelGrp" data-g="${esc(g[0])}" title="حذف دسته اصلی سفارشی" style="color:var(--er);padding:2px 6px">✕</button>`:''}
-          </span>
-        </div>
-        <div class="cp-chips">${items.map(it=>{
-          const isCust=custIds.has(it[0]);
-          return `<span style="display:inline-flex;align-items:center;gap:2px">
-            <button type="button" class="cp-chip ${curVal===it[0]?'on':''}" data-a="bCatPickSel" data-v="${esc(it[0])}">${esc(catL(it[0]))}</button>
-            ${isCust?`<button type="button" class="x" data-a="cpDelItem" data-v="${esc(it[0])}" title="حذف سرفصل سفارشی" style="padding:2px 5px;color:var(--er);font-size:0.6875rem">✕</button>`:''}
-          </span>`;
-        }).join('')}</div>
+        <div class="cp-grp-hdr"><i style="background:${g[2]}"></i><span>${esc(g[1])}</span>${qStr?`<small class="mu" style="margin-right:auto">(${g[3]==='in'?'درآمد':'هزینه'})</small>`:''}</div>
+        <div class="cp-chips">${items.map(it=>`<button type="button" class="cp-chip ${curVal===it[0]?'on':''}" data-a="bCatPickSel" data-v="${esc(it[0])}">${esc(it[1])}</button>`).join('')}</div>
       </div>`;
     });
     body.innerHTML=out||'<div class="mu" style="text-align:center;padding:18px">سرفصلی با این عبارت پیدا نشد.</div>';
@@ -9867,94 +9743,24 @@ setInterval(()=>{if(document.visibilityState==='visible'&&getGh().t&&!_ghInFligh
     if(a==='bCatPickOpen'){
       const cur=$('bcat')?.value||'sup';
       cpType=isIn(cur)?'in':'ex';
-      cpFormMode='';
-      cpTargetCatOrGrp=cur;
       if($('cpSrch'))$('cpSrch').value='';
       renderCatPicker();
       $('catPickMdl')?.classList.add('on');
       setTimeout(()=>$('cpSrch')?.focus(),60);
     }else if(a==='bCatPickTab'){
       cpType=b.dataset.v||'ex';
-      cpTargetCatOrGrp='';
       renderCatPicker();
-    }else if(a==='cpToggleMode'){
-      const m=b.dataset.v||'';
-      cpFormMode=(cpFormMode===m&&m)?'':m;
-      if(!cpTargetCatOrGrp)cpTargetCatOrGrp=$('bcat')?.value||'sup';
-      renderCatPicker();
-    }else if(a==='cpQuickChild'){
-      cpType=b.dataset.t||cpType;
-      cpTargetCatOrGrp=b.dataset.p||'';
-      cpFormMode='child';
-      renderCatPicker();
-    }else if(a==='cpCreateChild'){
-      const lbl=($('cpChildInp')?.value||'').trim(),parentId=$('cpParentSel')?.value,parent=CC[parentId];
-      if(!lbl)return notifyMsg('نام زیردسته را وارد کنید.');
-      if(!parent)return notifyMsg('دستهٔ مادر انتخاب‌شده معتبر نیست.');
-      const B=BD();B.customCats=B.customCats||[];
-      if(B.customCats.length>=200)return notifyMsg('حداکثر ۲۰۰ سرفصل سفارشی قابل تعریف است.');
-      const cid='cc_'+Date.now().toString(36)+'_'+genRandHex(3);
-      B.customCats.push({id:cid,l:lbl,t:parent.t,kind:'child',parentId,groupId:parent.g});
-      if(typeof syncCustomCats==='function')syncCustomCats(B);
-      save();
-      if(typeof render==='function')render();
-      cpFormMode='';
-      updateCatBtn(cid);
-      renderCatPicker();
-      if(window.showToast)showToast(`زیردسته «${lbl}» ساخته شد ✓`);
-    }else if(a==='cpCreateGroup'){
-      const lbl=($('cpGrpInp')?.value||'').trim(),col=$('cpGrpCol')?.value||'#0284c7';
-      if(!lbl)return notifyMsg('نام دسته اصلی را وارد کنید.');
-      const B=BD();B.customCats=B.customCats||[];
-      if(B.customCats.length>=200)return notifyMsg('حداکثر ۲۰۰ سرفصل سفارشی قابل تعریف است.');
-      const cid='cc_'+Date.now().toString(36)+'_'+genRandHex(3),gid='cg_'+Date.now().toString(36)+'_'+genRandHex(2);
-      B.customCats.push({id:cid,l:lbl,t:cpType,kind:'group',groupId:gid,groupName:lbl,color:col});
-      if(typeof syncCustomCats==='function')syncCustomCats(B);
-      save();
-      if(typeof render==='function')render();
-      cpFormMode='';
-      updateCatBtn(cid);
-      renderCatPicker();
-      if(window.showToast)showToast(`دسته اصلی «${lbl}» ساخته شد ✓`);
-    }else if(a==='cpDelItem'){
-      const cid=b.dataset.v,B=BD();
-      if(!confirm(`زیردسته «${catL(cid)}» حذف شود؟`))return;
-      if(window.pushUndo)pushUndo('cpDelItem');
-      B.customCats=(B.customCats||[]).filter(x=>x.id!==cid&&x.parentId!==cid);
-      if(typeof syncCustomCats==='function')syncCustomCats(B);
-      if($('bcat')?.value===cid)updateCatBtn(cpType==='in'?'sal':'sup');
-      save();if(typeof render==='function')render();renderCatPicker();
-      if(window.showToast)showToast('حذف شد',true);
-    }else if(a==='cpDelGrp'){
-      const gid=b.dataset.g,B=BD();
-      const grpObj=GR.find(g=>g[0]===gid);
-      if(!confirm(`دسته اصلی «${grpObj?grpObj[1]:gid}» و سرفصل‌های وابسته به آن حذف شوند؟`))return;
-      if(window.pushUndo)pushUndo('cpDelGrp');
-      B.customCats=(B.customCats||[]).filter(x=>x.groupId!==gid);
-      if(typeof syncCustomCats==='function')syncCustomCats(B);
-      if(!CC[$('bcat')?.value])updateCatBtn(cpType==='in'?'sal':'sup');
-      save();if(typeof render==='function')render();renderCatPicker();
-      if(window.showToast)showToast('دسته اصلی حذف شد',true);
     }else if(a==='bCatPickSel'){
       updateCatBtn(b.dataset.v);
       $('catPickMdl')?.classList.remove('on');
       setTimeout(()=>$('bam')?.focus(),40);
     }
   });
-  document.addEventListener('keydown',e=>{
-    if(e.key==='Enter'){
-      if(e.target?.id==='cpChildInp'){e.preventDefault();q('[data-a="cpCreateChild"]')?.click()}
-      else if(e.target?.id==='cpGrpInp'){e.preventDefault();q('[data-a="cpCreateGroup"]')?.click()}
-    }
-  });
-  document.addEventListener('click',e=>{
-    const b=e.target.closest('[data-a="bAddCustomCat"]');if(!b)return;
-    const sel=$('bcParent');if(!sel)return;
-    sel.innerHTML=GR.map(g=>`<optgroup label="${g[3]==='in'?'درآمد':'هزینه'} — ${esc(g[1])}">${g[4].map(it=>`<option value="${esc(it[0])}">${esc(catL(it[0]))}</option>`).join('')}</optgroup>`).join('');
-  });
   if($('cpSrch'))$('cpSrch').addEventListener('input',renderCatPicker);
   if($('catPickMdl'))$('catPickMdl').addEventListener('click',e=>{if(e.target===$('catPickMdl'))$('catPickMdl').classList.remove('on')});
-})();;(function(){
+})();
+
+;(function(){
   // ==================== v49: پایداری کامل تایمر با شناسه پایدار، محافظت قطعی از اولویت بالا و همزمانی یادداشت ====================
   const DOMAINS=[
     {id:'home',lbl:'خانه',tabs:['ov'],ic:'<svg class="nv-ic" viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V9.5z"/></svg>'},
