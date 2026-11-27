@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-/omV51YK/LbSIgFX3AnEY3Y1Mgo87rkm5cJnPhBuhoE='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-QQTihw/D7cGQ9qw6oxT5WyNzAps1sqCzE285zagO2jQ='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'self';">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>پلنر هفتگی</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -2254,7 +2254,7 @@ async function reqWake(on){try{if(on&&'wakeLock' in navigator&&!wakeLock)wakeLoc
 function getGh(){return{u:localStorage.getItem('wp26_gh_u')||'',r:localStorage.getItem('wp26_gh_r')||'',t:localStorage.getItem('wp26_gh_t')||''}}
 function setSyStatus(st,txt,msg){const d=$('syDot'),l=$('syTxt'),m=$('syMsg');if(d)d.className='s-dot '+(st||'');if(l&&txt)l.textContent=txt;if(m&&msg!==undefined)m.textContent=msg}
 function scheduleSync(){if(booting)return;const g=getGh();if(!g.u||!g.r||!g.t)return;setSyStatus('wait','...');clearTimeout(syTimer);syTimer=setTimeout(pushCloud,1500)}
-const save=()=>{S._updatedAt=Date.now();try{localStorage.setItem('wp26',JSON.stringify(S))}catch(e){};scheduleSync()};
+const save=()=>{S._updatedAt=Date.now();try{const payload=JSON.stringify(S);localStorage.setItem('wp26',payload)}catch(e){const quota=!!(e&&(e.name==='QuotaExceededError'||e.code===22||e.code===1014));const msg=quota?'ذخیره‌سازی انجام نشد؛ فضای ذخیره‌سازی مرورگر پر است. برای جلوگیری از ازدست‌رفتن اطلاعات، از بخش پشتیبان‌گیری خروجی بگیرید و فضا آزاد کنید.':'ذخیره‌سازی انجام نشد؛ مرورگر اجازهٔ نوشتن در حافظه را نداد. تنظیمات حریم خصوصی یا فضای ذخیره‌سازی را بررسی کنید.';if(window.notifyMsg)window.notifyMsg(msg);else if(window.showToast)window.showToast(msg);else alert(msg);return false}scheduleSync();return true};
 const sat=d=>{d=new Date(d);d.setHours(12,0,0,0);d.setDate(d.getDate()-((d.getDay()+1)%7));return d};
 let ws=sat(new Date),tab='ov',di=((new Date().getDay()+1)%7);
 const key=()=>ws.toISOString().slice(0,10);
